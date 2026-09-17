@@ -1,0 +1,46 @@
+{
+  "name": "renta-plus",
+  "version": "0.1.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "db:push": "supabase db push",
+    "db:diff": "supabase db diff -f"
+  },
+  "dependencies": {
+    "expo": "57.0.21",
+    "expo-router": "^6.0.0",
+    "expo-status-bar": "~2.2.0",
+    "expo-linking": "^8.0.0",
+    "expo-constants": "^18.0.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "^5.1.0",
+    "react-native-screens": "^4.4.0",
+    "@supabase/supabase-js": "^2",
+    "nativewind": "^4.1.0",
+    "react-native-chart-kit": "^6.12.0",
+    "react-native-svg": "^15.9.0",
+    "@react-native-async-storage/async-storage": "^2.1.0",
+    "react-native-url-polyfill": "^2.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.0",
+    "@types/react": "~19.2.0",
+    "typescript": "~5.9.0",
+    "tailwindcss": "^3.4.0",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}

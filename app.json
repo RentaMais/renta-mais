@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Renta+",
+    "slug": "renta-plus",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F3E3"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.rentaplus.app"
+    },
+    "android": {
+      "package": "com.rentaplus.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F7F3E3"
+      }
+    },
+    "plugins": ["expo-router"],
+    "scheme": "rentaplus"
+  }
+}
