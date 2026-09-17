@@ -15,7 +15,7 @@ Instale, nessa ordem:
    - Windows: use o **nvm-windows** — https://github.com/coreybutler/nvm-windows
 3. **VS Code** (editor recomendado): https://code.visualstudio.com/
 4. **Expo Go** no seu celular (Android/iOS), pela loja de aplicativos. É o
-   app que abre o Renta+ durante o desenvolvimento, sem precisar compilar nada.
+   app que abre o + durante o desenvolvimento, sem precisar compilar nada.
 
 Depois de instalar o nvm, feche e reabra o terminal antes de continuar.
 
@@ -27,18 +27,18 @@ convite antes de continuar.
 ### Se o repositório ainda não existe (primeira pessoa a configurar)
 
 1. No site do GitHub, dentro da organização, clique em **New repository**.
-2. Nome: `renta-plus`. Visibilidade: a critério do time.
+2. Nome: `renta-mais`. Visibilidade: a critério do time.
 3. **Não** marque para adicionar README, `.gitignore` ou LICENSE — o projeto
    já traz esses arquivos prontos, marcar geraria conflito no primeiro push.
 4. Extraia os arquivos do projeto numa pasta local e rode:
 
    ```bash
-   cd renta-plus
+   cd renta-mais
    git init
    git branch -M main
    git add .
    git commit -m "estrutura inicial do projeto"
-   git remote add origin https://github.com/<organizacao>/renta-plus.git
+   git remote add origin https://github.com/RentaMais/renta-mais.git
    git push -u origin main
    ```
 
@@ -55,8 +55,8 @@ convite antes de continuar.
 ### Se o repositório já existe (as próximas pessoas)
 
 ```bash
-git clone https://github.com/<organizacao>/renta-plus
-cd renta-plus
+git clone https://github.com/RentaMais/renta-mais
+cd renta-mais
 ```
 
 ### Autenticação com o GitHub
