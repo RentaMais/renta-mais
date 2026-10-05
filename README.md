@@ -25,11 +25,11 @@ Projeto da disciplina **Programação para Dispositivos Móveis** (Engenharia de
 Requisitos: Node.js 22 (mínimo 22.13), aplicativo Expo Go no celular e conta gratuita no Expo.
 
 ```bash
-git clone https://github.com/<organizacao>/renta-plus
-cd renta-plus
+git clone https://github.com/RentaMais/renta-mais
+cd renta-mais
+git checkout dev
 npm install
 cp .env.example .env
-code .env
 npm start
 ```
 
