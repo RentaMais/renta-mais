@@ -1,111 +1,52 @@
-# Renta+
+# RentaMais
 
-Aplicativo mobile de consolidação de carteira de investimentos, rastreamento
-de proventos e simulação de rentabilidade multimercado.
+Aplicativo mobile que reúne, em um só lugar, os investimentos mantidos em diferentes corretoras. Substitui planilhas e anotações dispersas por uma visão clara do patrimônio, da rentabilidade e dos proventos recebidos.
 
-## Visão Geral
+Projeto da disciplina **Programação para Dispositivos Móveis** (Engenharia de Computação, CEFET-MG, Unidade Leopoldina).
 
-- Público: investidores iniciantes e experientes que gerenciam ativos de
-  renda fixa e renda variável manualmente.
-- Funções principais: consolidação de patrimônio, rentabilidade mensal
-  comparada a CDI e Ibovespa, fluxo de caixa de dividendos e JCP, simulador de
-  aportes por décadas.
-- Plataforma: mobile (iOS e Android).
+## Funcionalidades
 
-## Stack Técnica
+- **Início:** patrimônio total, divisão da carteira e evolução no tempo.
+- **Ativos:** cadastro de renda variável e renda fixa, com venda e resgate.
+- **Rentabilidade:** desempenho da carteira comparado ao CDI e ao Ibovespa.
+- **Proventos:** dividendos recebidos e provisionados.
+- **Simulador:** projeção de aportes mensais em 10, 20, 30 ou 40 anos.
+- **Conta:** cadastro, login, recuperação de senha e configurações.
 
-- Frontend: React Native com Expo (Expo Router), TypeScript
-- Estilização: Tailwind CSS via NativeWind
-- Gráficos: React Native Chart Kit
-- Banco de dados e autenticação: Supabase (PostgreSQL + Supabase Auth)
-- Cotações: API brapi.dev (modo demo com dados simulados quando não
-  configurada)
+## Tecnologias
 
-| Dependência   | Versão   |
-| ------------- | -------- |
-| Node.js       | 20.19.0  |
-| Expo SDK      | 57       |
-| React Native  | 0.86.3   |
-| React         | 19.2.3   |
-| TypeScript    | ~5.9     |
+- React Native com Expo e TypeScript
+- Tailwind CSS (NativeWind)
+- Supabase (banco de dados e autenticação)
+- brapi.dev (cotações da bolsa)
 
-Versões fixas em `.nvmrc` e `package.json`. Não atualizar Expo SDK, React
-Native ou React sem alinhar com o time antes, mudança de major costuma quebrar
-dependências nativas.
+## Execução
 
-## Arquitetura do Projeto
-
-Repositório único (monorepo), sem separação entre frontend e backend. O
-"backend" do projeto é o próprio Supabase: não há servidor de aplicação
-próprio.
-
-### Estrutura de pastas
+Requisitos: Node.js 22 (mínimo 22.13), aplicativo Expo Go no celular e conta gratuita no Expo.
 
 ```bash
-renta-mais/
-├── src/
-│   ├── app/              # rotas (Expo Router, file-based)
-│   │   ├── (auth)/       # login, cadastro, recuperação de senha
-│   │   ├── (tabs)/       # dashboard, rentabilidade, proventos, simulador
-│   │   └── adicionar-ativo.tsx
-│   ├── components/       # componentes de UI reutilizáveis
-│   ├── hooks/            # hooks compartilhados
-│   ├── lib/              # clientes de serviço (ex.: supabase.ts)
-│   ├── services/         # chamadas a Supabase e à API de cotações
-│   └── types/            # tipos compartilhados do domínio
-├── supabase/
-│   ├── config.toml
-│   └── migrations/       # schema SQL versionado
-├── .env.example          # modelo de variáveis de ambiente
-└── .github/workflows/    # CI
+git clone https://github.com/<organizacao>/renta-plus
+cd renta-plus
+npm install
+cp .env.example .env
+code .env
+npm start
 ```
 
-Esta é a estrutura padrão gerada pelo Expo SDK 57 ao usar Expo Router com
-diretório `src/`. Novas telas entram em `src/app/`, seguindo o roteamento por
-arquivo; lógica de domínio e chamadas a serviços ficam fora de `src/app/`.
+As chaves do `.env` são fornecidas pela equipe. Após `npm start`, basta escanear o QR code com o Expo Go.
 
-### Telas
+## Documentação
 
-[Protótipo](www.figma.com) desenvolvido no Figa, as telas da aplicação cconsistem em:
+Instalação detalhada, organização do código, comandos e fluxo de trabalho estão em [DESENVOLVIMENTO.md](./DESENVOLVIMENTO.md).
 
-1. Dashboard: patrimônio total, divisão da carteira, evolução patrimonial
-2. Adicionar Ativo: formulário para renda fixa e renda variável
-3. Rentabilidade Mensal: carteira vs. CDI e Ibovespa
-4. Proventos: total recebido, DY médio, histórico mensal, proventos
-   provisionados vs. pagos
-5. Login (com recuperação de senha)
-6. Cadastro
-7. Simulador de Décadas: projeção de aportes em 3 cenários de risco
+## Equipe
 
-### Banco de dados
+- Filipe Duarte Jordão
+- Gabriel Vieira Bordoni
+- Ian Ribeiro de Oliveira
 
-Três tabelas principais, todas com Row Level Security habilitada e filtradas
-por `user_id`:
-
-- `profiles`: dados do usuário autenticado
-- `assets`: ativos da carteira (renda fixa ou variável)
-- `earnings`: proventos (dividendos e JCP) associados a um ativo
-
-Schema completo e versionado em `supabase/migrations/`.
-
-### Ambiente de banco de dados
-
-O projeto usa exclusivamente Supabase Cloud (não há Postgres local via
-Docker neste momento). Há um projeto Supabase para desenvolvimento e outro
-para produção; instruções de acesso estão no `DESENVOLVIMENTO.md`.
-
-### Variáveis de ambiente
-
-O arquivo `.env.example` na raiz do repositório lista todas as variáveis
-necessárias para rodar o projeto (URL e chave pública do Supabase, token
-opcional da brapi.dev). Copie-o para `.env` e preencha os valores antes de
-rodar o app, mais detalhes no `DESENVOLVIMENTO.md`.
-
-## Desenvolvimento
-
-Instruções de setup, fluxo de Git e convenções do time estão em
-[DESENVOLVIMENTO.md](./DESENVOLVIMENTO.md).
+Orientação: Galba Falce de Almeida.
 
 ## Licença
 
-MIT. Veja [LICENSE](./LICENSE).
+MIT. Ver [LICENSE](./LICENSE).

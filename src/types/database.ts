@@ -1,3 +1,4 @@
+// exemplo de tipagem do TypeScript
 export type TipoAtivo = "renda_fixa" | "renda_variavel";
 
 export type Asset = {

@@ -1,0 +1,40 @@
+# Dependências
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Builds nativos gerados por `expo prebuild`
+/ios
+/android
+
+# Variáveis de ambiente (manter apenas o modelo)
+.env
+.env.*
+!.env.example
+
+# Supabase CLI (arquivos locais)
+supabase/.temp/
+supabase/.branches/
+
+# Testes
+coverage/
+
+# Chaves e certificados
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# Logs
+npm-debug.*
+*.log
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

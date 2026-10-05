@@ -1,251 +1,475 @@
 # Guia de Desenvolvimento
 
-Este documento assume que você nunca usou Git, TypeScript, Expo ou Tailwind
-antes. Siga na ordem. Se travar em algum passo, pare e pergunte no grupo antes
-de tentar contornar.
+Este documento descreve a configuração do ambiente, a organização do código e o fluxo de trabalho da equipa. Pressupõe-se que os integrantes não tenham experiência prévia com Git, TypeScript, Expo ou Tailwind. As etapas devem ser seguidas na ordem apresentada. Em caso de bloqueio, recomenda-se consultar a equipa antes de adotar soluções alternativas.
 
-## 1. Instalar as ferramentas
+## 1. Ferramentas
 
-Instale, nessa ordem:
+Instalar, na ordem:
 
-1. **Git**: https://git-scm.com/downloads
-2. **Node.js via nvm** (gerenciador de versões do Node, evita conflito de
-   versão entre máquinas):
-   - Linux/macOS: https://github.com/nvm-sh/nvm
-   - Windows: use o **nvm-windows** — https://github.com/coreybutler/nvm-windows
-3. **VS Code** (editor recomendado): https://code.visualstudio.com/
-4. **Expo Go** no seu celular (Android/iOS), pela loja de aplicativos. É o
-   app que abre o Renta+ durante o desenvolvimento, sem precisar compilar nada.
+1. **Git:** https://git-scm.com/downloads
+2. **Node.js 22** (mínimo 22.13), com o instalador oficial em https://nodejs.org/en/download. Selecionar a versão 22.x, de modo que toda a equipa utilize a mesma versão principal. O npm acompanha o Node.js.
+3. **Editor de código.** Recomenda-se o VS Code: https://code.visualstudio.com/
+4. **Expo Go** no telemóvel (Android/iOS). Aplicação que executa o RentaMais durante o desenvolvimento, sem necessidade de compilação.
+5. **Conta gratuita no Expo** (https://expo.dev/signup). O Expo Go exige login na mesma conta na aplicação e no terminal para abrir projetos em desenvolvimento (secção 2.5).
 
-Depois de instalar o nvm, feche e reabra o terminal antes de continuar.
+Após instalar o Node.js, o terminal deve ser fechado e reaberto. No Windows, recomenda-se utilizar o PowerShell.
 
-## 2. Criar ou clonar o repositório
+Extensões recomendadas do VS Code:
 
-Você vai receber um convite da organização no GitHub por email. Aceite o
-convite antes de continuar.
+- ESLint (`dbaeumer.vscode-eslint`)
+- Tailwind CSS IntelliSense (`bradlc.vscode-tailwindcss`)
+- Expo Tools (`expo.vscode-expo-tools`)
 
-### Se o repositório ainda não existe (primeira pessoa a configurar)
+---
 
-1. No site do GitHub, dentro da organização, clique em **New repository**.
-2. Nome: `renta-plus`. Visibilidade: a critério do time.
-3. **Não** marque para adicionar README, `.gitignore` ou LICENSE — o projeto
-   já traz esses arquivos prontos, marcar geraria conflito no primeiro push.
-4. Extraia os arquivos do projeto numa pasta local e rode:
+## 2. Configuração do ambiente local
 
-   ```bash
-   cd renta-plus
-   git init
-   git branch -M main
-   git add .
-   git commit -m "estrutura inicial do projeto"
-   git remote add origin https://github.com/<organizacao>/renta-plus.git
-   git push -u origin main
-   ```
+### 2.1 Clonagem
 
-5. Crie a branch `dev` a partir da `main` recém-enviada:
-
-   ```bash
-   git checkout -b dev
-   git push -u origin dev
-   ```
-
-6. No GitHub, em **Settings > Branches** do repositório, adicione regra de
-   proteção para `main` e `dev` exigindo Pull Request antes de merge.
-
-### Se o repositório já existe (as próximas pessoas)
+Após aceitar o convite recebido por e-mail:
 
 ```bash
-git clone https://github.com/<organizacao>/renta-plus
-cd renta-plus
+git clone [https://github.com/](https://github.com/)<organizacao>/renta-mais
+cd renta-mais
 ```
 
-### Autenticação com o GitHub
-
-O GitHub não aceita mais senha direta ao fazer `git push` por HTTPS. Duas
-opções:
-
-- **Mais simples:** instale o **GitHub CLI** (`gh`) e rode `gh auth login`
-  uma vez; depois `git push` funciona sozinho.
-- **Alternativa:** gere um **Personal Access Token** em
-  `Settings > Developer settings > Personal access tokens` e use esse token
-  no lugar da senha quando o Git pedir.
-
-## 3. Instalar a versão correta do Node
-
-Dentro da pasta do projeto:
+### 2.2 Verificação do Node
 
 ```bash
-nvm install
-nvm use
+node -v   # deve exibir v22.13 ou superior
+npm -v
 ```
 
-Isso lê o arquivo `.nvmrc` e instala/usa exatamente a versão de Node que o
-projeto espera. Confirme com:
+O projeto bloqueia a instalação de dependências em versões incompatíveis do Node (`engine-strict`). Caso a versão seja inferior a 22.13, reinstalar conforme a secção 1.
 
-```bash
-node -v
-```
-
-Deve mostrar `v20.19.0`.
-
-## 4. Instalar as dependências do projeto
+### 2.3 Dependências
 
 ```bash
 npm install
 ```
 
-Isso baixa tudo que está listado no `package.json`. Pode demorar alguns
-minutos na primeira vez.
+A primeira execução pode levar alguns minutos.
 
-## 5. Configurar as variáveis de ambiente
+> **Versões do Expo.** Expo SDK, React Native e React não devem ser atualizados sem alinhamento com a equipa. Para adicionar bibliotecas, utilizar `npx expo install <pacote>`, que seleciona a versão compatível com o SDK. Se ocorrerem erros inesperados após o `npm install`, executar `npx expo install --check` e aceitar os ajustes sugeridos.
 
-O arquivo `.env.example`, na raiz do repositório, lista todas as variáveis
-que o projeto precisa. Copie-o para `.env`:
+### 2.4 Variáveis de ambiente
 
 ```bash
 cp .env.example .env
+code .env   # ou abrir o ficheiro noutro editor
 ```
 
-Abra o `.env` e preencha `EXPO_PUBLIC_SUPABASE_URL` e
-`EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` com os valores do projeto Supabase de
-**desenvolvimento** (não o de produção). Esses valores serão compartilhados no
-grupo do time — nunca peça a chave `service_role`, apenas a `publishable`.
-`EXPO_PUBLIC_BRAPI_TOKEN` é opcional: sem ele, o app usa cotações simuladas.
+Preencher com os valores do projeto de **dev** partilhados pela equipa. A variável `EXPO_PUBLIC_BRAPI_TOKEN` é opcional: sem ela, a app utiliza cotações simuladas.
 
-O arquivo `.env` nunca deve ser commitado. Ele já está no `.gitignore`.
+Regras:
 
-## 6. Rodar o projeto
+- O `.env` nunca deve ser versionado.
+- Variáveis iniciadas por `EXPO_PUBLIC_` são embutidas na aplicação e podem ser lidas por qualquer pessoa que a possua. Por isso, apenas chaves públicas (`publishable`) são permitidas; `service_role` é proibida.
+
+Após alterar o `.env`, reiniciar o servidor com `npx expo start -c`.
+
+### 2.5 Execução
 
 ```bash
 npm start
 ```
 
-Vai abrir um QR code no terminal. Abra o app **Expo Go** no celular e escaneie
-o QR code (Android: opção de escanear dentro do próprio app; iOS: pela câmera
-nativa). O celular precisa estar na mesma rede Wi-Fi que o computador.
-
-Para rodar no navegador em vez do celular:
+Na primeira execução, autenticar o terminal na conta do Expo:
 
 ```bash
-npm run web
+npx expo login
 ```
 
-## 7. Editor: extensões recomendadas (VS Code)
+No Expo Go, entrar com a mesma conta (separador Home, ícone do perfil no canto superior direito). A aplicação informa quando falta o login num dos lados.
 
-Instale estas extensões para ter autocomplete e formatação corretos:
+O código QR exibido deve ser lido pelo Expo Go (Android: dentro da própria aplicação; iOS: pela câmara nativa). O telemóvel e o computador precisam de estar na mesma rede Wi-Fi. Para execução no navegador: `npm run web`.
 
-- **ESLint** (dbaeumer.vscode-eslint)
-- **Tailwind CSS IntelliSense** (bradlc.vscode-tailwindcss)
-- **Expo Tools** (expo.vscode-expo-tools)
+---
 
-## Fluxo de Git
+## 3. Comandos do projeto
 
-Nunca commite direto nas branches `main` ou `dev`. Ambas são protegidas.
+Os comandos são definidos na secção `scripts` do `package.json`. O próprio npm cumpre o papel de executor de tarefas, sem ferramentas adicionais.
 
-### Branches
+| Comando | Função |
+| --- | --- |
+| `npm start` | Inicia o servidor de desenvolvimento (Expo) |
+| `npm run android` | Executa no emulador/dispositivo Android |
+| `npm run ios` | Executa no emulador/dispositivo iOS |
+| `npm run web` | Executa no navegador |
+| `npm run lint` | Análise estática de erros no código (ESLint) |
+| `npm run format` | Padroniza a formatação do código fonte (`src/`) utilizando Prettier |
+| `npm run typecheck` | Verificação estrita de tipos (TypeScript) |
+| `npm test` | Testes automatizados (Jest) |
+| `npm run check` | Executa lint, typecheck e testes em sequência (ideal antes de um commit) |
+| `npm run db:push` | Aplica as migrations ao projeto Supabase de dev |
+| `npm run db:diff` | Gera uma nova migration baseada nas alterações da base de dados local |
+| `npm run db:types` | Regenera `src/types/database.ts` a partir da base de dados (obrigatório após push/diff) |
 
-- `main`: reflete produção. Só recebe merge vindo de `dev`, quando uma versão
-  está pronta para publicar.
-- `dev`: branch de integração. Todo mundo trabalha a partir dela.
-- `feature/nome-da-tarefa`: uma branch por tarefa, criada a partir de `dev`.
+---
 
-### Passo a passo para uma nova tarefa
+## 4. Organização do código
 
-1. Atualize sua `dev` local:
+### 4.1 Princípio
+
+Cada parte do código possui uma única responsabilidade, e o fluxo de informação ocorre num só sentido:
+
+```
+Ecrã  →  Hook  →  Service  →  Supabase / brapi
+```
+
+| Camada | Local | Responsabilidade | Não deve |
+| --- | --- | --- | --- |
+| **Ecrã** | `src/app/` | Layout (JSX + Tailwind) | Aceder ao Supabase diretamente |
+| **Hook** | `src/features/<x>/hooks/` | Fornecer dados, loading e erro ao ecrã | Conter layout |
+| **Service** | `src/features/<x>/services/` | Funções que acedem ao Supabase ou brapi | Depender de React |
+| **Utils** | `src/features/<x>/utils/` | Cálculos puros (preço médio, rentabilidade, simulador) | Aceder à rede ou base de dados |
+
+Motivo: cálculos misturados ao layout não podem ser testados nem reutilizados. Isolados, tornam-se funções simples de entrada e saída.
+
+### 4.2 Estrutura de pastas
+
+```
+renta-mais/
+├── src/
+│   ├── app/                       # Apenas rotas (Expo Router: ficheiro = ecrã)
+│   │   ├── _layout.tsx            # providers e proteção de rotas
+│   │   ├── (auth)/                # login, registo, esqueci-palavra-passe
+│   │   ├── (tabs)/                # index, ativos, rentabilidade, proventos, simulador
+│   │   ├── ativo/                 # novo.tsx, [id].tsx (detalhe, venda/resgate)
+│   │   └── configuracoes/         # index, editar-perfil, alterar-palavra-passe, ajuda
+│   ├── components/                # Button, Input, Card, Screen (uso partilhado)
+│   ├── lib/
+│   │   ├── supabase.ts            # cliente do Supabase
+│   │   ├── brapi.ts               # cliente da brapi
+│   │   ├── fontes.ts              # fontes carregadas na app (Lora e Manrope)
+│   │   └── queryClient.ts         # configuração do React Query
+│   ├── constants/                 # textos e valores fixos
+│   └── types/
+│       └── database.ts            # GERADO pelo Supabase; não editar manualmente
+├── supabase/
+│   ├── config.toml
+│   └── migrations/                # SQL versionado
+├── .env.example
+└── .github/workflows/ci.yml
+```
+
+As pastas devem ser criadas conforme a necessidade, quando o primeiro ecrã que as utilize for implementado.
+
+### 4.3 Regras da equipa
+
+1. `src/app/` contém apenas ecrãs; a lógica pertence a `features/`.
+2. Uma feature não importa de outra. Código comum a duas features sobe para `components/` ou `lib/`. A regra reduz acoplamento e conflitos no Git.
+3. Ecrãs nunca importam `supabase`; apenas services o fazem.
+4. Validações de formulário ficam em `schemas.ts` (zod). Os cenários alternativos dos casos de uso (palavra-passe curta, ticker vazio, vencimento no passado) tornam-se regras desse ficheiro.
+5. Cálculos ficam em `utils/` e recebem todos os dados por parâmetro.
+
+### 4.4 Correspondência entre casos de uso e código
+
+| Casos de uso | Ecrãs | Feature |
+| --- | --- | --- |
+| UC01, 02, 03, 15 | `(auth)/*`, saída da conta | `auth` |
+| UC04 | `(tabs)/index` | `ativos` + `proventos` (dados) |
+| UC05, 06, 07, 16, 17 | `(tabs)/ativos`, `ativo/novo`, `ativo/[id]` | `ativos` |
+| UC08 | `(tabs)/rentabilidade` | `rentabilidade` |
+| UC09 | `(tabs)/proventos` | `proventos` |
+| UC10 | `(tabs)/simulador` | `simulador` |
+| UC11, 12, 13, 14, 18 | `configuracoes/*` | `auth` |
+
+---
+
+## 5. Implementação de uma funcionalidade
+
+Exemplo: listagem de ativos (UC05), utilizável como modelo para as demais. O nome da tabela (`assets`) deve seguir a migration em `supabase/migrations/`.
+
+**Passo 1. Service** (`src/features/ativos/services/ativosService.ts`)
+
+```ts
+import { supabase } from "@/lib/supabase";
+
+export async function listarAtivos() {
+  const { data, error } = await supabase.from("assets").select("*");
+  if (error) throw error;
+  return data;
+}
+```
+
+**Passo 2. Hook** (`src/features/ativos/hooks/useAtivos.ts`)
+
+```ts
+import { useQuery } from "@tanstack/react-query";
+import { listarAtivos } from "../services/ativosService";
+
+export function useAtivos() {
+  return useQuery({ queryKey: ["ativos"], queryFn: listarAtivos });
+}
+```
+
+**Passo 3. Ecrã** (`src/app/(tabs)/ativos.tsx`)
+
+```tsx
+import { Text, View } from "react-native";
+import { useAtivos } from "@/features/ativos/hooks/useAtivos";
+
+export default function AtivosScreen() {
+  const { data, isLoading, error } = useAtivos();
+
+  if (isLoading) return <Text>A carregar...</Text>;
+  if (error) return <Text>Não foi possível carregar os ativos.</Text>;
+  if (!data?.length) return <Text>Nenhum ativo encontrado.</Text>;
+
+  return (
+    <View className="flex-1 bg-fundo p-4">
+      {data.map((ativo) => (
+        <Text className="text-texto" key="{ativo.id}">
+          {ativo.ticker}
+        </Text>
+      ))}
+    </View>
+  );
+}
+```
+
+O ecrã cobre os cenários do caso de uso: carregamento, erro e lista vazia (cenário alternativo do UC05).
+
+**Checklist para qualquer funcionalidade**
+
+1. Ler o caso de uso e listar os cenários típico e alternativos.
+2. Verificar se há necessidade de tabela ou coluna nova; em caso positivo, criar a migration primeiro (secção 6).
+3. Implementar service, hook e ecrã, nessa ordem.
+4. Em formulários, escrever o `schemas.ts` com as validações dos cenários alternativos.
+5. Testar no Expo Go o caminho feliz e cada cenário alternativo.
+6. Executar `npm run check`.
+
+---
+
+## 6. Base de dados (Supabase)
+
+Dois projetos independentes:
+
+- **Desenvolvimento:** partilhado por toda a equipa durante os testes. Os dados podem ser apagados sem aviso.
+- **Produção:** utilizado apenas pela versão publicada. O schema não é editado diretamente pelo dashboard.
+
+### 6.1 Alteração do schema
+
+Toda a mudança deve virar um ficheiro SQL em `supabase/migrations/`, mantendo a equipa e a produção sincronizadas. Testes pontuais no SQL Editor são aceitáveis, mas o resultado final precisa de ser registado como migration.
+
+1. Criar o ficheiro `supabase/migrations/AAAAMMDDHHMMSS_descricao.sql` (data e hora atuais), por exemplo `supabase/migrations/20260925143000_adiciona_delete_after.sql`.
+2. Escrever o SQL da alteração.
+3. Na primeira utilização, ligar a CLI ao projeto de dev:
+
+   ```bash
+   npx supabase login
+   npx supabase link
+   ```
+
+4. Aplicar a migration:
+
+   ```bash
+   npm run db:push
+   ```
+
+5. Regenerar os tipos (obrigatório após qualquer alteração):
+
+   ```bash
+   npm run db:types
+   ```
+
+6. Incluir a migration e o `database.ts` no mesmo Pull Request.
+
+Antes de criar uma migration, a equipa deve ser avisada para evitar alterações simultâneas na mesma tabela.
+
+### 6.2 Segurança (RLS)
+
+Toda a tabela exige Row Level Security ativada e policy `user_id = auth.uid()`. Sem isso, qualquer utilizador autenticado acede aos dados dos demais.
+
+Sintoma típico de RLS mal configurada: a consulta retorna lista **vazia**, sem erro. Antes de rever o código, verificar se há utilizador autenticado e se a policy existe.
+
+### 6.3 Valores calculados
+
+Preço médio e lucro realizado devem ser **calculados** a partir do histórico de compras e vendas (função em `utils/`), e não armazenados em colunas. Dados duplicados tendem a ficar dessincronizados.
+
+Para viabilizar esse cálculo, o histórico é mantido numa tabela `transactions` (compra, venda, resgate), vinculada a `assets`.
+
+### 6.4 Exclusão de conta (UC18)
+
+O cliente (app) não consegue remover um utilizador do Supabase Auth. A remoção definitiva exige uma **Edge Function** com a chave `service_role`, mantida apenas no servidor do Supabase. Para o âmbito da disciplina, uma alternativa simples é a coluna `delete_after` em `profiles`, registando a exclusão agendada, conforme descrito no caso de uso. A decisão deve ser tomada cedo.
+
+---
+
+## 7. Cotações (brapi)
+
+- A brapi fornece a cotação de um ticker e valida a sua existência (cenário alternativo "ticker inválido" do UC06).
+- O cliente fica em `src/lib/brapi.ts`; as funções que o utilizam ficam em `features/ativos/services/`.
+- O token é lido de `EXPO_PUBLIC_BRAPI_TOKEN`. Na ausência dele, devem ser usados dados simulados (modo demo), de modo que o desenvolvimento não seja bloqueado.
+- Como o token é embutido na app, não deve ser utilizado token de plano pago nem associado a dados sensíveis. Para um trabalho académico, o risco é aceitável.
+- As consultas devem ocorrer apenas quando necessárias (registo de ativo, abertura da carteira), nunca em ciclo. O React Query realiza cache; recomenda-se configurar `staleTime` de alguns minutos.
+
+---
+
+## 8. Fluxo de trabalho com Git
+
+Commits diretos em `main` ou `dev` são proibidos; ambas são protegidas.
+
+### 8.1 Branches
+
+- `main`: produção. Recebe merge apenas de `dev`, quando há versão pronta.
+- `dev`: integração. Todo o trabalho parte dela.
+- `feature/nome-da-tarefa`: uma por tarefa, criada a partir de `dev`. Correções de bug utilizam `fix/nome`.
+
+### 8.2 Procedimento para uma tarefa
+
+1. Atualizar a `dev`:
 
    ```bash
    git checkout dev
    git pull
    ```
 
-2. Crie sua branch de trabalho:
+2. Criar a branch de trabalho:
 
    ```bash
-   git checkout -b feature/tela-adicionar-ativo
+   git checkout -b feature/ecra-ativos
    ```
 
-   Use nomes descritivos: `feature/...` para funcionalidade nova,
-   `fix/...` para correção de bug.
-
-3. Trabalhe e commite em pedaços pequenos e frequentes:
+3. Trabalhar e registar commits pequenos e frequentes:
 
    ```bash
    git add .
-   git commit -m "adiciona formulário de renda fixa"
+   git commit -m "feat: adiciona listagem de ativos"
    ```
 
-   Mensagens de commit em português, no imperativo, descrevendo o que foi
-   feito.
+   Mensagens em português, no imperativo, com prefixo a indicar o tipo: `feat:` (funcionalidade), `fix:` (correção), `docs:` (documentação), `refactor:` (reestruturação sem mudança de comportamento), `chore:` (configuração e manutenção).
 
-4. Envie sua branch para o GitHub:
+4. Enviar a branch para o GitHub:
 
    ```bash
-   git push -u origin feature/tela-adicionar-ativo
+   git push -u origin feature/ecra-ativos
    ```
 
-5. Abra um Pull Request no GitHub, da sua branch para `dev`. Peça para pelo
-   menos uma outra pessoa do time revisar antes de aprovar o merge.
+5. Abrir um **Pull Request** da branch para `dev`. A descrição deve informar o caso de uso implementado (ex.: "UC05") e como testar.
+6. Solicitar revisão de pelo menos um integrante. O revisor deve executar o código localmente, e não apenas lê-lo.
+7. Após o merge, apagar a branch (botão disponível no próprio Pull Request) e regressar ao passo 1.
 
-6. Depois do merge, apague a branch (o GitHub oferece um botão para isso na
-   própria tela do Pull Request).
+### 8.3 Atualização da branch
 
-### Se der conflito
+Se a `dev` avançou durante o trabalho:
 
-Se o Git avisar de conflito ao atualizar sua branch, não tente resolver
-sozinho na primeira vez. Chame alguém do time para resolver junto.
+```bash
+git checkout dev
+git pull
+git checkout feature/ecra-ativos
+git merge dev
+```
 
-## Convenções de código
+### 8.4 Conflitos
 
-- **Indentação**: 2 espaços, nunca tabs.
-- **TypeScript**: evite `any`. Se não souber o tipo de algo, pergunte antes de
-  usar `any` para "resolver rápido".
-- **Componentes**: um componente por arquivo, nome do arquivo em
-  PascalCase (`AssetCard.tsx`).
-- **Estilização**: sempre via classes do Tailwind (NativeWind), nunca
-  `StyleSheet.create` ou estilos inline, para manter consistência visual.
-- **Rotas**: toda tela nova entra em `src/app/`, seguindo o padrão de pastas
-  do Expo Router (arquivo = rota). Não criar telas fora dessa pasta.
-- **Alias de import**: use `@/` para importar de dentro de `src/`, em vez de
-  caminhos relativos longos (`../../../components/...`).
+Em caso de conflito, a primeira resolução deve ser feita em conjunto com outro integrante. Para reduzir a ocorrência:
+
+- Cada pessoa atua numa feature distinta (secção 9).
+- Pull Requests pequenos e frequentes (menos de um dia de trabalho).
+- Ficheiros partilhados (`package.json`, `_layout.tsx`, `tailwind.config.js`, `components/ui/`) são alterados em Pull Request separado, com aviso prévio à equipa.
+
+### 8.5 Definição de pronto
+
+Antes de abrir o Pull Request:
+
+- [ ] `npm run check` sem erros
+- [ ] Testado no Expo Go: caminho feliz e cenários alternativos
+- [ ] Ausência de `console.log`, `.env` ou chaves secretas no diff
+- [ ] Alterações de base de dados acompanhadas de migration e `database.ts` atualizado
+
+Pull Requests com CI a falhar não devem ser alvo de merge.
+
+### 8.6 Revisão de Pull Request
+
+A revisão segue esta ordem: (1) funciona no telemóvel; (2) cobre os cenários do caso de uso; (3) respeita as regras da secção 4.3; (4) nomes claros. O revisor deve registar sugestões em comentários, sem reescrever o código do autor.
+
+---
+
+## 9. Divisão de trabalho sugerida
+
+Cada integrante é responsável por uma feature, o que minimiza conflitos.
+
+**Etapa 0, base** (em conjunto ou por uma pessoa, em Pull Requests pequenos):
+`queryClient.ts`, `brapi.ts`, componentes básicos de `ui/` (Button, Input, Card, Screen), proteção de rotas no `_layout.tsx` (utilizador sem sessão é direcionado para o login) e revisão da migration inicial.
+
+**Etapa 1, em paralelo:**
+
+| Integrante | Feature | Casos de uso |
+| --- | --- | --- |
+| A | `auth` + `configuracoes` | UC01, 02, 03, 11, 12, 13, 14, 15, 18 |
+| B | `ativos` (+ brapi) | UC05, 06, 07, 16, 17 |
+| C | `simulador` e ecrãs de leitura (`index`, `rentabilidade`, `proventos`) | UC10, depois UC04, 08, 09 |
+
+O simulador (UC10) não depende da base de dados, portanto pode ser iniciado imediatamente. Os ecrãs UC04, UC08 e UC09 dependem dos ativos registados: devem começar com dados de exemplo e migrar para dados reais quando a feature `ativos` estiver na `dev`.
+
+**Etapa 2:** integração, cenários alternativos pendentes, ajustes visuais e documentação final.
+
+---
+
+## 10. Convenções de código
+
+- **Indentação:** 2 espaços; tabs não são permitidos.
+- **TypeScript:** evitar `any`. Em caso de dúvida sobre o tipo, consultar a equipa antes de o utilizar.
+- **Componentes:** um por ficheiro, nome em PascalCase (`AssetCard.tsx`).
+- **Estilização:** classes do Tailwind (NativeWind); evitar `StyleSheet.create` e estilos inline. Utilizar as cores do tema (tabela abaixo) em vez de hexadecimais avulsos.
+- **Rotas:** todo o ecrã novo entra em `src/app/`.
+- **Imports:** utilizar o alias `@/` em vez de caminhos relativos longos.
 
   ```ts
-  import { AssetCard } from "@/components/AssetCard";
+  import { Button } from "@/components/ui/Button";
   ```
 
-## Banco de dados (Supabase)
+- **Nomenclatura:** ficheiros e identificadores de domínio em português (`listarAtivos`, `ativosService`), em coerência com os casos de uso.
 
-O projeto usa dois projetos Supabase separados:
+### Cores do tema
 
-- **Desenvolvimento**: todo o time usa o mesmo projeto de dev durante os
-  testes. Dados podem ser apagados ou resetados sem aviso.
-- **Produção**: usado apenas na versão publicada do app. Ninguém edita o
-  schema de produção diretamente pelo dashboard.
+Definidas em `tailwind.config.js`. Cada nome representa um papel na interface; nomes diferentes podem apontar para a mesma cor, o que permite alterar um papel sem afetar os demais.
 
-### Alterando o schema (criando ou mudando uma tabela)
+| Classe (`bg-`, `text-`, `border-`) | Cor | Uso | Alias |
+| --- | --- | --- | --- |
+| `primaria` | `#A8763E` | Botões, destaques e identidade | `marca` |
+| `fundo` | `#F6F2E3` | Fundo dos ecrãs | |
+| `container` | `#F6F2E3` | Contentores, cards e inputs | |
+| `texto` | `#404E40` | Texto principal | `secundaria` |
+| `subtexto` | `#404E40` a 80% | Subtítulos e textos secundários | `subtitulo` |
+| `positivo` | `#7CB518` | Valorização e ganhos | `sucesso` |
+| `negativo` | `#EF3054` | Desvalorização e perdas | `erro` |
 
-Alterações de schema são feitas por SQL versionado em
-`supabase/migrations/`, nunca direto no dashboard do projeto de
-desenvolvimento em caráter permanente (testes pontuais no SQL Editor são
-aceitáveis, mas a alteração final precisa virar um arquivo de migration no
-repositório, para que o time inteiro e a produção fiquem sincronizados).
+Em código novo, preferir o nome da primeira coluna; `sucesso` e `erro` são indicados para mensagens de feedback em formulários. Exemplo:
+`<Text className="text-positivo">+4,2%</Text>`.
 
-1. Crie um novo arquivo em `supabase/migrations/`, seguindo o padrão de nome
-   `AAAAMMDDHHMMSS_descricao.sql` (data e hora do momento da criação).
-2. Escreva o SQL da alteração.
-3. Rode contra o projeto de desenvolvimento (a CLI vai pedir para conectar ao
-   projeto na primeira vez, com `npx supabase login` e
-   `npx supabase link`):
+### Fontes
 
-   ```bash
-   npm run db:push
-   ```
+Fonte principal: **Lora** (títulos). Fonte secundária: **Manrope** (interface). Ambas vêm do Google Fonts e são carregadas em `src/lib/fontes.ts`.
 
-4. Suba a migration junto com o resto do seu Pull Request.
+No React Native, cada peso é uma fonte distinta: `font-bold` não altera o peso de uma fonte personalizada. Por isso, o peso é escolhido pela classe de fonte:
 
-Produção só recebe as migrations depois que a `dev` for mergeada em `main`.
+| Classe | Fonte | Uso |
+| --- | --- | --- |
+| `font-titulo` | Lora Bold | Títulos |
+| `font-titulo-regular` | Lora Regular | Destaques e valores grandes |
+| `font-corpo` | Manrope Regular | Texto da interface |
+| `font-corpo-medium` | Manrope Medium | Rótulos e botões |
+| `font-corpo-bold` | Manrope Bold | Ênfase em textos da interface |
 
-## CI (verificação automática)
+Todo o `<Text>` deve declarar uma destas classes; sem ela, a aplicação usa a fonte do sistema. Exemplo:
+`<Text className="font-titulo text-texto text-2xl">Património</Text>`.
 
-Todo Pull Request roda automaticamente lint e checagem de tipos do
-TypeScript (veja `.github/workflows/ci.yml`). Um PR com CI vermelho não deve
-ser mergeado antes de corrigir o problema apontado.
+---
+
+## 11. Problemas comuns
+
+| Sintoma | Ação |
+| --- | --- |
+| Código QR não liga | Confirmar a mesma rede Wi-Fi; se a rede bloquear, `npx expo start --tunnel` |
+| `.env` alterado sem efeito | `npx expo start -c` (limpa a cache e reinicia) |
+| Classes do Tailwind não aplicadas | Verificar se `global.css` é importado em `src/app/_layout.tsx` e se o ficheiro está coberto por `content` em `tailwind.config.js`; reiniciar com `-c` |
+| `Network request failed` | URL do Supabase incorreta ou sem `https://`; `.env` não preenchido |
+| Lista vazia, sem erro | RLS: utilizador não autenticado ou policy ausente na tabela |
+| Erro de tipo em tabela nova | Executar `npm run db:types` |
+| Erros estranhos após `npm install` | `npx expo install --check`; persistindo, remover `node_modules` e reinstalar |
+| `npm install` falha com `EBADENGINE` | Node abaixo de 22.13: reinstalar o Node 22.x e reabrir o terminal |
+| Expo Go pede login ou não abre o projeto | Executar `npx expo login` e entrar na mesma conta no Expo Go |
+| Código QR liga em casa, mas não no Windows | Permitir o Node.js em redes privadas quando a Firewall do Windows solicitar |
+| Git recusa o push | Verificar autenticação (`gh auth login` ou token) e se o push não é direto em `main`/`dev` |

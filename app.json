@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Renta+",
-    "slug": "renta-plus",
+    "slug": "renta-mais",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,19 +11,24 @@
       "resizeMode": "contain",
       "backgroundColor": "#F7F3E3"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.rentaplus.app"
+      "bundleIdentifier": "com.rentamais.app"
     },
     "android": {
-      "package": "com.rentaplus.app",
+      "package": "com.rentamais.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#F7F3E3"
       }
     },
-    "plugins": ["expo-router"],
-    "scheme": "rentaplus"
+    "plugins": [
+      "expo-router",
+      "expo-status-bar"
+    ],
+    "scheme": "rentamais"
   }
 }
