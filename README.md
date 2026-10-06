@@ -15,7 +15,7 @@ Projeto da disciplina **Programação para Dispositivos Móveis** (Engenharia de
 
 ## Tecnologias
 
-- React Native com Expo e TypeScript
+- React Native com Expo e JavaScript
 - Tailwind CSS (NativeWind)
 - Supabase (banco de dados e autenticação)
 - brapi.dev (cotações da bolsa)

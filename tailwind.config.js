@@ -33,7 +33,7 @@ module.exports = {
         secundaria: paleta.texto,
         subtitulo: `${paleta.texto}cc`,
       },
-      // Fontes. As chaves devem ser iguais aos nomes exportados em src/lib/fontes.ts.
+      // Fontes. As chaves devem ser iguais aos nomes exportados em src/fontes.ts.
       // No React Native cada peso é uma fonte separada: `font-bold` não troca o peso.
       fontFamily: {
         titulo: ["Lora_700Bold"], // títulos (fonte principal)

@@ -7,7 +7,7 @@ const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
   throw new Error(
-    "EXPO_PUBLIC_SUPABASE_URL e EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY precisam estar definidos no .env"
+    "EXPO_PUBLIC_SUPABASE_URL e EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY precisam estar definidos no .env",
   );
 }
 
