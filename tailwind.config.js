@@ -6,7 +6,7 @@ const paleta = {
   fundo: "#F6F2E3",
   container: "#FFFFFF",
   texto: "#404E40",
-  postivo: "#7CB518",
+  positivo: "#7CB518",
   negativo: "#EF3054",
 };
 
@@ -23,12 +23,12 @@ module.exports = {
         container: paleta.fundo, // containers, cards e inputs
         texto: paleta.texto, // texto principal
         subtexto: `${paleta.texto}cc`, // subtítulos e textos secundários
-        positivo: paleta.postivo, // valorização, ganhos
+        positivo: paleta.positivo, // valorização, ganhos
         negativo: paleta.negativo, // desvalorização, perdas
 
         // Aliases/Apelidos
         marca: paleta.marca,
-        sucesso: paleta.postivo, // feedback de ação concluída
+        sucesso: paleta.positivo, // feedback de ação concluída
         erro: paleta.negativo, // feedback de erro em formulários
         secundaria: paleta.texto,
         subtitulo: `${paleta.texto}cc`,
