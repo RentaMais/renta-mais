@@ -1,13 +1,14 @@
 import { Switch } from "react-native";
+import { cores } from "@/cores";
 
 export function SwitchCustomer({ value, onValueChange }) {
-    return (
-        <Switch
-            value={value}
-            onValueChange={onValueChange}
-            trackColor={{ false: "#404E4033", true: "#A8763E" }}
-            thumbColor={value ? "#FFFFFF" : "#F6F2E3"}
-            ios_backgroundColor="#404E4033"
-        />
-    );
+  return (
+    <Switch
+      value={value}
+      onValueChange={onValueChange}
+      trackColor={{ false: cores.trilho, true: cores.primaria }}
+      thumbColor={value ? cores.container : cores.fundo}
+      ios_backgroundColor={cores.trilho}
+    />
+  );
 }
