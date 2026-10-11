@@ -12,7 +12,7 @@ export default function RootLayout() {
         name="adicionar-ativo"
         options={{
           presentation: "modal",
-          headerShown: true,
+          headerShown: false,
           title: "Adicionar ativo",
         }}
       />
