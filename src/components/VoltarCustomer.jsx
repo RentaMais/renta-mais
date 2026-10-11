@@ -3,7 +3,7 @@ import { useNavigation } from "expo-router";
 import { ArrowLeftIcon } from "phosphor-react-native";
 import { cores } from "@/cores";
 
-export default function VoltarCustomer() {
+export function VoltarCustomer() {
   const navigation = useNavigation();
 
   return (

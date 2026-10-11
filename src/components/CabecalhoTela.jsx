@@ -1,6 +1,6 @@
 import { View, Text } from "react-native";
 
-export default function CabecalhoTela({ subtitulo, titulo, descricao }){
+export function CabecalhoTela({ subtitulo, titulo, descricao }){
   return (
     <View className="w-full gap-1">
         {subtitulo && (

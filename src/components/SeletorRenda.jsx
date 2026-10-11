@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from "react-native";
 
-export default function SeletorRenda({ value, onChange }) {
+export function SeletorRenda({ value, onChange }) {
   return (
     <View className="w-full flex-row rounded-3xl bg-texto/5 p-2">
       <Pressable
