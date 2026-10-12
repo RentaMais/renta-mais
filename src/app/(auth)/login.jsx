@@ -1,10 +1,11 @@
-import { Text, View } from "react-native";
+import { Text, Image, View } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
+import { cores } from "@/cores";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState();
@@ -14,6 +15,17 @@ export default function LoginScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-fundo">
       <View className="w-[85vw]">
+        <Image
+          source={require("../../../assets/logo.png")}
+          style={{
+            width: 42,
+            height: 42,
+            tintColor: cores.primaria,
+            marginBottom: 12,
+          }}
+          resizeMode="contain"
+        />
+
         <CabecalhoTela
           subtitulo="Bem-vindo de volta"
           titulo="Acesse sua Carteira"
@@ -27,7 +39,7 @@ export default function LoginScreen() {
         />
         <InputCustomer
           titulo="Senha"
-          placeholder="*********"
+          placeholder="Digite sua senha"
           value={senha}
           onChangeText={() => {}}
           className="mt-4"
