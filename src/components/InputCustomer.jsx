@@ -22,7 +22,7 @@ export function InputCustomer({
         value={value}
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
-        className="h-12 rounded-xl border border-texto/20 bg-white px-4 font-corpo text-sm text-texto"
+        className="h-12 rounded-xl border border-texto/20 bg-container px-4 font-corpo text-sm text-texto"
       />
     </View>
   );
