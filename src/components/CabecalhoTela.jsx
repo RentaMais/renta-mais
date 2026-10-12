@@ -8,7 +8,7 @@ export function CabecalhoTela({ subtitulo, titulo, descricao }){
                 {subtitulo}
             </Text>
         )}
-        <Text className="font-titulo text-4xl text-texto"> 
+        <Text className="font-titulo text-2xl text-texto"> 
             {titulo} 
         </Text>
         {descricao && (
