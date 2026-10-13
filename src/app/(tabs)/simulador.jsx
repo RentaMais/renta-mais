@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, View, ScrollView, Pressable, TextInput } from "react-native";
+import { Text, View, ScrollView, Pressable, TextInput,Dimensions, LogBox } from "react-native";
 import {Dot} from "phosphor-react-native"
 import {cores} from "@/cores"
 import { LineChart } from "react-native-chart-kit";
@@ -144,6 +144,41 @@ export default function SimuladorScreen() {
     },
   ];
 
+  const gerarDadosGrafico = () => {
+    const passos = 5;
+    const labels = [];
+    const dadosArrojado = [];
+    const dadosModerado = [];
+    const dadosConservador = [];
+
+    for (let i = 0; i <= passos; i++) {
+      const anoAtual = Math.round((tempoSelecionado / passos) * i);
+      labels.push(anoAtual === 0 ? "0" : `${anoAtual}a`);
+
+      if (anoAtual === 0) {
+        const viNum = Number(aporteInicial) || 0;
+        dadosArrojado.push(viNum);
+        dadosModerado.push(viNum);
+        dadosConservador.push(viNum);
+      } else {
+        dadosArrojado.push(calcularPatrimonio(aporteInicial, aporteMensal, taxaArrojado, anoAtual, descontarInflacao));
+        dadosModerado.push(calcularPatrimonio(aporteInicial, aporteMensal, taxaModerado, anoAtual, descontarInflacao));
+        dadosConservador.push(calcularPatrimonio(aporteInicial, aporteMensal, taxaConservador, anoAtual, descontarInflacao));
+      }
+    }
+
+    return {
+      labels,
+      datasets: [
+        { data: dadosArrojado.length > 0 ? dadosArrojado : [0], color: () => cores.texto, strokeWidth: 3 },
+        { data: dadosModerado.length > 0 ? dadosModerado : [0], color: () => cores.primaria, strokeWidth: 3 },
+        { data: dadosConservador.length > 0 ? dadosConservador : [0], color: () => cores.positivo, strokeWidth: 3 },
+      ],
+    };
+  };
+
+  const larguraTela = Dimensions.get("window").width * 0.85 - 32; 
+
 
   return (
     <ScrollView className="flex-1 bg-fundo" contentContainerStyle={{paddingVertical:24,alignItems:"center"}}>
@@ -213,16 +248,27 @@ export default function SimuladorScreen() {
               Patrimônio projetado
           </Text>
 
-          {/* Espaço do Gráfico RASCUNHOO*/}
-          <View className="h-28 w-full justify-between py-2 border-b border-texto/10 relative">
-            <Text className="font-corpo text-[10px] text-subtexto">2,5 mi</Text>
-            <Text className="font-corpo text-[10px] text-subtexto">1,25 mi</Text>
-            <Text className="font-corpo text-[10px] text-subtexto">R$ 0</Text>
-            
-            <View className="absolute bottom-8 left-0 right-0 h-[1px] border-b border-dashed border-texto/10" />
-            <View className="absolute bottom-16 left-0 right-0 h-[1px] border-b border-dashed border-texto/10" />
+         <View className="items-center -ml-4 py-2">
+           <LineChart
+              data={gerarDadosGrafico()}
+              width={larguraTela + 20}
+              height={180}
+              formatYLabel={(v) => formatarEixo(v)}
+              chartConfig={{
+                backgroundColor: "transparent",
+                backgroundGradientFrom: "transparent",
+                backgroundGradientTo: "transparent",
+                decimalPlaces: 0,
+                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(100, 100, 100, ${opacity})`,
+              }}
+              withDots={false} 
+              withShadow={false}
+              style={{
+                marginVertical: 4,
+              }}
+            />
           </View>
-          {/*RASCUNHO */}
 
           {perfisInvestimento.map((perfil) => (
             <View 
