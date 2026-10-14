@@ -11,7 +11,7 @@ export function VoltarCustomer() {
       onPress={() => navigation.goBack()}
       className="flex-row items-center gap-2 self-start"
     >
-      <ArrowLeftIcon size={24} weight="bold" color={cores.primaria}/>
+      <ArrowLeftIcon size={24} weight="bold" color={cores.primaria} />
       <Text className="font-corpo-bold text-2xl text-primaria">Voltar</Text>
     </Pressable>
   );
