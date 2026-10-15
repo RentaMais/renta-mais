@@ -1,0 +1,18 @@
+[
+  {
+    "pergunta": "Como cadastro um ativo de renda fixa?",
+    "resposta": "Na aba Ativos, toque no botão “+” e selecione o segmento “Renda fixa”. Informe o nome do título, valor investido, indexador e data de vencimento."
+  },
+  {
+    "pergunta": "Como funciona o cálculo de rentabilidade?",
+    "resposta": "O cálculo considera a variação entre o valor investido e o valor atual de mercado dos seus ativos cadastrados na carteira."
+  },
+  {
+    "pergunta": "O simulador já considera reinvestir os proventos?",
+    "resposta": "Sim, você pode alternar essa opção nas configurações avançadas do simulador de investimentos."
+  },
+  {
+    "pergunta": "Como altero meu e-mail cadastrado?",
+    "resposta": "Acesse Configurações > Editar perfil para atualizar seu e-mail. Será necessário confirmar o novo endereço por link."
+  }
+]
