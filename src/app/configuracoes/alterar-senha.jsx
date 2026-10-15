@@ -20,7 +20,7 @@ export default function LoginScreen() {
         />
         <InputCustomer
           titulo="Senha atual"
-          placeholder="Digite sua nova senha"
+          placeholder="Digite sua senha atual"
           value={senha}
           onChangeText={setSenha}
           className="mt-[36]"

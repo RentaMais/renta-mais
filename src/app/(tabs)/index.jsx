@@ -108,9 +108,9 @@ export default function HomeScreen() {
 
         <Pressable onPress={() => setEsconder(!esconder)}>
           {esconder ? (
-            <EyeSlash size={28} color={cores.container} />
-          ) : (
             <Eye size={28} color={cores.container} />
+          ) : (
+            <EyeSlash size={28} color={cores.container} />
           )}
         </Pressable>
       </View>
