@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, View, ScrollView, Pressable, TextInput,Dimensions, LogBox } from "react-native";
+import { Text, View, ScrollView, Pressable, TextInput,Dimensions} from "react-native";
 import {Dot} from "phosphor-react-native"
 import {cores} from "@/cores"
 import { LineChart } from "react-native-chart-kit";
@@ -20,34 +20,25 @@ export default function SimuladorScreen() {
   const anosOpcoes = [10,20,30,40];
   const taxaIbovespa = 18.5;
 
-  const tratarAporteInicial = (texto) => {
+  const tratarAporte = (texto,setValor,limite) => {
     const apenasNums = texto.replace(/\D/g, "");
     const valor = Number(apenasNums) || 0;
-    if (valor > 10000000) {
-      setAporteInicial("10000000"); // 
+    if (valor > limite) {
+      setValor(String(limite)); // 
       return;
     }
-    setAporteInicial(apenasNums);
+    setValor(apenasNums);
   };
 
-  const tratarAporteMensal = (texto) => {
-    const apenasNums = texto.replace(/\D/g, "");
-    const valor = Number(apenasNums) || 0;
-    if (valor > 100000) {
-      setAporteMensal("100000"); // 
-      return;
-    }
-    setAporteMensal(apenasNums);
-  };
 
   const tratarRentabilidade = (texto) => {
-    const apenasNums = texto.replace(/\D/g, "");
-    const valor = Number(apenasNums) || 0;
+    const formatado = texto.replace(",",".");
+    const valor = Number(formatado) || 0;
     if (valor > 50) {
       setRentabilidade("50"); 
       return;
     }
-    setRentabilidade(apenasNums);
+    setRentabilidade(formatado);
   };
 
   const camposSimulacao = [
@@ -56,14 +47,14 @@ export default function SimuladorScreen() {
       titulo: "Aporte inicial",
       placeholder: "R$ 10.000",
       value: aporteInicial,
-      onChangeText: tratarAporteInicial,
+      onChangeText: (t)=>tratarAporte(t,setAporteInicial,10000000),
     },
     {
       id: "aporte-mensal",
       titulo: "Aporte mensal",
       placeholder: "R$ 1.000",
       value: aporteMensal,
-      onChangeText: tratarAporteMensal,
+      onChangeText: (t)=>tratarAporte(t,setAporteMensal,100000),
     },
     {
       id: "rentabilidade",
@@ -259,8 +250,8 @@ export default function SimuladorScreen() {
                 backgroundGradientFrom: "transparent",
                 backgroundGradientTo: "transparent",
                 decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(100, 100, 100, ${opacity})`,
+                color: () => cores.texto,
+                labelColor: () => cores.subtexto,
               }}
               withDots={false} 
               withShadow={false}

@@ -7,6 +7,7 @@ const paleta = {
   texto: "#404E40",
   positivo: "#7CB518",
   negativo: "#EF3054",
+  provisionado:"#A3723F",
 };
 
 // Papéis na interface. Usar estes nomes nas telas e componentes.
@@ -21,6 +22,7 @@ const cores = {
   trilho: `${paleta.texto}33`, // trilho desligado do Switch
   positivo: paleta.positivo, // valorização, ganhos
   negativo: paleta.negativo, // desvalorização, perdas
+  provisionado: paleta.provisionado,
 
   // Aliases/Apelidos
   marca: paleta.marca,
