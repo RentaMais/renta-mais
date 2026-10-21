@@ -7,17 +7,15 @@ import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { UserButtonCustomer } from "@/components/UserButtonCustomer";
 import { SwitchCustomer } from "@/components/SwitchCustomer";
 
-
 export default function SimuladorScreen() {
-
   const [aporteInicial, setAporteInicial] = useState("");
   const [aporteMensal, setAporteMensal] = useState("");
   const [rentabilidade, setRentabilidade] = useState("");
 
-  const[tempoSelecionado,setTempoSelecionado] = useState(10);
-  const[descontarInflacao,setDescontarInflacao] = useState(true);
+  const [tempoSelecionado, setTempoSelecionado] = useState(10);
+  const [descontarInflacao, setDescontarInflacao] = useState(true);
 
-  const anosOpcoes = [10,20,30,40];
+  const anosOpcoes = [10, 20, 30, 40];
   const taxaIbovespa = 18.5;
 
   const tratarAporte = (texto,setValor,limite) => {
@@ -35,7 +33,7 @@ export default function SimuladorScreen() {
     const formatado = texto.replace(",",".");
     const valor = Number(formatado) || 0;
     if (valor > 50) {
-      setRentabilidade("50"); 
+      setRentabilidade("50");
       return;
     }
     setRentabilidade(formatado);
@@ -65,21 +63,20 @@ export default function SimuladorScreen() {
     },
   ];
 
-
   function calcularPatrimonio(vi, vm, taxaAnualPct, anos, inflacaoAtiva) {
-    const viNum = Number(vi)|| 0
-    const vmNum = Number(vm)|| 0
-    
-    let taxa = taxaAnualPct/100;
-    
+    const viNum = Number(vi) || 0;
+    const vmNum = Number(vm) || 0;
+
+    let taxa = taxaAnualPct / 100;
+
     if (inflacaoAtiva) {
-      taxa= (1 + taxa) / (1 + 0.04) - 1;
+      taxa = (1 + taxa) / (1 + 0.04) - 1;
     }
 
     const iMensal = Math.pow(1 + taxa, 1 / 12) - 1;
     const tMeses = anos * 12;
 
-    if (iMensal === 0) return viNum + (vmNum * tMeses);
+    if (iMensal === 0) return viNum + vmNum * tMeses;
 
     //FV(t) = VI * (1 + i)^t + VM * [((1 + i)^t - 1) / i]
     const parteVi = viNum * Math.pow(1 + iMensal, tMeses);
@@ -107,8 +104,8 @@ export default function SimuladorScreen() {
   }
 
   const taxaRfNum = Number(rentabilidade.replace(",", ".")) || 0;
-  const taxaArrojado = (0.7*taxaIbovespa)+(0.3*taxaRfNum);
-  const taxaModerado = (0.5*taxaIbovespa)+(0.5*taxaRfNum);
+  const taxaArrojado = 0.7 * taxaIbovespa + 0.3 * taxaRfNum;
+  const taxaModerado = 0.5 * taxaIbovespa + 0.5 * taxaRfNum;
   const taxaConservador = taxaRfNum;
 
   const perfisInvestimento = [
@@ -116,22 +113,40 @@ export default function SimuladorScreen() {
       id: "arrojado",
       nome: "Arrojado",
       cor: cores.texto,
-      descricao:`70% Ibovespa (${taxaIbovespa.toFixed(1)}%) + 30% Renda Fixa (${taxaConservador.toFixed(1)}%), resultante:(${taxaArrojado.toFixed(1)}%)`,
-      valor: calcularPatrimonio(aporteInicial, aporteMensal,taxaArrojado, tempoSelecionado, descontarInflacao),
+      descricao: `70% Ibovespa (${taxaIbovespa.toFixed(1)}%) + 30% Renda Fixa (${taxaConservador.toFixed(1)}%), resultante:(${taxaArrojado.toFixed(1)}%)`,
+      valor: calcularPatrimonio(
+        aporteInicial,
+        aporteMensal,
+        taxaArrojado,
+        tempoSelecionado,
+        descontarInflacao,
+      ),
     },
     {
       id: "moderado",
       nome: "Moderado",
       cor: cores.primaria,
-      descricao:`50% Ibovespa (${taxaIbovespa.toFixed(1)}%) + 50% Renda Fixa (${taxaConservador.toFixed(1)}%), resultante:(${taxaModerado.toFixed(1)}%)`,
-      valor: calcularPatrimonio(aporteInicial, aporteMensal,taxaModerado, tempoSelecionado, descontarInflacao),
+      descricao: `50% Ibovespa (${taxaIbovespa.toFixed(1)}%) + 50% Renda Fixa (${taxaConservador.toFixed(1)}%), resultante:(${taxaModerado.toFixed(1)}%)`,
+      valor: calcularPatrimonio(
+        aporteInicial,
+        aporteMensal,
+        taxaModerado,
+        tempoSelecionado,
+        descontarInflacao,
+      ),
     },
     {
       id: "conservador",
       nome: "Conservador",
       cor: cores.positivo,
       descricao: `100% de renda fixa (${taxaConservador.toFixed(1)}%)`,
-      valor: calcularPatrimonio(aporteInicial, aporteMensal,taxaConservador, tempoSelecionado, descontarInflacao),
+      valor: calcularPatrimonio(
+        aporteInicial,
+        aporteMensal,
+        taxaConservador,
+        tempoSelecionado,
+        descontarInflacao,
+      ),
     },
   ];
 
@@ -152,38 +167,75 @@ export default function SimuladorScreen() {
         dadosModerado.push(viNum);
         dadosConservador.push(viNum);
       } else {
-        dadosArrojado.push(calcularPatrimonio(aporteInicial, aporteMensal, taxaArrojado, anoAtual, descontarInflacao));
-        dadosModerado.push(calcularPatrimonio(aporteInicial, aporteMensal, taxaModerado, anoAtual, descontarInflacao));
-        dadosConservador.push(calcularPatrimonio(aporteInicial, aporteMensal, taxaConservador, anoAtual, descontarInflacao));
+        dadosArrojado.push(
+          calcularPatrimonio(
+            aporteInicial,
+            aporteMensal,
+            taxaArrojado,
+            anoAtual,
+            descontarInflacao,
+          ),
+        );
+        dadosModerado.push(
+          calcularPatrimonio(
+            aporteInicial,
+            aporteMensal,
+            taxaModerado,
+            anoAtual,
+            descontarInflacao,
+          ),
+        );
+        dadosConservador.push(
+          calcularPatrimonio(
+            aporteInicial,
+            aporteMensal,
+            taxaConservador,
+            anoAtual,
+            descontarInflacao,
+          ),
+        );
       }
     }
 
     return {
       labels,
       datasets: [
-        { data: dadosArrojado.length > 0 ? dadosArrojado : [0], color: () => cores.texto, strokeWidth: 3 },
-        { data: dadosModerado.length > 0 ? dadosModerado : [0], color: () => cores.primaria, strokeWidth: 3 },
-        { data: dadosConservador.length > 0 ? dadosConservador : [0], color: () => cores.positivo, strokeWidth: 3 },
+        {
+          data: dadosArrojado.length > 0 ? dadosArrojado : [0],
+          color: () => cores.texto,
+          strokeWidth: 3,
+        },
+        {
+          data: dadosModerado.length > 0 ? dadosModerado : [0],
+          color: () => cores.primaria,
+          strokeWidth: 3,
+        },
+        {
+          data: dadosConservador.length > 0 ? dadosConservador : [0],
+          color: () => cores.positivo,
+          strokeWidth: 3,
+        },
       ],
     };
   };
 
-  const larguraTela = Dimensions.get("window").width * 0.85 - 32; 
-
+  const larguraTela = Dimensions.get("window").width * 0.85 - 32;
 
   return (
-    <ScrollView className="flex-1 bg-fundo" contentContainerStyle={{paddingVertical:24,alignItems:"center"}}>
+    <ScrollView
+      className="flex-1 bg-fundo"
+      contentContainerStyle={{ paddingVertical: 24, alignItems: "center" }}
+    >
       <View className="w-[85vw] gap-5">
-        
         <View className="w-full flex-row items-center justify-between ">
           <View className="flex-1">
-            <CabecalhoTela titulo="Simule décadas"/>
+            <CabecalhoTela titulo="Simule décadas" />
           </View>
-          <UserButtonCustomer onPress={()=>{}}/>
+          <UserButtonCustomer onPress={() => {}} />
         </View>
 
         <View className="bg-container w-full rounded-2xl gap-5 p-5 ">
-          {camposSimulacao.map((campo)=>(
+          {camposSimulacao.map((campo) => (
             <View key={campo.id} className="w-full gap-1">
               <Text className="font-corpo-bold text-base text-texto">
                 {campo.titulo}
@@ -206,16 +258,18 @@ export default function SimuladorScreen() {
               Tempo de investimento
             </Text>
             <View className="flex-row justify-between gap-2">
-              {anosOpcoes.map((anos)=>(
-                  <Pressable
-                    key={anos}
-                    onPress={()=>setTempoSelecionado(anos)}
-                    className={`flex-1 h-11 items-center justify-center rounded-xl border ${tempoSelecionado === anos ?"bg-texto border-texto":"bg-container border-texto/30"}`}
+              {anosOpcoes.map((anos) => (
+                <Pressable
+                  key={anos}
+                  onPress={() => setTempoSelecionado(anos)}
+                  className={`flex-1 h-11 items-center justify-center rounded-xl border ${tempoSelecionado === anos ? "bg-texto border-texto" : "bg-container border-texto/30"}`}
+                >
+                  <Text
+                    className={`font-corpo-bold text-sm ${tempoSelecionado === anos ? "text-fundo" : "text-texto"}`}
                   >
-                    <Text className={`font-corpo-bold text-sm ${tempoSelecionado === anos ? "text-fundo":"text-texto"}`}>
-                      {anos} anos
-                    </Text>
-                  </Pressable>
+                    {anos} anos
+                  </Text>
+                </Pressable>
               ))}
             </View>
           </View>
@@ -223,24 +277,25 @@ export default function SimuladorScreen() {
         <View className="bg-container w-full flex-row rounded-2xl gap-1 p-5 items-center justify-between">
           <View className="flex-1 pr-4 gap-1">
             <Text className="font-corpo-bold text-base text-texto">
-                Descontar inflação
+              Descontar inflação
             </Text>
             <Text className="font-corpo text-sm text-texto">
-                Mostra os valores em poder de compra de hoje (IPCA projetado de 4% a.a.)
+              Mostra os valores em poder de compra de hoje (IPCA projetado de 4%
+              a.a.)
             </Text>
           </View>
-          <SwitchCustomer 
-          value={descontarInflacao} 
-          onValueChange={setDescontarInflacao}
+          <SwitchCustomer
+            value={descontarInflacao}
+            onValueChange={setDescontarInflacao}
           />
         </View>
         <View className="bg-container w-full rounded-2xl gap-5 p-5">
           <Text className="font-corpo-bold text-xl text-texto">
-              Patrimônio projetado
+            Patrimônio projetado
           </Text>
 
-         <View className="items-center -ml-4 py-2">
-           <LineChart
+          <View className="items-center -ml-4 py-2">
+            <LineChart
               data={gerarDadosGrafico()}
               width={larguraTela + 20}
               height={180}
@@ -253,7 +308,7 @@ export default function SimuladorScreen() {
                 color: () => cores.texto,
                 labelColor: () => cores.subtexto,
               }}
-              withDots={false} 
+              withDots={false}
               withShadow={false}
               style={{
                 marginVertical: 4,
@@ -262,14 +317,16 @@ export default function SimuladorScreen() {
           </View>
 
           {perfisInvestimento.map((perfil) => (
-            <View 
-              key={perfil.id} 
+            <View
+              key={perfil.id}
               className="py-2 gap-1 not-last:border-b not-last:border-texto/10"
             >
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-2">
                   <Dot size={24} color={perfil.cor} weight="fill" />
-                  <Text className="font-corpo-bold text-base text-texto">{perfil.nome}</Text>
+                  <Text className="font-corpo-bold text-base text-texto">
+                    {perfil.nome}
+                  </Text>
                 </View>
                 <Text className="font-titulo-regular text-lg text-texto">
                   {formatarMoeda(perfil.valor)}
@@ -281,8 +338,12 @@ export default function SimuladorScreen() {
             </View>
           ))}
         </View>
-        {descontarInflacao && (<Text className="font-corpo text-xs text-subtexto  text-center">Valores acima já descontam a inflação projetada. Desative a opção para ver os valores nominais.</Text>)}
-
+        {descontarInflacao && (
+          <Text className="font-corpo text-xs text-subtexto  text-center">
+            Valores acima já descontam a inflação projetada. Desative a opção
+            para ver os valores nominais.
+          </Text>
+        )}
       </View>
     </ScrollView>
   );

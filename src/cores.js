@@ -5,6 +5,7 @@ const paleta = {
   fundo: "#F6F2E3",
   container: "#FFFFFF",
   texto: "#404E40",
+  vermelho: "#B94C57",
   positivo: "#7CB518",
   negativo: "#EF3054",
   provisionado:"#A3723F",
@@ -20,6 +21,7 @@ const cores = {
   inativo: `${paleta.texto}66`, // 40% opocidade, itens desativados (ex.: aba inativa)
   placeholder: `${paleta.texto}99`, // texto de placeholder em inputs
   trilho: `${paleta.texto}33`, // trilho desligado do Switch
+  vermelho: paleta.vermelho,
   positivo: paleta.positivo, // valorização, ganhos
   negativo: paleta.negativo, // desvalorização, perdas
   provisionado: paleta.provisionado,

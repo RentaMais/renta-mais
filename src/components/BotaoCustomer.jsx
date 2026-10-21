@@ -6,7 +6,7 @@ export function BotaoCustomer({ titulo, onPress, className = "" }) {
       onPress={onPress}
       className={`h-12 w-full items-center justify-center rounded-xl bg-texto active:opacity-80 ${className}`}
     >
-      <Text className="font-titulo text-lg text-fundo">{titulo}</Text>
+      <Text className="font-titulo text-xl text-container">{titulo}</Text>
     </Pressable>
   );
 }

@@ -7,9 +7,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#F7F3E3"
+      "backgroundColor": "#F6F2E3"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -22,7 +22,7 @@
       "package": "com.rentamais.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#F7F3E3"
+        "backgroundColor": "#A8763E"
       }
     },
     "plugins": [
