@@ -8,18 +8,16 @@ import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { BotaoPerfil } from "@/components/BotaoPerfil";
 import { cores } from "@/cores";
 
+import { formatarMil } from "@/utils/formatarMil";
 import inicioData from "@/mocks/inicio.json";
 
 const larguraTela = Dimensions.get("window").width;
-const larguraGrafico = larguraTela - 80;
-const PADDING_ESQUERDO_GRAFICO = 64;
+const larguraGrafico = larguraTela * 0.85;
 
 const TAMANHO_ROSCA = 140;
 const ESPESSURA_ROSCA = 28;
 const RAIO_ROSCA = (TAMANHO_ROSCA - ESPESSURA_ROSCA) / 2;
 const CIRCUNFERENCIA = 2 * Math.PI * RAIO_ROSCA;
-
-const formatarMil = (valor) => `${Math.round(valor / 1000)}k`;
 
 // react-native-chart-kit não desenha gráfico de rosca, então usamos SVG direto
 function Rosca({ dados }) {
@@ -150,8 +148,8 @@ export default function HomeScreen() {
       </View>
 
       {/* 3: Evolução Patrimonial */}
-      <View className="bg-card rounded-2xl p-5">
-        <Text className="font-titulo text-lg text-texto mb-4">
+      <View className="bg-card rounded-2xl py-5">
+        <Text className="font-titulo px-5 text-lg text-texto mb-4">
           Evolução Patrimonial
         </Text>
 
@@ -159,56 +157,25 @@ export default function HomeScreen() {
           data={inicioData.evolucao}
           width={larguraGrafico}
           height={180}
-          segments={2}
-          withInnerLines={false}
-          withOuterLines={false}
+          segments={3}
+          withInnerLines={true}
+          withOuterLines={true}
+          
           formatYLabel={(valor) => formatarMil(Number(valor))}
-          onDataPointClick={({ index }) => setSelecionado(index)}
-          renderDotContent={({ x, y, index, indexData }) =>
-            index === selecionado ? (
-              <View key={index} pointerEvents="none">
-                <View
-                  style={{
-                    position: "absolute",
-                    top: y,
-                    left: PADDING_ESQUERDO_GRAFICO,
-                    width: larguraGrafico - PADDING_ESQUERDO_GRAFICO,
-                    height: 1,
-                    overflow: "hidden",
-                  }}
-                >
-                  <View
-                    style={{
-                      height: 2,
-                      borderWidth: 1,
-                      borderStyle: "dashed",
-                      borderColor: cores.inativo,
-                    }}
-                  />
-                </View>
-                <Text
-                  className="font-titulo-regular text-xs text-primaria"
-                  style={{ position: "absolute", top: y - 22, left: x - 10 }}
-                >
-                  {formatarMil(indexData)}
-                </Text>
-              </View>
-            ) : null
-          }
           chartConfig={{
-            backgroundGradientFrom: cores.container,
-            backgroundGradientTo: cores.container,
+            backgroundGradientFrom: "transparent",
+            backgroundGradientTo: "transparent",
             decimalPlaces: 0,
             color: () => cores.primaria,
             labelColor: () => cores.primaria,
             fillShadowGradientFrom: cores.primaria,
-            fillShadowGradientFromOpacity: 0.12,
+            fillShadowGradientFromOpacity: 0.35,
             fillShadowGradientTo: cores.primaria,
             fillShadowGradientToOpacity: 0.02,
-            propsForLabels: { fontFamily: "Lora_400Regular" },
+            propsForLabels: { fontFamily: "Manrope_400Regular", fontSize: 10 },
             propsForDots: { r: "3", strokeWidth: "1", stroke: cores.primaria },
           }}
-          style={{ paddingRight: 0, alignSelf: "center" }}
+          style={{ paddingRight: 50, marginRight: 12, overflow: "hidden" }}
         />
       </View>
     </ScrollView>

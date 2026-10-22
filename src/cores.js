@@ -8,7 +8,7 @@ const paleta = {
   vermelho: "#B94C57",
   positivo: "#7CB518",
   negativo: "#EF3054",
-  provisionado:"#A3723F",
+  provisionado: "#A3723F",
 };
 
 // Papéis na interface. Usar estes nomes nas telas e componentes.
