@@ -1,11 +1,13 @@
-export async function criarAtivo(ativo) {
-  return { id: Date.now(), ...ativo };
-}
+import ativosDados from "@/mocks/ativos.json";
 
-export async function venderAtivo(venda){
-  return {id: Date.now(),tipo: "venda",...venda};
-}
+export function buscarAtivo(id){
+  const variavel = ativosDados.rendaVariavel.find(
+    (item) => item.id === Number(id),
+  );
+  if(variavel){
+    return{ tipo: "renda_variavel", ...variavel };
+  }
 
-export async function resgatarAtivo(resgate){
-  return {id:Date.now(),tipo:"resgate",...resgate};
+  const fixa = ativosDados.rendaFixa.find((item) => item.id === Number(id));
+  return {tipo: "renda_fixa",...fixa};
 }
