@@ -14,8 +14,8 @@ export function SeletorRenda({ value, onChange }) {
         <Text
           className={
             value === "Renda fixa"
-              ? "text-lg text-texto"
-              : "text-lg text-inativo"
+              ? "text-base font-corpo-bold text-texto"
+              : "text-base text-inativo font-corpo-bold"
           }
         >
           Renda fixa
@@ -32,8 +32,8 @@ export function SeletorRenda({ value, onChange }) {
         <Text
           className={
             value === "Renda variável"
-              ? "text-lg text-texto"
-              : "text-lg text-inativo"
+              ? "text-base font-corpo-bold text-texto"
+              : "text-base text-inativo font-corpo-bold"
           }
         >
           Renda variável
