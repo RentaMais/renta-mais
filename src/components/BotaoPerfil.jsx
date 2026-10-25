@@ -12,7 +12,7 @@ export function BotaoPerfil({ tamanho = 42, className = "" }) {
       style={{ width: tamanho, height: tamanho }}
       className={`items-center justify-center rounded-full bg-texto active:opacity-80 ${className}`}
     >
-      <User size={tamanho * 0.55} color={cores.fundo} weight="bold" />
+      <User size={tamanho * 0.55} color={cores.container} weight="bold" />
     </Pressable>
   );
 }

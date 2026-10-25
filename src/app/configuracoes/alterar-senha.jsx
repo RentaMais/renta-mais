@@ -1,8 +1,9 @@
 import { View, Pressable } from "react-native";
 import { useState } from "react";
-import {Eye, EyeSlash} from "phosphor-react-native";
+import { Eye, EyeSlash } from "phosphor-react-native";
 
 import { InputCustomer } from "@/components/InputCustomer";
+import { TelaCustomer } from "@/components/TelaCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
@@ -15,11 +16,12 @@ export default function AlterarSenhaScreen() {
 
   const [esconderSenhaAtual, setEsconderSenhaAtual] = useState(true);
   const [esconderNovaSenha, setEsconderNovaSenha] = useState(true);
-  const [esconderConfirmarNovaSenha, setEsconderConfirmarNovaSenha] = useState(true);
+  const [esconderConfirmarNovaSenha, setEsconderConfirmarNovaSenha] =
+    useState(true);
 
   return (
-    <View className="flex-1 items-center justify-center bg-fundo">
-      <View className="w-[85vw]">
+    <TelaCustomer className="justify-between">
+      <View className="mt-[120]">
         <VoltarCustomer />
 
         <CabecalhoTela
@@ -77,7 +79,9 @@ export default function AlterarSenhaScreen() {
             secureTextEntry={esconderConfirmarNovaSenha}
           />
           <Pressable
-            onPress={() => setEsconderConfirmarNovaSenha(!esconderConfirmarNovaSenha)}
+            onPress={() =>
+              setEsconderConfirmarNovaSenha(!esconderConfirmarNovaSenha)
+            }
             className="absolute right-4 top-[42px]"
           >
             {esconderConfirmarNovaSenha ? (
@@ -87,8 +91,8 @@ export default function AlterarSenhaScreen() {
             )}
           </Pressable>
         </View>
-        <BotaoCustomer titulo="Salvar nova senha" className="mt-[48]" />
       </View>
-    </View>
+      <BotaoCustomer titulo="Salvar nova senha" className="mt-[48]" />
+    </TelaCustomer>
   );
 }

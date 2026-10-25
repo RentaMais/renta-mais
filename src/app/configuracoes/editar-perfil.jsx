@@ -3,6 +3,7 @@ import { useState } from "react";
 import { User } from "phosphor-react-native";
 
 import { VoltarCustomer } from "@/components/VoltarCustomer";
+import { TelaCustomer } from "@/components/TelaCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { InputCustomer } from "@/components/InputCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
@@ -14,8 +15,8 @@ export default function EditarPerfilScreen() {
   const [email, setEmail] = useState("joao.pedro10@gmail.com");
 
   return (
-    <View className="flex-1 items-center justify-center bg-fundo">
-      <View className="w-[85vw]">
+    <TelaCustomer className="justify-between">
+      <View className="mt-[80]">
         <VoltarCustomer />
 
         <CabecalhoTela
@@ -51,20 +52,19 @@ export default function EditarPerfilScreen() {
           onChangeText={setEmail}
           className="mt-4"
         />
-
-        <AvisoCustomer
-          mensagem="Alterar o e-mail exige confirmação: enviaremos um link de verificação para o novo endereço."
-          className="mt-[36]"
-        />
-
-        <BotaoCustomer
-          titulo="Salvar alterações"
-          className="mt-[36]"
-          onPress={() => {
-            // Lógica para salvar as alterações
-          }}
-        />
       </View>
-    </View>
+
+      <AvisoCustomer
+        mensagem="Alterar o e-mail exige confirmação: enviaremos um link de verificação para o novo endereço."
+        className="mt-[36]"
+      />
+      <BotaoCustomer
+        titulo="Salvar alterações"
+        className="mt-[36]"
+        onPress={() => {
+          // Lógica para salvar as alterações
+        }}
+      />
+    </TelaCustomer>
   );
 }

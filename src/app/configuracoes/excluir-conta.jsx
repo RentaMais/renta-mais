@@ -9,7 +9,7 @@ import { InputCustomer } from "@/components/InputCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { IconeContainer } from "@/components/IconeContainer";
-import { cores } from "@/cores"
+import { cores } from "@/cores";
 
 export default function ExcluirContaScreen() {
   const router = useRouter();

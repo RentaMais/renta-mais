@@ -1,109 +1,87 @@
 import { useState } from "react";
-import { Text, View, ScrollView, Pressable, TextInput,Dimensions} from "react-native";
-import {Dot} from "phosphor-react-native"
-import {cores} from "@/cores"
-import { LineChart } from "react-native-chart-kit";
-import { CabecalhoTela } from "@/components/CabecalhoTela";
-import { BotaoPerfil } from "@/components/BotaoPerfil";
-import { SwitchCustomer } from "@/components/SwitchCustomer";
+import { Text, View, Pressable, TextInput, Dimensions } from "react-native";
+import { Dot } from "phosphor-react-native";
 
+import { cores } from "@/cores";
+import { LineChart } from "react-native-chart-kit";
+import { CabecalhoInicio } from "@/components/CabecalhoInicio";
+import { TelaCustomer } from "@/components/TelaCustomer";
+import { CardCustomer } from "@/components/CardCustomer";
+import { SwitchCustomer } from "@/components/SwitchCustomer";
+import { TituloCardCustomer } from "@/components/TituloCardCustomer";
+import { formatarReais } from "@/utils/formatarReais";
+
+import simuladorDados from "@/mocks/simulador.json";
 
 export default function SimuladorScreen() {
   const [aporteInicial, setAporteInicial] = useState("");
   const [aporteMensal, setAporteMensal] = useState("");
   const [rentabilidade, setRentabilidade] = useState("");
 
-
   const [tempoSelecionado, setTempoSelecionado] = useState(10);
   const [descontarInflacao, setDescontarInflacao] = useState(true);
 
-
-  const anosOpcoes = [10, 20, 30, 40];
-  const taxaIbovespa = 18.5;
-
-
-  const tratarAporte = (texto,setValor,limite) => {
+  const tratarAporte = (texto, setValor, limite) => {
     const apenasNums = texto.replace(/\D/g, "");
     const valor = Number(apenasNums) || 0;
     if (valor > limite) {
-      setValor(String(limite)); //
+      setValor(String(limite));
       return;
     }
     setValor(apenasNums);
   };
 
-
-
-
   const tratarRentabilidade = (texto) => {
-    const formatado = texto.replace(",",".");
+    const formatado = texto.replace(",", ".");
     const valor = Number(formatado) || 0;
-    if (valor > 50) {
-      setRentabilidade("50");
+    if (valor > simuladorDados.limiteRentabilidade) {
+      setRentabilidade(String(simuladorDados.limiteRentabilidade));
       return;
     }
     setRentabilidade(formatado);
   };
 
-
-  const camposSimulacao = [
-    {
-      id: "aporte-inicial",
-      titulo: "Aporte inicial",
-      placeholder: "R$ 10.000",
+  const acoesCampos = {
+    "aporte-inicial": {
       value: aporteInicial,
-      onChangeText: (t)=>tratarAporte(t,setAporteInicial,10000000),
+      onChangeText: (t) =>
+        tratarAporte(t, setAporteInicial, simuladorDados.limiteAporteInicial),
     },
-    {
-      id: "aporte-mensal",
-      titulo: "Aporte mensal",
-      placeholder: "R$ 1.000",
+    "aporte-mensal": {
       value: aporteMensal,
-      onChangeText: (t)=>tratarAporte(t,setAporteMensal,100000),
+      onChangeText: (t) =>
+        tratarAporte(t, setAporteMensal, simuladorDados.limiteAporteMensal),
     },
-    {
-      id: "rentabilidade",
-      titulo: "Rentabilidade da renda fixa (a.a.)",
-      placeholder: "11,5%",
+    rentabilidade: {
       value: rentabilidade,
       onChangeText: tratarRentabilidade,
     },
-  ];
-
+  };
 
   function calcularPatrimonio(vi, vm, taxaAnualPct, anos, inflacaoAtiva) {
     const viNum = Number(vi) || 0;
     const vmNum = Number(vm) || 0;
 
-
     let taxa = taxaAnualPct / 100;
 
-
     if (inflacaoAtiva) {
-      taxa = (1 + taxa) / (1 + 0.04) - 1;
+      taxa = (1 + taxa) / (1 + simuladorDados.taxaInflacao) - 1;
     }
-
 
     const iMensal = Math.pow(1 + taxa, 1 / 12) - 1;
     const tMeses = anos * 12;
 
-
     if (iMensal === 0) return viNum + vmNum * tMeses;
 
-
-    //FV(t) = VI * (1 + i)^t + VM * [((1 + i)^t - 1) / i]
     const parteVi = viNum * Math.pow(1 + iMensal, tMeses);
     const parteVm = vmNum * ((Math.pow(1 + iMensal, tMeses) - 1) / iMensal);
-
 
     return parteVi + parteVm;
   }
 
-
   function formatarValor(valor, comPrefixo = false) {
     const n = Number(valor) || 0;
     const prefixo = comPrefixo ? "R$ " : "";
-
 
     if (n >= 1000000) {
       return `${prefixo}${(n / 1000000).toFixed(1).replace(".", ",").replace(/,0$/, "")} mi`;
@@ -114,19 +92,18 @@ export default function SimuladorScreen() {
     return `${prefixo}${Math.round(n)}`;
   }
 
-
   const taxaRfNum = Number(rentabilidade.replace(",", ".")) || 0;
+  const taxaIbovespa = simuladorDados.taxaIbovespa;
   const taxaArrojado = 0.7 * taxaIbovespa + 0.3 * taxaRfNum;
   const taxaModerado = 0.5 * taxaIbovespa + 0.5 * taxaRfNum;
   const taxaConservador = taxaRfNum;
-
 
   const perfisInvestimento = [
     {
       id: "arrojado",
       nome: "Arrojado",
       cor: cores.texto,
-      descricao: `70% Ibovespa (${taxaIbovespa.toFixed(1)}%) + 30% Renda Fixa (${taxaConservador.toFixed(1)}%), resultante:(${taxaArrojado.toFixed(1)}%)`,
+      descricao: `70% Ibovespa (${taxaIbovespa.toFixed(1)}%) + 30% Renda Fixa (${taxaConservador.toFixed(1)}%), resultante: (${taxaArrojado.toFixed(1)}%)`,
       valor: calcularPatrimonio(
         aporteInicial,
         aporteMensal,
@@ -139,7 +116,7 @@ export default function SimuladorScreen() {
       id: "moderado",
       nome: "Moderado",
       cor: cores.primaria,
-      descricao: `50% Ibovespa (${taxaIbovespa.toFixed(1)}%) + 50% Renda Fixa (${taxaConservador.toFixed(1)}%), resultante:(${taxaModerado.toFixed(1)}%)`,
+      descricao: `50% Ibovespa (${taxaIbovespa.toFixed(1)}%) + 50% Renda Fixa (${taxaConservador.toFixed(1)}%), resultante: (${taxaModerado.toFixed(1)}%)`,
       valor: calcularPatrimonio(
         aporteInicial,
         aporteMensal,
@@ -163,7 +140,6 @@ export default function SimuladorScreen() {
     },
   ];
 
-
   const gerarDadosGrafico = () => {
     const passos = 5;
     const labels = [];
@@ -171,11 +147,9 @@ export default function SimuladorScreen() {
     const dadosModerado = [];
     const dadosConservador = [];
 
-
     for (let i = 0; i <= passos; i++) {
       const anoAtual = Math.round((tempoSelecionado / passos) * i);
       labels.push(anoAtual === 0 ? "0" : `${anoAtual}a`);
-
 
       if (anoAtual === 0) {
         const viNum = Number(aporteInicial) || 0;
@@ -213,7 +187,6 @@ export default function SimuladorScreen() {
       }
     }
 
-
     return {
       labels,
       datasets: [
@@ -236,28 +209,20 @@ export default function SimuladorScreen() {
     };
   };
 
-
   const larguraTela = Dimensions.get("window").width * 0.85 - 32;
 
-
   return (
-    <ScrollView
-      className="flex-1 bg-fundo"
-      contentContainerStyle={{ paddingVertical: 24, alignItems: "center" }}
-    >
-      <View className="w-[85vw] gap-5">
-        <View className="flex-row items-center justify-between mb-5">
-          <View className="flex-1">
-            <CabecalhoTela
-              titulo="Simule décadas"
-            />
-          </View>
-          <BotaoPerfil />
-        </View>
+    <TelaCustomer>
+      <CabecalhoInicio
+        subtitulo={simuladorDados.subtitulo}
+        titulo={simuladorDados.titulo}
+        descricao={simuladorDados.descricao}
+      />
 
-
-        <View className="bg-container w-full rounded-2xl gap-5 p-5 ">
-          {camposSimulacao.map((campo) => (
+      <CardCustomer className="gap-5">
+        {simuladorDados.campos.map((campo) => {
+          const acao = acoesCampos[campo.id];
+          return (
             <View key={campo.id} className="w-full gap-1">
               <Text className="font-corpo-bold text-base text-texto">
                 {campo.titulo}
@@ -266,88 +231,85 @@ export default function SimuladorScreen() {
                 <TextInput
                   placeholder={campo.placeholder}
                   placeholderTextColor={cores.placeholder}
-                  value={campo.value}
-                  onChangeText={campo.onChangeText}
+                  value={acao?.value}
+                  onChangeText={acao?.onChangeText}
                   keyboardType="numeric"
                   style={{ outlineStyle: "none" }}
-                  className=" font-titulo-regular text-xl text-primaria"
+                  className="font-corpo text-lg text-primaria"
                 />
               </View>
             </View>
-          ))}
-          <View className="w-full gap-2 pt-1">
-            <Text className="font-corpo-bold text-base text-texto">
-              Tempo de investimento
-            </Text>
-            <View className="flex-row justify-between gap-2">
-              {anosOpcoes.map((anos) => (
-                <Pressable
-                  key={anos}
-                  onPress={() => setTempoSelecionado(anos)}
-                  className={`flex-1 h-11 items-center justify-center rounded-xl border ${tempoSelecionado === anos ? "bg-texto border-texto" : "bg-container border-texto/30"}`}
+          );
+        })}
+
+        <View className="w-full gap-2">
+          <Text className="font-corpo-bold text-base text-texto">
+            Tempo de investimento
+          </Text>
+          <View className="flex-row justify-between gap-2">
+            {simuladorDados.anosOpcoes.map((anos) => (
+              <Pressable
+                key={anos}
+                onPress={() => setTempoSelecionado(anos)}
+                className={`flex-1 h-11 items-center justify-center rounded-xl border ${
+                  tempoSelecionado === anos
+                    ? "bg-texto border-texto"
+                    : "bg-container border-texto/30"
+                }`}
+              >
+                <Text
+                  className={`font-corpo-bold text-sm ${
+                    tempoSelecionado === anos ? "text-fundo" : "text-texto"
+                  }`}
                 >
-                  <Text
-                    className={`font-corpo-bold text-sm ${tempoSelecionado === anos ? "text-fundo" : "text-texto"}`}
-                  >
-                    {anos} anos
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
+                  {anos} anos
+                </Text>
+              </Pressable>
+            ))}
           </View>
         </View>
-        <View className="bg-container w-full flex-row rounded-2xl gap-1 p-5 items-center justify-between">
-          <View className="flex-1 pr-4 gap-1">
-            <Text className="font-corpo-bold text-base text-texto">
-              Descontar inflação
-            </Text>
-            <Text className="font-corpo text-sm text-texto">
-              Mostra os valores em poder de compra de hoje (IPCA projetado de 4%
-              a.a.)
-            </Text>
-          </View>
-          <SwitchCustomer
-            value={descontarInflacao}
-            onValueChange={setDescontarInflacao}
+      </CardCustomer>
+
+      <CardCustomer className="flex-row items-center justify-between">
+        <View className="flex-1 pr-4 gap-1">
+          <TituloCardCustomer titulo="Descontar inflação" />
+
+          <Text className="font-corpo text-sm text-texto">
+            Mostra os valores em poder de compra de hoje (IPCA projetado de 4%
+            a.a.)
+          </Text>
+        </View>
+        <SwitchCustomer
+          value={descontarInflacao}
+          onValueChange={setDescontarInflacao}
+        />
+      </CardCustomer>
+
+      <CardCustomer className="gap-5">
+        <TituloCardCustomer titulo="Patrimônio projetado" />
+
+        <View className="items-center -ml-4">
+          <LineChart
+            data={gerarDadosGrafico()}
+            width={larguraTela + 20}
+            height={180}
+            formatYLabel={(v) => formatarValor(v)}
+            chartConfig={{
+              backgroundColor: "transparent",
+              backgroundGradientFrom: "transparent",
+              backgroundGradientTo: "transparent",
+              decimalPlaces: 0,
+              color: () => cores.texto,
+              labelColor: () => cores.subtexto,
+            }}
+            withDots={false}
+            withShadow={false}
           />
         </View>
-        <View className="bg-container w-full rounded-2xl gap-5 p-5">
-          <Text className="font-corpo-bold text-xl text-texto">
-            Patrimônio projetado
-          </Text>
 
-
-          <View className="items-center -ml-4 py-2">
-            <LineChart
-              data={gerarDadosGrafico()}
-              width={larguraTela + 20}
-              height={180}
-              withInnerLines={true}
-              withOuterLines={true}
-          
-              formatYLabel={(v) => formatarValor(v)}
-              chartConfig={{
-                backgroundColor: "transparent",
-                backgroundGradientFrom: "transparent",
-                backgroundGradientTo: "transparent",
-                decimalPlaces: 0,
-                color: () => cores.texto,
-                labelColor: () => cores.subtexto,
-              }}
-              withDots={false}
-              withShadow={false}
-              style={{
-                marginVertical: 4,
-              }}
-            />
-          </View>
-
-
+        <View className="divide-y divide-texto/10">
           {perfisInvestimento.map((perfil) => (
-            <View
-              key={perfil.id}
-              className="py-2 gap-1 not-last:border-b not-last:border-texto/10"
-            >
+            <View key={perfil.id} className="py-3 gap-1">
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-2">
                   <Dot size={24} color={perfil.cor} weight="fill" />
@@ -355,8 +317,8 @@ export default function SimuladorScreen() {
                     {perfil.nome}
                   </Text>
                 </View>
-                <Text className="font-titulo-regular text-lg text-texto">
-                  {formatarValor(perfil.valor,true)}
+                <Text className="font-corpo-bold text-base text-texto">
+                  {formatarReais(perfil.valor)}
                 </Text>
               </View>
               <Text className="font-corpo text-xs text-subtexto pl-8">
@@ -365,13 +327,14 @@ export default function SimuladorScreen() {
             </View>
           ))}
         </View>
-        {descontarInflacao && (
-          <Text className="font-corpo text-xs text-subtexto  text-center">
-            Valores acima já descontam a inflação projetada. Desative a opção
-            para ver os valores nominais.
-          </Text>
-        )}
-      </View>
-    </ScrollView>
+      </CardCustomer>
+
+      {descontarInflacao && (
+        <Text className="font-corpo text-xs text-subtexto text-center">
+          Valores acima já descontam a inflação projetada. Desative a opção para
+          ver os valores nominais.
+        </Text>
+      )}
+    </TelaCustomer>
   );
 }

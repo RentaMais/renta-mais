@@ -7,6 +7,7 @@ import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
+import { TelaCustomer } from "@/components/TelaCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { IconeContainer } from "@/components/IconeContainer";
 
@@ -15,8 +16,8 @@ export default function EsqueciSenhaScreen() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 items-center justify-center bg-fundo">
-      <View className="w-[85vw]">
+    <TelaCustomer className="justify-between">
+      <View className="mt-[180]">
         <VoltarCustomer />
         <IconeContainer icone={LockSimpleIcon} tipo="bold" className="mb-4" />
 
@@ -32,18 +33,18 @@ export default function EsqueciSenhaScreen() {
           onChangeText={setEmail}
           className="mt-[36]"
         />
-        <BotaoCustomer
-          titulo="Enviar link de recuperação"
-          className="mt-[48]"
-          onPress={()=> router.push("/redefinir-senha")}
-        />
-        {email ? (
-          <AvisoCustomer
-            mensagem={`Link enviado para ${email}.\nVerifique também a caixa de spam.`}
-            className="mt-4"
-          />
-        ) : null}
       </View>
-    </View>
+      <BotaoCustomer
+        titulo="Enviar link de recuperação"
+        className="mt-[48]"
+        onPress={() => router.push("/redefinir-senha")}
+      />
+      {email ? (
+        <AvisoCustomer
+          mensagem={`Link enviado para ${email}.\nVerifique também a caixa de spam.`}
+          className="mt-4"
+        />
+      ) : null}
+    </TelaCustomer>
   );
 }

@@ -1,4 +1,4 @@
-import { View, Pressable} from "react-native";
+import { View, Pressable } from "react-native";
 import { useState } from "react";
 import { PasswordIcon, Eye, EyeSlash } from "phosphor-react-native";
 import { useRouter } from "expo-router";
@@ -7,6 +7,7 @@ import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
+import { TelaCustomer } from "@/components/TelaCustomer";
 import { IconeContainer } from "@/components/IconeContainer";
 import { cores } from "@/cores";
 
@@ -18,8 +19,8 @@ export default function RedefinirSenhaScreen() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 items-center justify-center bg-fundo">
-      <View className="w-[85vw]">
+    <TelaCustomer className="justify-between">
+      <View className="mt-[180]">
         <VoltarCustomer />
         <IconeContainer icone={PasswordIcon} tipo="bold" className="mb-4" />
 
@@ -67,8 +68,13 @@ export default function RedefinirSenhaScreen() {
             )}
           </Pressable>
         </View>
-        <BotaoCustomer titulo="Salvar nova senha" className="mt-[48]" onPress={() => router.push("/login")}/>
       </View>
-    </View>
+
+      <BotaoCustomer
+        titulo="Salvar nova senha"
+        className="mt-[48]"
+        onPress={() => router.push("/login")}
+      />
+    </TelaCustomer>
   );
 }

@@ -3,7 +3,7 @@ import { useNavigation } from "expo-router";
 import { ArrowLeftIcon } from "phosphor-react-native";
 import { cores } from "@/cores";
 
-export function VoltarCustomer() {
+export function VoltarCustomer({ texto = "Voltar" }) {
   const navigation = useNavigation();
 
   return (
@@ -12,7 +12,7 @@ export function VoltarCustomer() {
       className="flex-row items-center gap-2 self-start mb-4"
     >
       <ArrowLeftIcon size={15} weight="bold" color={cores.primaria} />
-      <Text className="font-corpo-bold text-primaria">Voltar</Text>
+      <Text className="font-corpo-bold text-primaria">{texto}</Text>
     </Pressable>
   );
 }

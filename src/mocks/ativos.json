@@ -6,27 +6,27 @@
       "ticker": "ITUB4",
       "quantidade": 300,
       "precoMedio": 10.1,
-      "detalhe": "300 un - PM R$ 10,10",
       "valor": "R$ 3.135,00",
-      "variacao": "1,8"
+      "variacao": "1,8",
+      "imagem": "itau.jpg"
     },
     {
       "id": 2,
       "ticker": "PETR4",
       "quantidade": 120,
       "precoMedio": 34.8,
-      "detalhe": "120 un - PM R$ 34,80",
       "valor": "R$ 5.616,00",
-      "variacao": "6,2"
+      "variacao": "6,2",
+      "imagem": "petrobras.jpg"
     },
     {
       "id": 3,
       "ticker": "VALE3",
       "quantidade": 60,
       "precoMedio": 74.2,
-      "detalhe": "60 un - PM R$ 73,37",
       "valor": "R$ 3.486,00",
-      "variacao": "6,2"
+      "variacao": "-2,2",
+      "imagem": "vale.jpg"
     }
   ],
   "rendaFixa": [
@@ -35,8 +35,7 @@
       "nome": "Tesouro Selic 2026",
       "taxa": "100% Selic",
       "vencimento": "03/2026",
-      "detalhe": "100% Selic - vence 03/2026",
-      "valorInicial":15000,
+      "valorInicial": 15000,
       "valor": "R$ 15.000,00"
     },
     {
@@ -44,8 +43,7 @@
       "nome": "CDB Banco XP",
       "taxa": "110% do DI",
       "vencimento": "08/2026",
-      "detalhe": "110% do DI - vence 08/2026",
-      "valorInicial":8000,
+      "valorInicial": 8000,
       "valor": "R$ 8.000,00"
     }
   ]
