@@ -6,7 +6,7 @@ import {
   CaretRight,
   Envelope,
 } from "phosphor-react-native";
-
+import { IconeContainer } from "@/components/IconeContainer";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { cores } from "@/cores";
@@ -24,7 +24,7 @@ function TituloSecao({ titulo }) {
 
 export default function CentralScreen() {
   const [busca, setBusca] = useState("");
-  // Estado para controlar qual pergunta do FAQ está aberta (index 0 aberta por padrão como no print)
+  // Estado para controlar qual pergunta do FAQ está aberta,inicializa com index 0 aberto
   const [perguntaAberta, setPerguntaAberta] = useState(0);
 
   return (
@@ -85,10 +85,13 @@ export default function CentralScreen() {
         </View>
 
         <TituloSecao titulo="Ainda precisa de ajuda?" />
-        <View className="bg-container p-4 rounded-xl border border-texto/10 flex-row items-center gap-4">
-          <View className="h-12 w-12 items-center justify-center rounded-lg bg-primaria/20">
-            <Envelope size={24} color={cores.primaria} weight="bold" />
-          </View>
+        <View className="bg-container p-4 rounded-xl border border-texto/10 flex-row items-center gap-4">        
+          <IconeContainer 
+            icone={Envelope} 
+            tipo="bold" 
+            tamanho={48} 
+            className="rounded-lg bg-primaria/20" 
+          />
           <View className="flex-1">
             <Text className="font-titulo text-texto text-base">
               suporte@rentamais.com

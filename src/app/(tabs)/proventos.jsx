@@ -1,7 +1,7 @@
 import { useState} from "react";
 import { Text, View, ScrollView,FlatList} from "react-native";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
-import { UserButtonCustomer } from "@/components/UserButtonCustomer";
+import { BotaoPerfil } from "@/components/BotaoPerfil";
 import {proventosMock} from "@/mocks/assets/proventosMock"
 import { BarChart } from "react-native-chart-kit";
 import { cores } from "@/cores";
@@ -82,13 +82,16 @@ export default function ProventosScreen() {
     <ScrollView className="flex-1 bg-fundo" contentContainerStyle={{ paddingVertical: 24, alignItems: "center" }}>
       <View className="w-[85vw] gap-5">
         
-        {/* Cabeçalho */}
-        <View className="w-full flex-row items-center justify-between">
+        
+        <View className="flex-row items-center justify-between mb-5">
           <View className="flex-1">
-            <CabecalhoTela titulo="Proventos" />
+            <CabecalhoTela
+              titulo="Proventos"
+            />
           </View>
-          <UserButtonCustomer onPress={() => {}} />
+          <BotaoPerfil />
         </View>
+
 
     
         <View className="w-full bg-texto rounded-2xl flex-row p-5 justify-between">
