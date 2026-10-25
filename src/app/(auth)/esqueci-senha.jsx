@@ -1,6 +1,7 @@
 import { View } from "react-native";
 import { useState } from "react";
 import { LockSimpleIcon } from "phosphor-react-native";
+import { useRouter } from "expo-router";
 
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
@@ -9,8 +10,9 @@ import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { IconeContainer } from "@/components/IconeContainer";
 
-export default function LoginScreen() {
+export default function EsqueciSenhaScreen() {
   const [email, setEmail] = useState("");
+  const router = useRouter();
 
   return (
     <View className="flex-1 items-center justify-center bg-fundo">
@@ -33,6 +35,7 @@ export default function LoginScreen() {
         <BotaoCustomer
           titulo="Enviar link de recuperação"
           className="mt-[48]"
+          onPress={()=> router.push("/redefinir-senha")}
         />
         {email ? (
           <AvisoCustomer

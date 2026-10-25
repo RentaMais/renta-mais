@@ -12,7 +12,7 @@ export function VoltarCustomer() {
       className="flex-row items-center gap-2 self-start mb-4"
     >
       <ArrowLeftIcon size={15} weight="bold" color={cores.primaria} />
-      <Text className="font-corpo-bold text-s text-primaria">Voltar</Text>
+      <Text className="font-corpo-bold text-primaria">Voltar</Text>
     </Pressable>
   );
 }

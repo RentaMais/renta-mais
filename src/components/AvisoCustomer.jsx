@@ -16,5 +16,5 @@ export function AvisoCustomer({ mensagem, className = "" }) {
         {mensagem}
       </Text>
     </View>
-  );
+  );a
 }

@@ -1,6 +1,7 @@
-import { Text, Image, View } from "react-native";
+import { Text, Image, View, Pressable } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
+import { Eye, EyeSlash } from "phosphor-react-native";
 
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
@@ -10,6 +11,7 @@ import { cores } from "@/cores";
 export default function LoginScreen() {
   const [email, setEmail] = useState();
   const [senha, setSenha] = useState();
+  const [esconderSenha, setEsconderSenha] = useState(true);
   const router = useRouter();
 
   return (
@@ -34,16 +36,29 @@ export default function LoginScreen() {
           titulo="E-mail"
           placeholder="Digite seu email"
           value={email}
-          onChangeText={() => {}}
+          onChangeText={setEmail}
           className="mt-[48]"
         />
-        <InputCustomer
-          titulo="Senha"
-          placeholder="Digite sua senha"
-          value={senha}
-          onChangeText={() => {}}
-          className="mt-4"
-        />
+        <View className="relative w-full">
+          <InputCustomer
+            titulo="Senha"
+            placeholder="Digite sua senha"
+            value={senha}
+            secureTextEntry={esconderSenha}
+            onChangeText={setSenha}
+            className="mt-4"
+          />
+          <Pressable
+            onPress={() => setEsconderSenha(!esconderSenha)}
+            className="absolute right-4 top-[58px]"
+          >
+            {esconderSenha ? (
+              <Eye size={20} color={cores.subtexto} />
+            ) : (
+              <EyeSlash size={20} color={cores.subtexto} />
+            )}
+          </Pressable>
+        </View>
 
         <Text
           className="text-right text-sm underline text-primaria font-corpo-bold mt-2"

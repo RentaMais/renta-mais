@@ -1,7 +1,7 @@
-import { View } from "react-native";
+import { View, Pressable } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { WarningIcon } from "phosphor-react-native";
+import { WarningIcon, Eye, EyeSlash } from "phosphor-react-native";
 
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
@@ -9,11 +9,14 @@ import { InputCustomer } from "@/components/InputCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { IconeContainer } from "@/components/IconeContainer";
+import { cores } from "@/cores"
 
 export default function ExcluirContaScreen() {
   const router = useRouter();
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [esconderSenha, setEsconderSenha] = useState(true);
+  const [esconderConfirmarSenha, setEsconderConfirmarSenha] = useState(true);
 
   return (
     <View className="flex-1 items-center justify-center bg-fundo">
@@ -26,23 +29,47 @@ export default function ExcluirContaScreen() {
           descricao="Esta ação é irreversível. Digite sua senha para prosseguir."
         />
 
-        <InputCustomer
-          titulo="Senha"
-          placeholder="Digite sua senha"
-          value={senha}
-          onChangeText={setSenha}
-          secureTextEntry={true}
-          className="mt-6"
-        />
+        <View className="relative w-full">
+          <InputCustomer
+            titulo="Senha"
+            placeholder="Digite sua senha"
+            value={senha}
+            onChangeText={setSenha}
+            secureTextEntry={esconderSenha}
+            className="mt-6"
+          />
+          <Pressable
+            onPress={() => setEsconderSenha(!esconderSenha)}
+            className="absolute right-4 top-[68px]"
+          >
+            {esconderSenha ? (
+              <Eye size={20} color={cores.subtexto} />
+            ) : (
+              <EyeSlash size={20} color={cores.subtexto} />
+            )}
+          </Pressable>
+        </View>
 
-        <InputCustomer
-          titulo="Confirmar senha"
-          placeholder="Digite novamente"
-          value={confirmarSenha}
-          onChangeText={setConfirmarSenha}
-          secureTextEntry={true}
-          className="mt-4"
-        />
+        <View className="relative w-full">
+          <InputCustomer
+            titulo="Confirmar senha"
+            placeholder="Digite novamente"
+            value={confirmarSenha}
+            onChangeText={setConfirmarSenha}
+            secureTextEntry={esconderConfirmarSenha}
+            className="mt-4"
+          />
+          <Pressable
+            onPress={() => setEsconderConfirmarSenha(!esconderConfirmarSenha)}
+            className="absolute right-4 top-[58px]"
+          >
+            {esconderConfirmarSenha ? (
+              <Eye size={20} color={cores.subtexto} />
+            ) : (
+              <EyeSlash size={20} color={cores.subtexto} />
+            )}
+          </Pressable>
+        </View>
 
         <AvisoCustomer
           mensagem="Ao excluir sua conta, todos os seus dados serão apagados permanentemente. Você tem até 30 dias para entrar em contato e recuperar sua conta. Após esse prazo, não será possível reverter a exclusão"

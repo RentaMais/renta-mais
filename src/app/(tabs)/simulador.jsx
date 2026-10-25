@@ -4,7 +4,7 @@ import {Dot} from "phosphor-react-native"
 import {cores} from "@/cores"
 import { LineChart } from "react-native-chart-kit";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
-import { UserButtonCustomer } from "@/components/UserButtonCustomer";
+import { BotaoPerfil } from "@/components/BotaoPerfil";
 import { SwitchCustomer } from "@/components/SwitchCustomer";
 
 export default function SimuladorScreen() {
@@ -227,11 +227,13 @@ export default function SimuladorScreen() {
       contentContainerStyle={{ paddingVertical: 24, alignItems: "center" }}
     >
       <View className="w-[85vw] gap-5">
-        <View className="w-full flex-row items-center justify-between ">
+        <View className="flex-row items-center justify-between mb-5">
           <View className="flex-1">
-            <CabecalhoTela titulo="Simule décadas" />
+            <CabecalhoTela
+              titulo="Simule décadas"
+            />
           </View>
-          <UserButtonCustomer onPress={() => {}} />
+          <BotaoPerfil />
         </View>
 
         <View className="bg-container w-full rounded-2xl gap-5 p-5 ">
