@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { cores } from "@/cores";
 
-export function IconeContainer({
+export function IconeCustomer({
   icone: IconeComponente,
   tamanho = 56,
   tipo = "regular",

@@ -1,12 +1,13 @@
 import { Text, View, Pressable } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import {Eye, EyeSlash} from "phosphor-react-native";
+import { Eye, EyeSlash } from "phosphor-react-native";
 
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
+import { TelaCustomer } from "@/components/TelaCustomer";
 import { cores } from "@/cores";
 
 export default function CadastroScreen() {
@@ -19,8 +20,8 @@ export default function CadastroScreen() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 items-center justify-center bg-fundo">
-      <View className="w-[85vw]">
+    <TelaCustomer className="justify-between">
+      <View className="mt-[120]">
         <VoltarCustomer />
         <CabecalhoTela subtitulo="Primeiros passos" titulo="Crie sua conta" />
         <InputCustomer
@@ -47,14 +48,14 @@ export default function CadastroScreen() {
             secureTextEntry={mostrarSenha}
           />
           <Pressable
-            onPress={() =>setMostrarSenha(!mostrarSenha)}
+            onPress={() => setMostrarSenha(!mostrarSenha)}
             className="absolute right-4 top-[58px]"
           >
-          {mostrarSenha ? (
-            <Eye size={20} color={cores.subtexto}/>
-          ):( 
-            <EyeSlash size={20} color={cores.subtexto}/>
-          )}
+            {mostrarSenha ? (
+              <Eye size={20} color={cores.subtexto} />
+            ) : (
+              <EyeSlash size={20} color={cores.subtexto} />
+            )}
           </Pressable>
         </View>
 
@@ -67,8 +68,8 @@ export default function CadastroScreen() {
             className="mt-4"
             secureTextEntry={mostrarConfirmarSenha}
           />
-          <Pressable 
-            onPress={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)} 
+          <Pressable
+            onPress={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)}
             className="absolute right-4 top-[58px]"
           >
             {mostrarConfirmarSenha ? (
@@ -78,7 +79,9 @@ export default function CadastroScreen() {
             )}
           </Pressable>
         </View>
+      </View>
 
+      <View>
         {/* TODO: Implementar validação para o cadastro */}
         <BotaoCustomer
           titulo="Criar conta"
@@ -90,6 +93,6 @@ export default function CadastroScreen() {
           privacidade
         </Text>
       </View>
-    </View>
+    </TelaCustomer>
   );
 }

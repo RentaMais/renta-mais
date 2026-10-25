@@ -1,4 +1,4 @@
-import { Switch } from "react-native";
+import { Switch, Platform } from "react-native";
 import { cores } from "@/cores";
 
 export function SwitchCustomer({ value, onValueChange }) {
@@ -6,8 +6,17 @@ export function SwitchCustomer({ value, onValueChange }) {
     <Switch
       value={value}
       onValueChange={onValueChange}
-      trackColor={{ false: cores.trilho, true: cores.primaria }}
-      thumbColor={value ? cores.container : cores.fundo}
+      trackColor={{
+        false: cores.trilho,
+        true: cores.primaria,
+      }}
+      thumbColor={
+        Platform.OS === "android"
+          ? value
+            ? cores.container
+            : cores.subtexto
+          : undefined
+      }
       ios_backgroundColor={cores.trilho}
     />
   );

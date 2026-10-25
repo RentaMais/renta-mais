@@ -7,6 +7,7 @@ import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { cores } from "@/cores";
+import { TelaCustomer } from "@/components/TelaCustomer";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState();
@@ -15,8 +16,8 @@ export default function LoginScreen() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 items-center justify-center bg-fundo">
-      <View className="w-[85vw]">
+    <TelaCustomer className="justify-between">
+      <View className="mt-[180]">
         <Image
           source={require("../../../assets/logo.png")}
           style={{
@@ -59,14 +60,15 @@ export default function LoginScreen() {
             )}
           </Pressable>
         </View>
-
         <Text
           className="text-right text-sm underline text-primaria font-corpo-bold mt-2"
           onPress={() => router.push("/esqueci-senha")}
         >
           Esqueci minha senha
         </Text>
+      </View>
 
+      <View>
         {/* TODO: Implementar autentição e validação para o login */}
         <BotaoCustomer
           titulo="Entrar"
@@ -85,6 +87,6 @@ export default function LoginScreen() {
           </Text>
         </View>
       </View>
-    </View>
+    </TelaCustomer>
   );
 }

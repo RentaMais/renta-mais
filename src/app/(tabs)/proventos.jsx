@@ -1,31 +1,42 @@
 import { useState } from "react";
-import { Text, View, ScrollView, FlatList } from "react-native";
-import { CabecalhoTela } from "@/components/CabecalhoTela";
-import { BotaoPerfil } from "@/components/BotaoPerfil";
-import proventosMock from "@/mocks/proventos.json";
-import inicioData from "@/mocks/inicio.json";
-import valores from "@/mocks/historicoProventos.json"
+import { Text, View, FlatList } from "react-native";
 import { BarChart } from "react-native-chart-kit";
-import { cores } from "@/cores";
 
+import { TelaCustomer } from "@/components/TelaCustomer";
+import { CardCustomer } from "@/components/CardCustomer";
+import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
+import { TituloCardCustomer } from "@/components/TituloCardCustomer";
+
+import { cores } from "@/cores";
+import proventosMock from "@/mocks/proventos.json";
+import valores from "@/mocks/historicoProventos.json";
 
 const QTD_MESES = 12;
-const MESES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+const MESES = [
+  "Jan",
+  "Fev",
+  "Mar",
+  "Abr",
+  "Mai",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Set",
+  "Out",
+  "Nov",
+  "Dez",
+];
 
 const MAX = Math.max(...valores);
 
-
-const formatarValor = (valor) => {
-   const formatado = valor.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return `R$ ${formatado}`;
-};
-
-
 const corDaBarra = (v) => {
   const p = v / MAX;
-  return p >= 0.75 ? cores.primaria : p >= 0.45 ? `${cores.primaria}B3` : `${cores.primaria}66`;
+  return p >= 0.75
+    ? cores.primaria
+    : p >= 0.45
+      ? `${cores.primaria}B3`
+      : `${cores.primaria}66`;
 };
-
 
 const gerarUltimosMeses = (qtd) => {
   const hoje = new Date();
@@ -35,10 +46,8 @@ const gerarUltimosMeses = (qtd) => {
   });
 };
 
-
 function GraficoProventos() {
   const [largura, setLargura] = useState(0);
-
 
   const dados = {
     labels: gerarUltimosMeses(QTD_MESES),
@@ -50,7 +59,6 @@ function GraficoProventos() {
     ],
   };
 
-
   return (
     <View
       className="w-full"
@@ -60,112 +68,117 @@ function GraficoProventos() {
         <BarChart
           data={dados}
           width={largura}
-          height={190}
+          height={180}
           segments={4}
           fromZero
           showValuesOnTopOfBars={true}
+          showBarTops={false}
           withCustomBarColorFromData
           flatColor
+          yAxisLabel="R$ "
           chartConfig={{
             backgroundGradientFrom: "transparent",
             backgroundGradientTo: "transparent",
             color: () => cores.primaria,
             labelColor: () => cores.subtexto,
-            barPercentage: 0.3,
+            barPercentage: 0.5,
             decimalPlaces: 0,
-            propsForLabels: { fontSize: 8 },
+            propsForTopLabels: { fontSize: 9, dy: -6 },
+            propsForLabels: { fontSize: 8.5 },
             propsForBackgroundLines: { stroke: "transparent" },
           }}
-          style={{
-            paddingRight: 45,
-            paddingLeft: 0,
-            marginLeft: -10
-          }}
+          style={{ paddingRight: 45 }}
         />
       )}
     </View>
   );
 }
 
-
 export default function ProventosScreen() {
- 
-  const totalRecebidoNum = valores.reduce((acc, curr) => acc + curr, 0);
- 
-  const patrimonioTotalNum = inicioData.patrimonioTotal || 0;
-
-  const dyMedioNum = patrimonioTotalNum > 0 ? (totalRecebidoNum / patrimonioTotalNum) * 100 : 0;
-
-
   return (
-    <ScrollView className="flex-1 bg-fundo" contentContainerStyle={{ paddingVertical: 24, alignItems: "center" }}>
-      <View className="w-[85vw] gap-5">
-       
-        <View className="flex-row items-center justify-between mb-5">
-          <View className="flex-1">
-            <CabecalhoTela titulo="Proventos" />
-          </View>
-          <BotaoPerfil />
+    <TelaCustomer>
+      <CabecalhoPrincipal
+        subtitulo="Renda passiva"
+        titulo="Proventos"
+        descricao="Acompanhe seus dividendos e rendimentos"
+      />
+
+      {/* Resumo visual */}
+      <View className="flex-row justify-between rounded-2xl bg-texto p-4">
+        <View className="flex-1 items-center border-r border-container/20 pr-3">
+          <Text className="mb-1 font-corpo-bold text-xs text-container/60">
+            Total recebido
+          </Text>
+          <Text className="font-titulo text-xl text-container">R$ 7.460</Text>
         </View>
-
-
-        {/* Card de Resumo com Valores Dinâmicos */}
-        <View className="w-full bg-texto rounded-2xl flex-row p-5 justify-between">
-          <View className="flex-1 border-r border-container/20 pr-3 items-center">
-            <Text className="text-container/60 text-xs mb-1 font-corpo-bold">Total recebido</Text>
-            <Text className="text-container text-xl font-bold">
-              {formatarValor(totalRecebidoNum)}
-            </Text>
-          </View>
-          <View className="flex-1 items-center">
-            <Text className="text-container/60 text-xs mb-1 font-corpo-bold">DY médio</Text>
-            <Text className="text-container text-xl font-bold">{dyMedioNum.toFixed(1).replace(".", ",")}%</Text>
-          </View>
+        <View className="flex-1 items-center">
+          <Text className="mb-1 font-corpo-bold text-xs text-container/60">
+            DY médio
+          </Text>
+          <Text className="font-titulo text-xl text-container">7,4%</Text>
         </View>
+      </View>
 
+      {/* Gráfico */}
+      <CardCustomer className="gap-4">
+        <TituloCardCustomer titulo={`Últimos ${QTD_MESES} meses`} />
+        <GraficoProventos />
+      </CardCustomer>
 
-        <View className="w-full bg-white rounded-2xl p-5 gap-4">
-          <Text className="text-texto/70 text-base font-semibold mb-2">Últimos {QTD_MESES} meses</Text>
-          <GraficoProventos />
-        </View>
+      {/* Próximos Pagamentos */}
+      <CardCustomer>
+        <TituloCardCustomer titulo="Próximos pagamentos" className="mb-4" />
 
-
-        <View className="w-full bg-white rounded-2xl p-5 gap-6">
-          <Text className="text-texto/70 text-base font-semibold mb-4">Próximos pagamentos (Outubro)</Text>
-
-
-          <FlatList
-            data={proventosMock}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            ListEmptyComponent={() => (
-              <View className="py-8 items-center justify-center">
-                <Text className="text-texto/40 text-sm font-corpo text-center">
-                  Nenhum provento disponivel no momento.
+        <FlatList
+          data={proventosMock}
+          keyExtractor={(item) => item.id}
+          scrollEnabled={false}
+          ItemSeparatorComponent={() => (
+            <View className="h-[1px] my-3 bg-texto/10" />
+          )}
+          ListEmptyComponent={() => (
+            <View className="items-center justify-center py-8">
+              <Text className="text-center font-corpo text-sm text-texto/40">
+                Nenhum provento disponível no momento.
+              </Text>
+            </View>
+          )}
+          renderItem={({ item }) => (
+            <View className="flex-row justify-between">
+              <View className="gap-1">
+                <Text className="font-corpo-bold text-base text-texto">
+                  {item.ticker}
+                </Text>
+                <Text className="font-corpo text-sm text-subtexto">
+                  {item.data}
                 </Text>
               </View>
-            )}
-            renderItem={({ item }) => {
-              return (
-                <View className="w-full flex-row justify-between border-b border-texto/20 pb-3">
-                  <View className="gap-2 mt-3">
-                    <Text className="text-texto font-bold text-base">{item.ticker}</Text>
-                    <Text className="text-texto/50 text-sm mt-1">{item.data}</Text>
-                  </View>
-                  <View className="items-end gap-2 mt-3">
-                    <Text className="text-texto font-bold text-sm">{item.dividendo}</Text>
-                    <View className={`px-2 py-1 rounded-full mt-1 ${item.status === 'Pago' ? 'bg-positivo/20' : 'bg-provisionado/20'}`}>
-                      <Text className={`text-xs font-medium ${item.status === 'Pago' ? 'text-positivo' : 'text-provisionado'}`}>{item.status}</Text>
-                    </View>
-                  </View>
+              <View className="items-end gap-1">
+                <Text className="font-corpo-bold text-sm text-texto">
+                  {item.dividendo}
+                </Text>
+                <View
+                  className={`rounded-full px-2 py-0.5 ${
+                    item.status === "Pago"
+                      ? "bg-positivo/20"
+                      : "bg-provisionado/20"
+                  }`}
+                >
+                  <Text
+                    className={`font-corpo-medium text-xs ${
+                      item.status === "Pago"
+                        ? "text-positivo"
+                        : "text-provisionado"
+                    }`}
+                  >
+                    {item.status}
+                  </Text>
                 </View>
-              );
-            }}
-          />
-        </View>
-
-
-      </View>
-    </ScrollView>
+              </View>
+            </View>
+          )}
+        />
+      </CardCustomer>
+    </TelaCustomer>
   );
 }

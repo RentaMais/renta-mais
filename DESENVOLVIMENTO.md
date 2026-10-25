@@ -126,7 +126,7 @@ renta-mais/
 │   │   ├── _layout.jsx            # providers e proteção de rotas
 │   │   ├── (auth)/                # login, cadastro, esqueci-senha
 │   │   ├── (tabs)/                # index, ativos, rentabilidade, proventos, simulador
-│   │   ├── ativo/                 # novo.jsx, [id].jsx (detalhe, venda/resgate)
+│   │   ├── ativos/                 # novo.jsx, [id].jsx (detalhe, venda/resgate)
 │   │   └── configuracoes/         # index, editar-perfil, alterar-senha, ajuda
 │   ├── components/                # Button, Input, Card, Screen (uso compartilhado)
 │   ├── services/                  # supabase.js, brapi.js e funções de acesso
@@ -155,7 +155,7 @@ As pastas devem ser criadas conforme a necessidade, quando a primeira tela que a
 | --- | --- |
 | UC01, 02, 03, 15 | `(auth)/*`, saída da conta |
 | UC04 | `(tabs)/index` |
-| UC05, 06, 07, 16, 17 | `(tabs)/ativos`, `ativo/novo`, `ativo/[id]` |
+| UC05, 06, 07, 16, 17 | `(tabs)/ativos`, `ativos/novo`, `ativos/[id]` |
 | UC08 | `(tabs)/rentabilidade` |
 | UC09 | `(tabs)/proventos` |
 | UC10 | `(tabs)/simulador` |

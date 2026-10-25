@@ -8,8 +8,8 @@ import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { InputCustomer } from "@/components/InputCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
-import { IconeContainer } from "@/components/IconeContainer";
-import { cores } from "@/cores"
+import { IconeCustomer } from "@/components/IconeCustomer";
+import { cores } from "@/cores";
 
 export default function ExcluirContaScreen() {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function ExcluirContaScreen() {
     <View className="flex-1 items-center justify-center bg-fundo">
       <View className="w-[85vw]">
         <VoltarCustomer />
-        <IconeContainer icone={WarningIcon} tipo="bold" className="mb-4" />
+        <IconeCustomer icone={WarningIcon} tipo="bold" className="mb-4" />
 
         <CabecalhoTela
           titulo="Confirmar exclusão de conta"

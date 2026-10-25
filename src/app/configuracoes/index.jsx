@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { User, CaretRight } from "phosphor-react-native";
 
 import { VoltarCustomer } from "@/components/VoltarCustomer";
+import { TelaCustomer } from "@/components/TelaCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 
@@ -41,8 +42,8 @@ export default function ConfiguracoesScreen() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 items-center justify-center bg-fundo">
-      <View className="w-[85vw]">
+    <TelaCustomer>
+      <View className="mt-[80]">
         <VoltarCustomer />
 
         <CabecalhoTela
@@ -52,7 +53,7 @@ export default function ConfiguracoesScreen() {
 
         <View className="mt-6 flex-row items-center gap-4 rounded-2xl">
           <View className="h-16 w-16 items-center justify-center rounded-full bg-texto">
-            <User size={32} color={cores.fundo} weight="bold" />
+            <User size={32} color={cores.container} weight="bold" />
           </View>
           <View>
             <Text className="font-titulo text-xl text-texto">João Pedro</Text>
@@ -84,20 +85,20 @@ export default function ConfiguracoesScreen() {
           />
           <ItemMenu titulo="Versão do app" valor="0.1.0" temSeta={false} />
         </View>
-
-        <View className="mt-[48] gap-3">
-          <BotaoCustomer
-            titulo="Sair da conta"
-            className="bg-vermelho"
-            onPress={() => router.push("/(auth)/login")}
-          />
-          <BotaoCustomer
-            titulo="Excluir conta"
-            className="bg-vermelho"
-            onPress={() => router.push("/configuracoes/excluir-conta")}
-          />
-        </View>
       </View>
-    </View>
+
+      <View className="gap-3 mt-[120]">
+        <BotaoCustomer
+          titulo="Sair da conta"
+          className="bg-vermelho"
+          onPress={() => router.push("/(auth)/login")}
+        />
+        <BotaoCustomer
+          titulo="Excluir conta"
+          className="bg-vermelho"
+          onPress={() => router.push("/configuracoes/excluir-conta")}
+        />
+      </View>
+    </TelaCustomer>
   );
 }

@@ -1,11 +1,13 @@
-import { View, Text, ScrollView, Dimensions, Pressable } from "react-native";
+import { View, Text, Dimensions, Pressable } from "react-native";
 import { useState } from "react";
 import { Eye, EyeSlash, CaretUp } from "phosphor-react-native";
 import { LineChart } from "react-native-chart-kit";
 import Svg, { Circle, G } from "react-native-svg";
 
-import { CabecalhoTela } from "@/components/CabecalhoTela";
-import { BotaoPerfil } from "@/components/BotaoPerfil";
+import { TelaCustomer } from "@/components/TelaCustomer";
+import { CardCustomer } from "@/components/CardCustomer";
+import { TituloCardCustomer } from "@/components/TituloCardCustomer";
+import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { cores } from "@/cores";
 
 import { formatarMil } from "@/utils/formatarMil";
@@ -19,7 +21,6 @@ const ESPESSURA_ROSCA = 28;
 const RAIO_ROSCA = (TAMANHO_ROSCA - ESPESSURA_ROSCA) / 2;
 const CIRCUNFERENCIA = 2 * Math.PI * RAIO_ROSCA;
 
-// react-native-chart-kit não desenha gráfico de rosca, então usamos SVG direto
 function Rosca({ dados }) {
   const total = dados.reduce((soma, item) => soma + item.valor, 0);
   const centro = TAMANHO_ROSCA / 2;
@@ -52,15 +53,16 @@ function Rosca({ dados }) {
   );
 }
 const formatarValor = (valor) => {
-  const formatado = valor.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const formatado = valor
+    .toFixed(2)
+    .replace(".", ",")
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   return `R$ ${formatado}`;
 };
 
 export default function HomeScreen() {
   const [esconder, setEsconder] = useState(false);
-  
 
-  // Mapeamento das cores da divisão da carteira direto pelo index
   const coresDivisao = [cores.texto, cores.primaria];
 
   const dadosDivisaoFormatados = inicioData.divisao.map((item, index) => ({
@@ -69,34 +71,23 @@ export default function HomeScreen() {
   }));
 
   return (
-    <ScrollView
-      className="flex-1 bg-fundo"
-      contentContainerStyle={{
-        paddingHorizontal: 24,
-        paddingTop: 48,
-        paddingBottom: 40,
-      }}
-      showsVerticalScrollIndicator={false}
-    >
-      <View className="flex-row items-center justify-between mb-6">
-        <View className="flex-1">
-          <CabecalhoTela
-            subtitulo={inicioData.saudacao}
-            titulo="Sua carteira"
-          />
-        </View>
-        <BotaoPerfil />
-      </View>
+    <TelaCustomer>
+      <CabecalhoPrincipal
+        subtitulo={inicioData.saudacao}
+        titulo="Sua carteira"
+      />
 
-      {/* 1: Patrimônio total */}
-      <View className="bg-texto rounded-2xl p-6 mb-6 flex-row items-center justify-between">
+      {/* Patrimônio total */}
+      <View className="bg-texto rounded-2xl p-6 flex-row items-center justify-between">
         <View className="flex-1 gap-2">
           <Text className="font-titulo text-base text-fundo">
             Patrimônio total
           </Text>
 
           <Text className="font-titulo text-4xl text-container">
-            {esconder ? "R$ ••••••••" : formatarValor(Number(inicioData.patrimonioTotal))}
+            {esconder
+              ? "R$ ••••••••"
+              : formatarValor(Number(inicioData.patrimonioTotal))}
           </Text>
 
           <View className="flex-row items-center gap-2">
@@ -117,11 +108,9 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      {/* 2: Divisão da Carteira */}
-      <View className="bg-card rounded-2xl p-5 mb-6">
-        <Text className="font-titulo text-lg text-texto mb-3">
-          Divisão da carteira
-        </Text>
+      {/* Divisão da Carteira */}
+      <CardCustomer>
+        <TituloCardCustomer titulo="Divisão da carteira" className="mb-4" />
 
         <View className="flex-row items-center justify-between">
           <Rosca dados={dadosDivisaoFormatados} />
@@ -149,13 +138,14 @@ export default function HomeScreen() {
             ))}
           </View>
         </View>
-      </View>
+      </CardCustomer>
 
-      {/* 3: Evolução Patrimonial */}
-      <View className="bg-card rounded-2xl py-5">
-        <Text className="font-titulo px-5 text-lg text-texto mb-4">
-          Evolução Patrimonial
-        </Text>
+      {/* Evolução Patrimonial */}
+      <CardCustomer className="px-0 py-5">
+        <TituloCardCustomer
+          titulo="Evolução Patrimonial"
+          className="px-5 mb-4"
+        />
 
         <LineChart
           data={inicioData.evolucao}
@@ -164,8 +154,7 @@ export default function HomeScreen() {
           segments={3}
           withInnerLines={true}
           withOuterLines={true}
-          
-          formatYLabel={(valor) => formatarMil(Number(valor))}
+          formatYLabel={(valor) => formatarMil(valor)}
           chartConfig={{
             backgroundGradientFrom: "transparent",
             backgroundGradientTo: "transparent",
@@ -181,7 +170,7 @@ export default function HomeScreen() {
           }}
           style={{ paddingRight: 50, marginRight: 12, overflow: "hidden" }}
         />
-      </View>
-    </ScrollView>
+      </CardCustomer>
+    </TelaCustomer>
   );
 }

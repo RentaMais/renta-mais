@@ -26,9 +26,9 @@ export default function RootLayout() {
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen
-        name="ativo/novo"
+        name="ativos/novo"
         options={{
-          presentation: "modal"
+          presentation: "modal",
         }}
       />
     </Stack>
