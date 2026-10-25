@@ -11,7 +11,7 @@ import {
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CardCustomer } from "@/components/CardCustomer";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
-import { CabecalhoInicio } from "@/components/CabecalhoInicio";
+import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { cores } from "@/cores";
 import { formatarMoeda } from "@/utils/formatarMoeda";
 import ativosDados from "@/mocks/ativos.json";
@@ -34,7 +34,7 @@ export default function AtivoScreen() {
   return (
     <View className="flex-1">
       <TelaCustomer>
-        <CabecalhoInicio
+        <CabecalhoPrincipal
           subtitulo="Carteira completa"
           titulo="Meus ativos"
           descricao={"Total investido: " + ativosDados.totalInvestido}

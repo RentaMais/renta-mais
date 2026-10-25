@@ -8,7 +8,7 @@ import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
-import { IconeContainer } from "@/components/IconeContainer";
+import { IconeCustomer } from "@/components/IconeCustomer";
 import { cores } from "@/cores";
 
 export default function RedefinirSenhaScreen() {
@@ -22,7 +22,7 @@ export default function RedefinirSenhaScreen() {
     <TelaCustomer className="justify-between">
       <View className="mt-[180]">
         <VoltarCustomer />
-        <IconeContainer icone={PasswordIcon} tipo="bold" className="mb-4" />
+        <IconeCustomer icone={PasswordIcon} tipo="bold" className="mb-4" />
 
         <CabecalhoTela
           titulo="Redefinir senha"

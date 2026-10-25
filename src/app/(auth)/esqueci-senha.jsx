@@ -9,7 +9,7 @@ import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
-import { IconeContainer } from "@/components/IconeContainer";
+import { IconeCustomer } from "@/components/IconeCustomer";
 
 export default function EsqueciSenhaScreen() {
   const [email, setEmail] = useState("");
@@ -19,7 +19,7 @@ export default function EsqueciSenhaScreen() {
     <TelaCustomer className="justify-between">
       <View className="mt-[180]">
         <VoltarCustomer />
-        <IconeContainer icone={LockSimpleIcon} tipo="bold" className="mb-4" />
+        <IconeCustomer icone={LockSimpleIcon} tipo="bold" className="mb-4" />
 
         <CabecalhoTela
           subtitulo="Recuperar acesso"

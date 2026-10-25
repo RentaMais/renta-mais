@@ -1,7 +1,7 @@
 import { View, Text, Pressable } from "react-native";
 import { useState } from "react";
 import { CaretDown, CaretRight, Envelope } from "phosphor-react-native";
-import { IconeContainer } from "@/components/IconeContainer";
+import { IconeCustomer } from "@/components/IconeCustomer";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { cores } from "@/cores";
@@ -67,7 +67,7 @@ export default function CentralScreen() {
       <View>
         <TituloSecao titulo="Ainda precisa de ajuda?" />
         <View className="bg-container p-4 rounded-xl border border-texto/10 flex-row items-center gap-4">
-          <IconeContainer
+          <IconeCustomer
             icone={Envelope}
             tipo="bold"
             tamanho={48}

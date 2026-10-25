@@ -7,7 +7,7 @@ import Svg, { Circle, G } from "react-native-svg";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CardCustomer } from "@/components/CardCustomer";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
-import { CabecalhoInicio } from "@/components/CabecalhoInicio";
+import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { cores } from "@/cores";
 
 import { formatarMil } from "@/utils/formatarMil";
@@ -72,7 +72,10 @@ export default function HomeScreen() {
 
   return (
     <TelaCustomer>
-      <CabecalhoInicio subtitulo={inicioData.saudacao} titulo="Sua carteira" />
+      <CabecalhoPrincipal
+        subtitulo={inicioData.saudacao}
+        titulo="Sua carteira"
+      />
 
       {/* Patrimônio total */}
       <View className="bg-texto rounded-2xl p-6 flex-row items-center justify-between">

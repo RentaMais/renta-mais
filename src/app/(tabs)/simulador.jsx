@@ -4,7 +4,7 @@ import { Dot } from "phosphor-react-native";
 
 import { cores } from "@/cores";
 import { LineChart } from "react-native-chart-kit";
-import { CabecalhoInicio } from "@/components/CabecalhoInicio";
+import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CardCustomer } from "@/components/CardCustomer";
 import { SwitchCustomer } from "@/components/SwitchCustomer";
@@ -213,7 +213,7 @@ export default function SimuladorScreen() {
 
   return (
     <TelaCustomer>
-      <CabecalhoInicio
+      <CabecalhoPrincipal
         subtitulo={simuladorDados.subtitulo}
         titulo={simuladorDados.titulo}
         descricao={simuladorDados.descricao}

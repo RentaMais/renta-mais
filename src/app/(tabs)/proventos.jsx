@@ -4,7 +4,7 @@ import { BarChart } from "react-native-chart-kit";
 
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CardCustomer } from "@/components/CardCustomer";
-import { CabecalhoInicio } from "@/components/CabecalhoInicio";
+import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
 
 import { cores } from "@/cores";
@@ -97,7 +97,7 @@ function GraficoProventos() {
 export default function ProventosScreen() {
   return (
     <TelaCustomer>
-      <CabecalhoInicio
+      <CabecalhoPrincipal
         subtitulo="Renda passiva"
         titulo="Proventos"
         descricao="Acompanhe seus dividendos e rendimentos"
