@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { InfoIcon } from "phosphor-react-native";
 
 import { VoltarCustomer } from "@/components/VoltarCustomer";
+import { TelaCustomer } from "@/components/TelaCustomer";
 import { CabecalhoAtivo } from "@/components/CabecalhoAtivo";
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
@@ -192,17 +193,8 @@ export default function OperacaoAtivoScreen() {
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-fundo"
-      contentContainerStyle={{
-        paddingTop: 48,
-        paddingBottom: 40,
-        paddingHorizontal: 24,
-      }}
-      showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
-    >
-      <View className="w-[85vw] flex-1">
+    <TelaCustomer className="justify-between">
+      <View className="mt-[120]">
         <VoltarCustomer texto="Cancelar" />
 
         <View className="mb-6">
@@ -237,14 +229,12 @@ export default function OperacaoAtivoScreen() {
             {erro}
           </Text>
         )}
-
-        <View className="mt-8">
-          <BotaoCustomer
-            titulo={ehVariavel ? "Confirmar venda" : "Confirmar resgate"}
-            onPress={confirmar}
-          />
-        </View>
       </View>
-    </ScrollView>
+
+      <BotaoCustomer
+        titulo={ehVariavel ? "Confirmar venda" : "Confirmar resgate"}
+        onPress={confirmar}
+      />
+    </TelaCustomer>
   );
 }

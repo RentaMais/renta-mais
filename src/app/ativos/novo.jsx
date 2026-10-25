@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { CaretDownIcon, CaretUpIcon } from "phosphor-react-native";
 
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { InputCustomer } from "@/components/InputCustomer";
+import { TelaCustomer } from "@/components/TelaCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { SeletorRenda } from "@/components/SeletorRenda";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
@@ -210,16 +211,8 @@ export default function AdicionarAtivoScreen() {
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-fundo"
-      contentContainerStyle={{
-        paddingHorizontal: 24,
-        paddingTop: 48,
-        paddingBottom: 40,
-      }}
-      showsVerticalScrollIndicator={false}
-    >
-      <View className="w-[85vw] flex-1">
+    <TelaCustomer className="justify-between">
+      <View className="mt-[80]">
         <VoltarCustomer texto="Cancelar" />
 
         <View className="mb-6">
@@ -271,11 +264,11 @@ export default function AdicionarAtivoScreen() {
             {erro}
           </Text>
         )}
-
-        <View className="mt-6">
-          <BotaoCustomer titulo="Salvar ativo" onPress={salvar} />
-        </View>
       </View>
-    </ScrollView>
+
+      <View className="mt-6">
+        <BotaoCustomer titulo="Salvar ativo" onPress={salvar} />
+      </View>
+    </TelaCustomer>
   );
 }
