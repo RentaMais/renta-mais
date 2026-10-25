@@ -1,7 +1,6 @@
-import { View, Text, TextInput, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import { useState } from "react";
 import {
-  MagnifyingGlass,
   CaretDown,
   CaretRight,
   Envelope,
@@ -23,7 +22,6 @@ function TituloSecao({ titulo }) {
 }
 
 export default function CentralScreen() {
-  const [busca, setBusca] = useState("");
   // Estado para controlar qual pergunta do FAQ está aberta,inicializa com index 0 aberto
   const [perguntaAberta, setPerguntaAberta] = useState(0);
 
@@ -41,16 +39,7 @@ export default function CentralScreen() {
           descricao="Tire dúvidas ou fale com o suporte"
         />
 
-        <View className="mt-6 flex-row items-center h-12 rounded-xl border border-texto/20 bg-container px-4 gap-3">
-          <MagnifyingGlass size={20} color={cores.subtexto} />
-          <TextInput
-            placeholder="Buscar uma dúvida..."
-            placeholderTextColor={cores.placeholder}
-            value={busca}
-            onChangeText={setBusca}
-            className="flex-1 font-corpo text-sm text-texto"
-          />
-        </View>
+      
 
         <TituloSecao titulo="Perguntas frequentes" />
         <View className="bg-container px-4 rounded-xl border border-texto/10 divide-y divide-texto/10">

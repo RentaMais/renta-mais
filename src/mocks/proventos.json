@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1",
+    "ticker": "VALE3",
+    "data": "Dividendo - 08 out",
+    "dividendo": "R$ 350,00",
+    "status": "Pago"
+  },
+  {
+    "id": "2",
+    "ticker": "BBAS3",
+    "data": "Dividendo - 15 out",
+    "dividendo": "R$ 250,00",
+    "status": "Provisionado"
+  },
+  {
+    "id": "3",
+    "ticker": "TAEE11",
+    "data": "Dividendo - 30 out",
+    "dividendo": "R$ 150,00",
+    "status": "Provisionado"
+  }
+]

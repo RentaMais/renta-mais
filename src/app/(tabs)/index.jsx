@@ -51,10 +51,14 @@ function Rosca({ dados }) {
     </Svg>
   );
 }
+const formatarValor = (valor) => {
+  const formatado = valor.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `R$ ${formatado}`;
+};
 
 export default function HomeScreen() {
   const [esconder, setEsconder] = useState(false);
-  const [selecionado, setSelecionado] = useState(2);
+  
 
   // Mapeamento das cores da divisão da carteira direto pelo index
   const coresDivisao = [cores.texto, cores.primaria];
@@ -92,7 +96,7 @@ export default function HomeScreen() {
           </Text>
 
           <Text className="font-titulo text-4xl text-container">
-            {esconder ? "R$ ••••••••" : inicioData.patrimonioTotal}
+            {esconder ? "R$ ••••••••" : formatarValor(Number(inicioData.patrimonioTotal))}
           </Text>
 
           <View className="flex-row items-center gap-2">

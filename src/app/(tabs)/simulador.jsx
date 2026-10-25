@@ -7,26 +7,32 @@ import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { BotaoPerfil } from "@/components/BotaoPerfil";
 import { SwitchCustomer } from "@/components/SwitchCustomer";
 
+
 export default function SimuladorScreen() {
   const [aporteInicial, setAporteInicial] = useState("");
   const [aporteMensal, setAporteMensal] = useState("");
   const [rentabilidade, setRentabilidade] = useState("");
 
+
   const [tempoSelecionado, setTempoSelecionado] = useState(10);
   const [descontarInflacao, setDescontarInflacao] = useState(true);
 
+
   const anosOpcoes = [10, 20, 30, 40];
   const taxaIbovespa = 18.5;
+
 
   const tratarAporte = (texto,setValor,limite) => {
     const apenasNums = texto.replace(/\D/g, "");
     const valor = Number(apenasNums) || 0;
     if (valor > limite) {
-      setValor(String(limite)); // 
+      setValor(String(limite)); //
       return;
     }
     setValor(apenasNums);
   };
+
+
 
 
   const tratarRentabilidade = (texto) => {
@@ -38,6 +44,7 @@ export default function SimuladorScreen() {
     }
     setRentabilidade(formatado);
   };
+
 
   const camposSimulacao = [
     {
@@ -63,50 +70,56 @@ export default function SimuladorScreen() {
     },
   ];
 
+
   function calcularPatrimonio(vi, vm, taxaAnualPct, anos, inflacaoAtiva) {
     const viNum = Number(vi) || 0;
     const vmNum = Number(vm) || 0;
 
+
     let taxa = taxaAnualPct / 100;
+
 
     if (inflacaoAtiva) {
       taxa = (1 + taxa) / (1 + 0.04) - 1;
     }
 
+
     const iMensal = Math.pow(1 + taxa, 1 / 12) - 1;
     const tMeses = anos * 12;
 
+
     if (iMensal === 0) return viNum + vmNum * tMeses;
+
 
     //FV(t) = VI * (1 + i)^t + VM * [((1 + i)^t - 1) / i]
     const parteVi = viNum * Math.pow(1 + iMensal, tMeses);
     const parteVm = vmNum * ((Math.pow(1 + iMensal, tMeses) - 1) / iMensal);
 
+
     return parteVi + parteVm;
   }
 
-  function formatarMoeda(valor) {
-    if (valor >= 1000000) {
-      return `R$ ${(valor / 1000000).toFixed(1).replace(".", ",")} mi`;
-    } else if (valor >= 1000) {
-      return `R$ ${(valor / 1000).toFixed(0)} mil`;
+
+  function formatarValor(valor, comPrefixo = false) {
+    const n = Number(valor) || 0;
+    const prefixo = comPrefixo ? "R$ " : "";
+
+
+    if (n >= 1000000) {
+      return `${prefixo}${(n / 1000000).toFixed(1).replace(".", ",").replace(/,0$/, "")} mi`;
     }
-    return `R$ ${valor.toFixed(0)}`;
+    if (n >= 1000) {
+      return `${prefixo}${Math.round(n / 1000)} mil`;
+    }
+    return `${prefixo}${Math.round(n)}`;
   }
 
-  function formatarEixo(v) {
-    const n = Number(v);
-    if (n >= 1000000) {
-      return `${(n / 1000000).toFixed(1).replace(".", ",").replace(/,0$/, "")} mi`;
-    }
-    if (n >= 1000) return `${Math.round(n / 1000)} mil`;
-    return String(Math.round(n));
-  }
 
   const taxaRfNum = Number(rentabilidade.replace(",", ".")) || 0;
   const taxaArrojado = 0.7 * taxaIbovespa + 0.3 * taxaRfNum;
   const taxaModerado = 0.5 * taxaIbovespa + 0.5 * taxaRfNum;
   const taxaConservador = taxaRfNum;
+
 
   const perfisInvestimento = [
     {
@@ -150,6 +163,7 @@ export default function SimuladorScreen() {
     },
   ];
 
+
   const gerarDadosGrafico = () => {
     const passos = 5;
     const labels = [];
@@ -157,9 +171,11 @@ export default function SimuladorScreen() {
     const dadosModerado = [];
     const dadosConservador = [];
 
+
     for (let i = 0; i <= passos; i++) {
       const anoAtual = Math.round((tempoSelecionado / passos) * i);
       labels.push(anoAtual === 0 ? "0" : `${anoAtual}a`);
+
 
       if (anoAtual === 0) {
         const viNum = Number(aporteInicial) || 0;
@@ -197,6 +213,7 @@ export default function SimuladorScreen() {
       }
     }
 
+
     return {
       labels,
       datasets: [
@@ -219,7 +236,9 @@ export default function SimuladorScreen() {
     };
   };
 
+
   const larguraTela = Dimensions.get("window").width * 0.85 - 32;
+
 
   return (
     <ScrollView
@@ -235,6 +254,7 @@ export default function SimuladorScreen() {
           </View>
           <BotaoPerfil />
         </View>
+
 
         <View className="bg-container w-full rounded-2xl gap-5 p-5 ">
           {camposSimulacao.map((campo) => (
@@ -296,12 +316,16 @@ export default function SimuladorScreen() {
             Patrimônio projetado
           </Text>
 
+
           <View className="items-center -ml-4 py-2">
             <LineChart
               data={gerarDadosGrafico()}
               width={larguraTela + 20}
               height={180}
-              formatYLabel={(v) => formatarEixo(v)}
+              withInnerLines={true}
+              withOuterLines={true}
+          
+              formatYLabel={(v) => formatarValor(v)}
               chartConfig={{
                 backgroundColor: "transparent",
                 backgroundGradientFrom: "transparent",
@@ -318,6 +342,7 @@ export default function SimuladorScreen() {
             />
           </View>
 
+
           {perfisInvestimento.map((perfil) => (
             <View
               key={perfil.id}
@@ -331,7 +356,7 @@ export default function SimuladorScreen() {
                   </Text>
                 </View>
                 <Text className="font-titulo-regular text-lg text-texto">
-                  {formatarMoeda(perfil.valor)}
+                  {formatarValor(perfil.valor,true)}
                 </Text>
               </View>
               <Text className="font-corpo text-xs text-subtexto pl-8">
