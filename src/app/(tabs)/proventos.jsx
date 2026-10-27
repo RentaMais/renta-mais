@@ -40,10 +40,14 @@ const corDaBarra = (v) => {
 
 const gerarUltimosMeses = (qtd) => {
   const hoje = new Date();
-  return Array.from({ length: qtd }, (_, i) => {
+  const mesesGerados = [];
+
+  for (let i = 0; i < qtd; i++) {
     const d = new Date(hoje.getFullYear(), hoje.getMonth() - (qtd - 1 - i), 1);
-    return MESES[d.getMonth()];
-  });
+    mesesGerados.push(MESES[d.getMonth()]);
+  }
+
+  return mesesGerados;
 };
 
 function GraficoProventos() {
