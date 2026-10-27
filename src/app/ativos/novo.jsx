@@ -85,7 +85,7 @@ function FormularioRendaFixa({
         <View className="flex-1">
           <InputCustomer
             titulo="Taxa"
-            placeholder="100 %"
+            placeholder="100%"
             value={taxa}
             onChangeText={setTaxa}
           />
