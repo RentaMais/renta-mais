@@ -10,10 +10,11 @@ import { TelaCustomer } from "@/components/TelaCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { SeletorRenda } from "@/components/SeletorRenda";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
+import { formatarMoeda } from "@/utils/formatarMoeda";
 
 import { cores } from "@/cores";
 
-// Componente local para formulário de Renda Fixa
+//Formulário de Renda Fixa
 function FormularioRendaFixa({
   nome,
   setNome,
@@ -100,7 +101,7 @@ function FormularioRendaFixa({
   );
 }
 
-// Componente local para formulário de Renda Variável
+//Formulário de Renda Variável
 function FormularioRendaVariavel({
   ticker,
   setTicker,
@@ -145,12 +146,7 @@ function FormularioRendaVariavel({
         onChangeText={setDataCompra}
       />
       <AvisoCustomer
-        mensagem={
-          "Valor investido estimado: R$ " +
-          valorInvestido.toLocaleString("pt-BR", {
-            minimumFractionDigits: 2,
-          })
-        }
+        mensagem={`Valor investido estimado: ${formatarMoeda(valorInvestido)}`}
       />
     </View>
   );
@@ -181,7 +177,7 @@ export default function AdicionarAtivoScreen() {
   const precoNumero = Number(precoMedio.replace(",", ".")) || 0;
   const valorInvestido = quantidadeNumero * precoNumero;
 
-  async function salvar() {
+  function salvar() {
     if (tipoRenda === "Renda fixa") {
       if (!nome.trim() || !valor.trim() || !taxa.trim() || !vencimento.trim()) {
         setErro("Preencha todos os campos");
@@ -192,12 +188,7 @@ export default function AdicionarAtivoScreen() {
         return;
       }
     } else {
-      if (
-        !ticker.trim() ||
-        !quantidade.trim() ||
-        !precoMedio.trim() ||
-        !dataCompra.trim()
-      ) {
+      if (!ticker.trim() || !quantidade.trim() || !precoMedio.trim() || !dataCompra.trim()) {
         setErro("Preencha todos os campos");
         return;
       }
