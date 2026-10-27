@@ -1,0 +1,11 @@
+{
+    "rendimento12Meses": "8,4",
+    "meses":[
+        {"mes": "Abr","nome": "Abril","carteira": 1.1,"cdi":0.7,"ibovespa":-0.7},
+        {"mes": "Mai","nome": "Maio","carteira": 0.3,"cdi": 0.5,"ibovespa": 0.6},
+        {"mes": "Jun","nome": "Junho","carteira": -0.7,"cdi": 0.5,"ibovespa": -1.4},
+        {"mes": "Jul","nome": "Julho","carteira": 1.6,"cdi": 0.8,"ibovespa": 2.1},
+        {"mes": "Ago","nome": "Agosto","carteira": 0.8,"cdi": 0.8,"ibovespa": 0.4},
+        {"mes": "Set","nome": "Setembro","carteira": 1.5,"cdi": 1.8,"ibovespa": 3.0}
+    ]
+}

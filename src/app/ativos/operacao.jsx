@@ -147,7 +147,7 @@ export default function OperacaoAtivoScreen() {
   const [valorResgate, setValorResgate] = useState("");
   const [dataResgate, setDataResgate] = useState(hoje);
 
-  const ehVariavel = ativo?.tipo === "renda_variavel";
+  const ehVariavel = ativo.tipo === "renda_variavel";
   const quantidadeNumero = Number(quantidadeVenda.replace(",", ".")) || 0;
   const precoNumero = Number(precoVenda.replace(",", ".")) || 0;
   const valorResgateNumero = Number(valorResgate.replace(",", ".")) || 0;
