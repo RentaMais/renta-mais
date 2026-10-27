@@ -11,12 +11,13 @@ export function SwitchCustomer({ value, onValueChange }) {
         true: cores.primaria,
       }}
       thumbColor={
-        Platform.OS === "android"
-          ? value
+        Platform.OS === "ios"
+          ? undefined
+          : value
             ? cores.container
             : cores.subtexto
-          : undefined
       }
+      activeThumbColor={Platform.OS === "web" ? cores.container : undefined}
       ios_backgroundColor={cores.trilho}
     />
   );
