@@ -9,9 +9,19 @@ import rentabilidadeDados from "@/mocks/rentabilidade.json";
 import { cores } from "@/cores";
 
 const series = [
-  { chave: "carteira", nome: "Carteira", cor: "bg-primaria" },
+  {
+    chave: "carteira",
+    nome: "Carteira",
+    cor: "bg-primaria",
+    corSecundaria: "bg-secundariaCarteira",
+  },
   { chave: "cdi", nome: "CDI", cor: "bg-texto" },
-  { chave: "ibovespa", nome: "Ibovespa", cor: "bg-positivo" },
+  {
+    chave: "ibovespa",
+    nome: "Ibovespa",
+    cor: "bg-positivo",
+    corSecundaria: "bg-negativo",
+  },
 ];
 
 function GraficoRentabilidade({ meses }) {
@@ -32,7 +42,7 @@ function GraficoRentabilidade({ meses }) {
     dadosBarras.push({
       value: mes.carteira,
       spacing: 4,
-      frontColor: cores.primaria,
+      frontColor: mes.carteira >= 0 ? cores.primaria : "#A83E45",
     });
     dadosBarras.push({
       value: mes.cdi,
@@ -42,7 +52,7 @@ function GraficoRentabilidade({ meses }) {
     dadosBarras.push({
       value: mes.ibovespa,
       spacing: i === meses.length - 1 ? folga / 2 : folga,
-      frontColor: cores.placeholder,
+      frontColor: mes.ibovespa >= 0 ? cores.positivo : cores.negativo,
     });
   }
 
@@ -88,7 +98,17 @@ function GraficoRentabilidade({ meses }) {
       <View className="flex-row justify-center gap-5">
         {series.map((serie) => (
           <View key={serie.chave} className="flex-row items-center gap-2">
-            <View className={"h-3 w-3 rounded-full " + serie.cor} />
+            <View className="h-3 w-3 flex-row overflow-hidden rounded-full">
+              {serie.corSecundaria ? (
+                <>
+                  <View className={`h-full w-1/2 ${serie.cor}`} />
+                  <View className={`h-full w-1/2 ${serie.corSecundaria}`} />
+                </>
+              ) : (
+                <View className={`h-full w-full ${serie.cor}`} />
+              )}
+            </View>
+
             <Text className="font-titulo text-sm text-texto">{serie.nome}</Text>
           </View>
         ))}

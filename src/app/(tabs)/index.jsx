@@ -27,28 +27,27 @@ function Rosca({ dados }) {
 
   return (
     <Svg width={TAMANHO_ROSCA} height={TAMANHO_ROSCA}>
-        {dados.map((item, index) => {
-          const anteriores = dados
-            .slice(0, index)
-            .reduce((soma, anterior) => soma + anterior.valor, 0);
-          const tamanho = (item.valor / total) * CIRCUNFERENCIA;
-          const deslocamento = -(anteriores / total) * CIRCUNFERENCIA;
+      {dados.map((item, index) => {
+        const anteriores = dados
+          .slice(0, index)
+          .reduce((soma, anterior) => soma + anterior.valor, 0);
+        const tamanho = (item.valor / total) * CIRCUNFERENCIA;
+        const deslocamento = -(anteriores / total) * CIRCUNFERENCIA;
 
-          return (
-            <Circle
-              key={item.name}
-              cx={centro}
-              cy={centro}
-              r={RAIO_ROSCA}
-              fill="none"
-              stroke={item.color}
-              strokeWidth={ESPESSURA_ROSCA}
-              strokeDasharray={`${tamanho} ${CIRCUNFERENCIA - tamanho}`}
-              strokeDashoffset={deslocamento}
-            />
-          );
-        })}
-      
+        return (
+          <Circle
+            key={item.name}
+            cx={centro}
+            cy={centro}
+            r={RAIO_ROSCA}
+            fill="none"
+            stroke={item.color}
+            strokeWidth={ESPESSURA_ROSCA}
+            strokeDasharray={`${tamanho} ${CIRCUNFERENCIA - tamanho}`}
+            strokeDashoffset={deslocamento}
+          />
+        );
+      })}
     </Svg>
   );
 }
@@ -168,7 +167,6 @@ export default function HomeScreen() {
             fillShadowGradientTo: cores.primaria,
             fillShadowGradientToOpacity: 0.02,
             propsForLabels: { fontFamily: "Manrope_400Regular", fontSize: 10 },
-            
           }}
           style={{ paddingRight: 50, marginRight: 12, overflow: "hidden" }}
         />

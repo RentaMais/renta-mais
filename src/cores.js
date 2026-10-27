@@ -9,6 +9,7 @@ const paleta = {
   positivo: "#7CB518",
   negativo: "#EF3054",
   provisionado: "#A3723F",
+  secundariaCarteira: "#A83E45",
 };
 
 // Papéis na interface. Usar estes nomes nas telas e componentes.
@@ -25,6 +26,7 @@ const cores = {
   positivo: paleta.positivo, // valorização, ganhos
   negativo: paleta.negativo, // desvalorização, perdas
   provisionado: paleta.provisionado,
+  secundariaCarteira: paleta.secundariaCarteira,
 
   // Aliases/Apelidos
   marca: paleta.marca,
