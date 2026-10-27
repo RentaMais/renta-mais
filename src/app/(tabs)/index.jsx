@@ -24,15 +24,16 @@ const CIRCUNFERENCIA = 2 * Math.PI * RAIO_ROSCA;
 function Rosca({ dados }) {
   const total = dados.reduce((soma, item) => soma + item.valor, 0);
   const centro = TAMANHO_ROSCA / 2;
-  let acumulado = 0;
 
   return (
     <Svg width={TAMANHO_ROSCA} height={TAMANHO_ROSCA}>
       <G rotation={-90} origin={`${centro}, ${centro}`}>
-        {dados.map((item) => {
+        {dados.map((item, index) => {
+          const anteriores = dados
+            .slice(0, index)
+            .reduce((soma, anterior) => soma + anterior.valor, 0);
           const tamanho = (item.valor / total) * CIRCUNFERENCIA;
-          const deslocamento = -acumulado;
-          acumulado += tamanho;
+          const deslocamento = -(anteriores / total) * CIRCUNFERENCIA;
 
           return (
             <Circle
@@ -52,6 +53,7 @@ function Rosca({ dados }) {
     </Svg>
   );
 }
+
 const formatarValor = (valor) => {
   const formatado = valor
     .toFixed(2)

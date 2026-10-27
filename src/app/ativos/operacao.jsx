@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { InfoIcon } from "phosphor-react-native";
 

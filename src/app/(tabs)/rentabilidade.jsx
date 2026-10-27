@@ -12,7 +12,7 @@ const series = [
   { chave: "carteira", nome: "Carteira", cor: "bg-primaria" },
   { chave: "cdi", nome: "CDI", cor: "bg-texto" },
   { chave: "ibovespa", nome: "Ibovespa", cor: "bg-positivo" },
-]
+];
 
 function GraficoRentabilidade({ meses }) {
   const [largura, setLargura] = useState(0);
@@ -87,14 +87,9 @@ function GraficoRentabilidade({ meses }) {
 
       <View className="flex-row justify-center gap-5">
         {series.map((serie) => (
-          <View
-            key={serie.chave}
-            className="flex-row items-center gap-2"
-          >
+          <View key={serie.chave} className="flex-row items-center gap-2">
             <View className={"h-3 w-3 rounded-full " + serie.cor} />
-            <Text className="font-titulo text-sm text-texto">
-              {serie.nome}
-            </Text>
+            <Text className="font-titulo text-sm text-texto">{serie.nome}</Text>
           </View>
         ))}
       </View>
@@ -114,12 +109,10 @@ export default function RentabilidadeScreen() {
         className={`h-3 w-3 rounded-full ${series.cor}`}
       />
       <CardCustomer>
-        <GraficoRentabilidade
-          meses={rentabilidadeDados.meses}
-        />
+        <GraficoRentabilidade meses={rentabilidadeDados.meses} />
       </CardCustomer>
       <CardCustomer>
-        <View className="flex-row border-b border-texto/10 pb-3">
+        <View className="flex-row border-b border-texto/10 pb-1.5 mb-2.5">
           <Text className="w-24 font-titulo-regular text-sm text-inativo">
             Mês
           </Text>
@@ -138,27 +131,28 @@ export default function RentabilidadeScreen() {
           keyExtractor={(item) => item.mes}
           scrollEnabled={false}
           ItemSeparatorComponent={() => (
-            <View className="h-[1px] bg-texto/10" />
+            <View className="h-[1px] bg-texto/10 my-2.5" />
           )}
           renderItem={({ item }) => (
-            <View className="flex-row items-center py-4">
+            <View className="flex-row items-center">
               <Text className="w-24 font-titulo text-base text-subtexto">
                 {item.nome}
               </Text>
               <Text
-                className={`flex-1 text-center font-titulo-regular text-base ${item.carteira >= 0 ? "text-positivo" : "text-negativo"
-                  }`}
+                className={`flex-1 text-center font-corpo-medium text-base ${
+                  item.carteira >= 0 ? "text-positivo" : "text-negativo"
+                }`}
               >
                 {formatarPercentual(item.carteira)}
               </Text>
-              <Text className="flex-1 text-center font-titulo-regular text-base text-texto">
+              <Text className="flex-1 text-center font-corpo-medium text-base text-texto">
                 {formatarPercentual(item.cdi)}
               </Text>
               <Text
                 className={
                   item.ibovespa >= 0
-                    ? "flex-1 text-center font-titulo-regular text-base text-positivo"
-                    : "flex-1 text-center font-titulo-regular text-base text-negativo"
+                    ? "flex-1 text-center font-corpo-medium text-base text-positivo"
+                    : "flex-1 text-center font-corpo-medium text-base text-negativo"
                 }
               >
                 {formatarPercentual(item.ibovespa)}
@@ -168,5 +162,5 @@ export default function RentabilidadeScreen() {
         />
       </CardCustomer>
     </TelaCustomer>
-  )
+  );
 }

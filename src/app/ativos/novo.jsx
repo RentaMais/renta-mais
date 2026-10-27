@@ -188,7 +188,12 @@ export default function AdicionarAtivoScreen() {
         return;
       }
     } else {
-      if (!ticker.trim() || !quantidade.trim() || !precoMedio.trim() || !dataCompra.trim()) {
+      if (
+        !ticker.trim() ||
+        !quantidade.trim() ||
+        !precoMedio.trim() ||
+        !dataCompra.trim()
+      ) {
         setErro("Preencha todos os campos");
         return;
       }
