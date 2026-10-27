@@ -10,6 +10,7 @@ import { TelaCustomer } from "@/components/TelaCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { SeletorRenda } from "@/components/SeletorRenda";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
+import { formatarMoeda } from "@/utils/formatarMoeda";
 
 import { cores } from "@/cores";
 
@@ -145,9 +146,7 @@ function FormularioRendaVariavel({
         onChangeText={setDataCompra}
       />
       <AvisoCustomer
-        mensagem={
-          "Valor investido estimado: " + formatarMoeda(valorInvestido)
-        }
+        mensagem={`Valor investido estimado: ${formatarMoeda(valorInvestido)}`}
       />
     </View>
   );
