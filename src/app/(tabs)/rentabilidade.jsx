@@ -42,7 +42,7 @@ function GraficoRentabilidade({ meses }) {
     dadosBarras.push({
       value: mes.ibovespa,
       spacing: i === meses.length - 1 ? folga / 2 : folga,
-      frontColor: cores.positivo,
+      frontColor: cores.placeholder,
     });
   }
 
