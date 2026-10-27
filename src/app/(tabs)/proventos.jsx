@@ -104,7 +104,7 @@ export default function ProventosScreen() {
       <CabecalhoPrincipal
         subtitulo="Renda passiva"
         titulo="Proventos"
-        descricao="Acompanhe seus dividendos e rendimentos"
+        descricao="Acompanhe seus dividendos"
       />
 
       {/* Resumo visual */}
