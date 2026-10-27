@@ -27,7 +27,6 @@ function Rosca({ dados }) {
 
   return (
     <Svg width={TAMANHO_ROSCA} height={TAMANHO_ROSCA}>
-      <G rotation={-90} origin={`${centro}, ${centro}`}>
         {dados.map((item, index) => {
           const anteriores = dados
             .slice(0, index)
@@ -49,7 +48,7 @@ function Rosca({ dados }) {
             />
           );
         })}
-      </G>
+      
     </Svg>
   );
 }
@@ -156,6 +155,7 @@ export default function HomeScreen() {
           segments={3}
           withInnerLines={true}
           withOuterLines={true}
+          withDots={false}
           formatYLabel={(valor) => formatarMil(valor)}
           chartConfig={{
             backgroundGradientFrom: "transparent",
@@ -168,7 +168,7 @@ export default function HomeScreen() {
             fillShadowGradientTo: cores.primaria,
             fillShadowGradientToOpacity: 0.02,
             propsForLabels: { fontFamily: "Manrope_400Regular", fontSize: 10 },
-            propsForDots: { r: "3", strokeWidth: "1", stroke: cores.primaria },
+            
           }}
           style={{ paddingRight: 50, marginRight: 12, overflow: "hidden" }}
         />
