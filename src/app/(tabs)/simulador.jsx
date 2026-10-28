@@ -34,6 +34,10 @@ export default function SimuladorScreen() {
   const tratarRentabilidade = (texto) => {
     const formatado = texto.replace(",", ".");
     const valor = Number(formatado) || 0;
+    if (valor < 0) {
+      setRentabilidade("0");
+      return;
+    }
     if (valor > simuladorDados.limiteRentabilidade) {
       setRentabilidade(String(simuladorDados.limiteRentabilidade));
       return;
