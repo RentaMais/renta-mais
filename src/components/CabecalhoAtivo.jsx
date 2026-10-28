@@ -1,6 +1,7 @@
 import { View, Text, Image } from "react-native";
 import { CaretUpIcon, CaretDownIcon } from "phosphor-react-native";
 import { cores } from "@/cores";
+import { VariacaoCustomer } from "./VariacaoCustomer";
 
 // Import das imagens
 import itauImg from "@/mocks/assets/itau.jpg";
@@ -43,18 +44,7 @@ export function CabecalhoAtivo({ ativo }) {
               {ativo.valor}
             </Text>
             <View className="flex-row items-center gap-0.5">
-              {ehPositivo ? (
-                <CaretUpIcon size={12} weight="fill" color={cores.positivo} />
-              ) : (
-                <CaretDownIcon size={12} weight="fill" color={cores.negativo} />
-              )}
-              <Text
-                className={`font-corpo-medium text-xs ${
-                  ehPositivo ? "text-positivo" : "text-negativo"
-                }`}
-              >
-                {ativo.variacao}%
-              </Text>
+              <VariacaoCustomer valor={ativo.variacao} />
             </View>
           </View>
         </View>

@@ -12,6 +12,7 @@ import { cores } from "@/cores";
 
 import { formatarMil } from "@/utils/formatarMil";
 import inicioData from "@/mocks/inicio.json";
+import { VariacaoCustomer } from "@/components/VariacaoCustomer";
 
 const larguraTela = Dimensions.get("window").width;
 const larguraGrafico = larguraTela * 0.85;
@@ -91,10 +92,9 @@ export default function HomeScreen() {
           </Text>
 
           <View className="flex-row items-center gap-2">
-            <CaretUp size={14} weight="fill" color={cores.positivo} />
+            <VariacaoCustomer valor={inicioData.variacao} />
             <Text className="font-corpo text-sm text-fundo">
-              <Text className="text-positivo">{inicioData.variacao}</Text> nos
-              últimos 30 dias
+              nos últimos 30 dias
             </Text>
           </View>
         </View>

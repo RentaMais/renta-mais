@@ -15,6 +15,7 @@ import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { cores } from "@/cores";
 import { formatarMoeda } from "@/utils/formatarMoeda";
 import ativosDados from "@/mocks/ativos.json";
+import { VariacaoCustomer } from "@/components/VariacaoCustomer";
 
 import itauImg from "@/mocks/assets/itau.jpg";
 import petrobrasImg from "@/mocks/assets/petrobras.jpg";
@@ -93,26 +94,7 @@ export default function AtivoScreen() {
                         {ativo.valor}
                       </Text>
                       <View className="flex-row items-center gap-1">
-                        {ehPositivo ? (
-                          <CaretUpIcon
-                            size={10}
-                            weight="fill"
-                            color={cores.positivo}
-                          />
-                        ) : (
-                          <CaretDownIcon
-                            size={10}
-                            weight="fill"
-                            color={cores.negativo}
-                          />
-                        )}
-                        <Text
-                          className={`font-corpo-medium text-xs ${
-                            ehPositivo ? "text-positivo" : "text-negativo"
-                          }`}
-                        >
-                          {ativo.variacao}%
-                        </Text>
+                        <VariacaoCustomer valor={ativo.variacao} />
                       </View>
                     </View>
 
