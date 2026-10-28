@@ -60,7 +60,6 @@ export default function AtivoScreen() {
             <View className="divide-y divide-texto/10 gap-5">
               {ativosDados.rendaVariavel.map((ativo) => {
                 const detalheFormatado = `${ativo.quantidade} un - PM ${formatarMoeda(ativo.precoMedio)}`;
-                const ehPositivo = !ativo.variacao.startsWith("-");
 
                 return (
                   <Pressable

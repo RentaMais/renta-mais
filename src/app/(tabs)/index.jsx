@@ -1,18 +1,19 @@
 import { View, Text, Dimensions, Pressable } from "react-native";
 import { useState } from "react";
-import { Eye, EyeSlash, CaretUp } from "phosphor-react-native";
+import { Eye, EyeSlash } from "phosphor-react-native";
 import { LineChart } from "react-native-chart-kit";
-import Svg, { Circle, G } from "react-native-svg";
+import Svg, { Circle } from "react-native-svg";
+import { cores } from "@/cores";
 
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CardCustomer } from "@/components/CardCustomer";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
 import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
-import { cores } from "@/cores";
+import { VariacaoCustomer } from "@/components/VariacaoCustomer";
 
 import { formatarMil } from "@/utils/formatarMil";
+import { formatarReais } from "@/utils/formatarReais";
 import inicioData from "@/mocks/inicio.json";
-import { VariacaoCustomer } from "@/components/VariacaoCustomer";
 
 const larguraTela = Dimensions.get("window").width;
 const larguraGrafico = larguraTela * 0.85;
@@ -53,14 +54,6 @@ function Rosca({ dados }) {
   );
 }
 
-const formatarValor = (valor) => {
-  const formatado = valor
-    .toFixed(2)
-    .replace(".", ",")
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return `R$ ${formatado}`;
-};
-
 export default function HomeScreen() {
   const [esconder, setEsconder] = useState(false);
 
@@ -88,7 +81,7 @@ export default function HomeScreen() {
           <Text className="font-titulo text-4xl text-container">
             {esconder
               ? "R$ ••••••••"
-              : formatarValor(Number(inicioData.patrimonioTotal))}
+              : formatarReais(Number(inicioData.patrimonioTotal))}
           </Text>
 
           <View className="flex-row items-center gap-2">

@@ -83,11 +83,17 @@ export default function SimuladorScreen() {
     const n = Number(valor) || 0;
     const prefixo = comPrefixo ? "R$ " : "";
 
-    if (n >= 1000000) {
-      return `${prefixo}${(n / 1000000).toFixed(1).replace(".", ",").replace(/,0$/, "")} mi`;
+    if (n >= 1e12) {
+      return `${prefixo}${(n / 1e12).toFixed(1).replace(".", ",").replace(/,0$/, "")} tri`;
     }
-    if (n >= 1000) {
-      return `${prefixo}${Math.round(n / 1000)} mil`;
+    if (n >= 1e9) {
+      return `${prefixo}${(n / 1e9).toFixed(1).replace(".", ",").replace(/,0$/, "")} bi`;
+    }
+    if (n >= 1e6) {
+      return `${prefixo}${(n / 1e6).toFixed(1).replace(".", ",").replace(/,0$/, "")} mi`;
+    }
+    if (n >= 1e3) {
+      return `${prefixo}${(n / 1e3).toFixed(1).replace(".", ",")} mil`;
     }
     return `${prefixo}${Math.round(n)}`;
   }
@@ -317,7 +323,7 @@ export default function SimuladorScreen() {
                     {perfil.nome}
                   </Text>
                 </View>
-                <Text className="font-corpo-bold text-base text-texto">
+                <Text className="font-corpo-bold text-sm text-texto">
                   {formatarReais(perfil.valor)}
                 </Text>
               </View>

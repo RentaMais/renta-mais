@@ -1,6 +1,4 @@
 import { View, Text, Image } from "react-native";
-import { CaretUpIcon, CaretDownIcon } from "phosphor-react-native";
-import { cores } from "@/cores";
 import { VariacaoCustomer } from "./VariacaoCustomer";
 
 // Import das imagens
@@ -20,8 +18,6 @@ export function CabecalhoAtivo({ ativo }) {
   const ehVariavel = ativo.tipo === "renda_variavel";
 
   if (ehVariavel) {
-    const ehPositivo = !ativo.variacao?.startsWith("-");
-
     return (
       <View className="flex-row items-center gap-4">
         {ativo.imagem && imagensAtivos[ativo.imagem] && (

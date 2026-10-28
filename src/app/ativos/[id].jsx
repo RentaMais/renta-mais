@@ -7,7 +7,6 @@ import { CardCustomer } from "@/components/CardCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { buscarAtivo } from "@/services/ativosService";
 import { formatarMoeda } from "@/utils/formatarMoeda";
-import { VariacaoCustomer } from "@/components/VariacaoCustomer";
 
 export default function DetalheAtivoScreen() {
   const router = useRouter();
