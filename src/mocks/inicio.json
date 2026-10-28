@@ -1,0 +1,23 @@
+{
+  "saudacao": "Boa tarde, João",
+  "patrimonioTotal": "90132.70",
+  "variacao": "1,1",
+  "divisao": [
+    {
+      "name": "Renda variável",
+      "valor": 56
+    },
+    {
+      "name": "Renda fixa",
+      "valor": 44
+    }
+  ],
+  "evolucao": {
+    "labels": ["Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out"],
+    "datasets": [
+      {
+        "data": [40000, 60010, 57990, 70300, 65000, 84500, 80000]
+      }
+    ]
+  }
+}

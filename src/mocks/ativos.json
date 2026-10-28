@@ -1,0 +1,50 @@
+{
+  "totalInvestido": "R$ 132.072,89",
+  "rendaVariavel": [
+    {
+      "id": 1,
+      "ticker": "ITUB4",
+      "quantidade": 300,
+      "precoMedio": 10.1,
+      "valor": "R$ 3.135,00",
+      "variacao": "1,8",
+      "imagem": "itau.jpg"
+    },
+    {
+      "id": 2,
+      "ticker": "PETR4",
+      "quantidade": 120,
+      "precoMedio": 34.8,
+      "valor": "R$ 5.616,00",
+      "variacao": "6,2",
+      "imagem": "petrobras.jpg"
+    },
+    {
+      "id": 3,
+      "ticker": "VALE3",
+      "quantidade": 60,
+      "precoMedio": 74.2,
+      "valor": "R$ 3.486,00",
+      "variacao": "-2,2",
+      "imagem": "vale.jpg"
+    }
+  ],
+  "rendaFixa": [
+    {
+      "id": 4,
+      "nome": "Tesouro Selic 2026",
+      "taxa": "100% Selic",
+      "vencimento": "03/2026",
+      "valorInicial": 15000,
+      "valor": "R$ 15.000,00"
+    },
+    {
+      "id": 5,
+      "nome": "CDB Banco XP",
+      "taxa": "110% do DI",
+      "vencimento": "08/2026",
+      "valorInicial": 8000,
+      "valor": "R$ 8.000,00"
+    }
+  ]
+}
