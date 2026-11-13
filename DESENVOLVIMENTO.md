@@ -48,7 +48,7 @@ npm install
 
 A primeira execução pode levar alguns minutos.
 
-> **Versões do Expo.** O Expo SDK, o React Native e o React não devem ser atualizados sem alinhamento com a equipe. Para adicionar bibliotecas, use `npx expo install <pacote>`, que seleciona a versão compatível com o SDK. Se aparecerem erros inesperados depois do `npm install`, execute `npx expo install --check` e aceite os ajustes sugeridos.
+> **Versões do Expo e Firebase.** O Expo SDK, o React Native, o React e o Firebase (`v11`) não devem ser atualizados sem alinhamento com a equipe (a versão 12+ do Firebase exige Node 24). Para adicionar bibliotecas, use `npx expo install <pacote>`, que seleciona a versão compatível com o SDK. Se aparecerem erros inesperados depois do `npm install`, execute `npx expo install --check` e aceite os ajustes sugeridos.
 
 ### 2.4 Variáveis de ambiente
 
@@ -57,12 +57,12 @@ cp .env.example .env
 code .env   # ou abra no editor
 ```
 
-Preencha com os valores do projeto de **dev** compartilhados pela equipe. A variável `EXPO_PUBLIC_BRAPI_TOKEN` é opcional: sem ela, o aplicativo usa cotações simuladas.
+Preencha com os valores do projeto compartilhado pela equipe no Firebase Console (**Configurações do projeto > Seus apps > app Web**). A variável `EXPO_PUBLIC_BRAPI_TOKEN` é opcional: sem ela, o aplicativo usa cotações simuladas.
 
 Regras:
 
 * O `.env` nunca deve ser versionado.
-* Variáveis iniciadas por `EXPO_PUBLIC_` ficam embutidas no aplicativo e podem ser lidas por qualquer pessoa que o tenha. Por isso, apenas chaves públicas (`publishable`) são permitidas; a `service_role` é proibida.
+* Variáveis iniciadas por `EXPO_PUBLIC_` ficam embutidas no aplicativo e apenas identificam o projeto no Firebase; quem protege os dados são as regras de segurança (`firestore.rules`). Arquivos de conta de serviço (`*.json` do Admin SDK) nunca devem ser versionados nem compartilhados.
 
 Depois de alterar o `.env`, reinicie o servidor com `npx expo start -c`.
 
@@ -96,8 +96,6 @@ Os comandos são definidos na seção `scripts` do `package.json`. O próprio np
 | `npm run format` | Padroniza a formatação do código-fonte (`src/`) com Prettier |
 | `npm test` | Testes automatizados (Jest). O `jest.config.js` fica na raiz |
 | `npm run check` | Executa `lint` e `test` em sequência (ideal antes de um commit) |
-| `npm run db:push` | Aplica as migrations ao projeto Supabase de dev |
-| `npm run db:diff` | Gera uma nova migration com base nas alterações do banco local |
 
 ## 4. Organização do código
 
@@ -105,36 +103,34 @@ Os comandos são definidos na seção `scripts` do `package.json`. O próprio np
 
 Cada parte do código tem uma única responsabilidade, e a informação flui em uma única direção:
 
-```
-Tela  →  Service  →  Supabase / brapi
+```text
+Tela  →  Service  →  Firebase / brapi
 ```
 
 | Camada | Local | Responsabilidade | Não deve |
 | --- | --- | --- | --- |
-| **Tela** | `src/app/` | Layout (JSX + Tailwind) e chamada de services via React Query | Acessar o Supabase diretamente sem passar por um service |
-| **Service** | `src/services/` | Funções que acessam o Supabase ou a brapi | Conter layout |
+| **Tela** | `src/app/` | Layout (JSX + Tailwind) e chamada de services via React Query | Acessar o Firebase diretamente sem passar por um service |
+| **Service** | `src/services/` | Funções que acessam o Firebase (Auth/Firestore) ou a brapi | Conter layout |
 | **Utils** | `src/utils/` | Cálculos puros (preço médio, rentabilidade, simulador) | Acessar rede ou banco de dados |
 
 Motivo: cálculos misturados ao layout não podem ser testados nem reutilizados. Isolados, tornam-se funções simples de entrada e saída.
 
 ### 4.2 Estrutura de pastas
 
-```
+```text
 renta-mais/
 ├── src/
 │   ├── app/                       # Apenas rotas (Expo Router)
 │   │   ├── _layout.jsx            # providers e proteção de rotas
 │   │   ├── (auth)/                # login, cadastro, esqueci-senha
 │   │   ├── (tabs)/                # index, ativos, rentabilidade, proventos, simulador
-│   │   ├── ativos/                 # novo.jsx, [id].jsx (detalhe, venda/resgate)
-│   │   └── configuracoes/         # index, editar-perfil, alterar-senha, ajuda
-│   ├── components/                # Button, Input, Card, Screen (uso compartilhado)
-│   ├── services/                  # supabase.js, brapi.js e funções de acesso
+│   │   ├── ativos/                # novo.jsx, [id].jsx, operacao.jsx
+│   │   └── configuracoes/         # index, editar-perfil, alterar-senha, excluir-conta, central
+│   ├── components/                # Componentes compartilhados (Button, Input, Card, Screen)
+│   ├── services/                  # firebase.js, brapi.js e funções de acesso
 │   ├── utils/                     # Funções de cálculo e utilidades puras
 │   └── fontes.js                  # Fontes carregadas no app (Lora e Manrope)
-├── supabase/
-│   ├── config.toml
-│   └── migrations/                # SQL versionado
+├── firestore.rules                # Regras de segurança do Firestore
 ├── jest.config.js                 # Configuração do Jest
 ├── .env.example
 └── .github/workflows/ci.yml
@@ -145,7 +141,7 @@ As pastas devem ser criadas conforme a necessidade, quando a primeira tela que a
 ### 4.3 Regras da equipe
 
 1. `src/app/` contém as telas.
-2. Telas nunca importam o `supabase` diretamente; apenas os services o fazem.
+2. Telas nunca importam `firebase.js` diretamente; apenas os services o fazem.
 3. Cálculos ficam em `utils/` e recebem todos os dados por parâmetro.
 4. Testes ficam ao lado do arquivo testado, com sufixo `.test.js` (`precoMedio.js` → `precoMedio.test.js`). Somente testes que atravessam o projeto inteiro vão para uma pasta `tests/` na raiz (ver seção 4.5).
 
@@ -155,7 +151,7 @@ As pastas devem ser criadas conforme a necessidade, quando a primeira tela que a
 | --- | --- |
 | UC01, 02, 03, 15 | `(auth)/*`, saída da conta |
 | UC04 | `(tabs)/index` |
-| UC05, 06, 07, 16, 17 | `(tabs)/ativos`, `ativos/novo`, `ativos/[id]` |
+| UC05, 06, 07, 16, 17 | `(tabs)/ativos`, `ativos/novo`, `ativos/[id]`, `ativos/operacao` |
 | UC08 | `(tabs)/rentabilidade` |
 | UC09 | `(tabs)/proventos` |
 | UC10 | `(tabs)/simulador` |
@@ -169,7 +165,7 @@ O projeto usa **Jest** com o preset **jest-expo**, já configurado em `jest.conf
 
 **Colocalizados**, ao lado do arquivo testado, com sufixo `.test.js`:
 
-```
+```text
 src/
 └── utils/
     ├── precoMedio.js
@@ -189,7 +185,7 @@ Foco em `src/utils/`. São funções puras: recebem dados por parâmetro e devol
 - `simularAportes(aporteMensal, anos, taxaAnual)` — projeção do simulador.
 - Validações de formulário em `src/utils/validacoes.js`.
 
-**Não** testamos nesta fase: telas em `src/app/`, componentes puramente visuais, chamadas ao Supabase. Isso fica para quando o projeto tiver testes de integração.
+**Não** testamos nesta fase: telas em `src/app/`, componentes puramente visuais, chamadas ao Firebase. Isso fica para quando o projeto tiver testes de integração.
 
 #### Como escrever o primeiro teste
 
@@ -257,17 +253,21 @@ npx jest src/utils/precoMedio.test.js
 
 ## 5. Implementação de uma funcionalidade
 
-Exemplo: listagem de ativos (UC05), utilizável como modelo para as demais. O nome da tabela (`assets`) deve seguir a migration em `supabase/migrations/`.
+Exemplo: listagem de ativos (UC05), utilizável como modelo para as demais. Os nomes das subcoleções seguem a estrutura definida na seção 6.1.
 
 **Passo 1. Service** (`src/services/ativosService.js`)
 
 ```js
-import { supabase } from "@/services/supabase";
+import { collection, getDocs } from "firebase/firestore";
+import { auth, db } from "@/services/firebase";
 
 export async function listarAtivos() {
-  const { data, error } = await supabase.from("assets").select("*");
-  if (error) throw error;
-  return data;
+  const usuario = auth.currentUser;
+  if (!usuario) throw new Error("Usuário não autenticado.");
+
+  const ref = collection(db, "usuarios", usuario.uid, "ativos");
+  const snapshot = await getDocs(ref);
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }
 ```
 
@@ -307,58 +307,55 @@ A tela cobre os cenários do caso de uso: carregamento, erro e lista vazia (cen�
 **Checklist para qualquer funcionalidade**
 
 1. Ler o caso de uso e listar os cenários típico e alternativos.
-2. Verificar se há necessidade de tabela ou coluna nova; se houver, criar a migration primeiro (seção 6).
+2. Verificar se há necessidade de nova subcoleção ou campo no Firestore; se houver, alinhar com a equipe e atualizar `firestore.rules` caso necessário (seção 6).
 3. Implementar o service e a tela.
 4. Em formulários, escrever as validações dos cenários alternativos.
 5. Se houver cálculo puro, extrair para `src/utils/` e escrever um teste ao lado (seção 4.5).
 6. Testar no Expo Go o caminho feliz e cada cenário alternativo.
 7. Executar `npm run check`.
 
-## 6. Banco de dados (Supabase)
+## 6. Banco de dados e autenticação (Firebase)
 
-Dois projetos independentes:
+O projeto utiliza um único projeto Firebase, compartilhado por toda a equipe, no plano gratuito (Spark). Os dados podem ser apagados sem aviso durante os testes.
 
-* **Desenvolvimento:** compartilhado por toda a equipe durante os testes. Os dados podem ser apagados sem aviso.
-* **Produção:** usado apenas pela versão publicada. O schema não é editado diretamente pelo dashboard.
+* **Authentication:** login com e-mail e senha.
+* **Firestore:** banco de documentos (NoSQL) com os dados de cada usuário.
 
-### 6.1 Alteração do schema
+O cliente é criado em `src/services/firebase.js`, que exporta `auth` e `db`. Telas não importam esse arquivo diretamente; apenas os services o fazem.
 
-Toda mudança deve virar um arquivo SQL em `supabase/migrations/`, mantendo a equipe e a produção sincronizadas. Testes pontuais no SQL Editor são aceitáveis, mas o resultado final precisa ser registrado como migration.
+### 6.1 Estrutura dos dados
 
-1. Crie o arquivo `supabase/migrations/AAAAMMDDHHMMSS_descricao.sql` (data e hora atuais), por exemplo `supabase/migrations/20260925143000_adiciona_delete_after.sql`.
-2. Escreva o SQL da alteração.
-3. Na primeira utilização, conecte a CLI ao projeto de dev:
+Todos os dados ficam dentro do documento do usuário, identificado pelo `uid` do Authentication:
 
-```bash
-npx supabase login
-npx supabase link
+```text
+usuarios/{uid}                nome, email, criadoEm
+├── ativos/{id}               tipo, ticker, nome, indexador, taxa, vencimento
+├── transacoes/{id}           ativoId, tipo (compra | venda | resgate), quantidade, preco, data
+└── proventos/{id}            ativoId, valor, data, status (pago | provisionado)
 ```
 
-4. Aplique a migration:
+O Firestore não possui migrations: coleções e campos passam a existir quando o primeiro documento é gravado. Mudanças na estrutura devem ser combinadas com a equipe e registradas nesta seção. Documentos antigos não são atualizados automaticamente.
 
-```bash
-npm run db:push
-```
+### 6.2 Segurança (`firestore.rules`)
 
-5. Inclua a migration no Pull Request.
+As regras ficam em `firestore.rules` na raiz do projeto: cada usuário lê e grava somente em `usuarios/{seu uid}` e nas subcoleções. Para publicar uma alteração:
 
-Antes de criar uma migration, avise a equipe para evitar alterações simultâneas na mesma tabela.
+1. Abrir **Firebase Console > Firestore Database > Regras**.
+2. Colar o conteúdo de `firestore.rules` e selecionar **Publicar**.
 
-### 6.2 Segurança (RLS)
+Alterações nas regras entram no mesmo Pull Request do código que as exige.
 
-Toda tabela exige Row Level Security ativada e policy `user_id = auth.uid()`. Sem isso, qualquer usuário autenticado acessa os dados dos outros.
-
-Sintoma típico de RLS mal configurada: a consulta retorna lista **vazia**, sem erro. Antes de revisar o código, verifique se há usuário autenticado e se a policy existe.
+Sintoma típico de regra bloqueando o acesso: `FirebaseError: Missing or insufficient permissions`. Verifique se há usuário autenticado e se o caminho começa em `usuarios/{uid}` com o `uid` do usuário logado.
 
 ### 6.3 Valores calculados
 
-Preço médio e lucro realizado devem ser **calculados** a partir do histórico de compras e vendas (função em `utils/`), e não armazenados em colunas. Dados duplicados tendem a ficar dessincronizados.
+Preço médio e lucro realizado devem ser **calculados** a partir de `transacoes` (função em `src/utils/`), e não armazenados em campos. Dados duplicados tendem a ficar dessincronizados. As funções que os calculam ganham teste em `src/utils/*.test.js` (seção 4.5).
 
-Para viabilizar esse cálculo, o histórico é mantido em uma tabela `transactions` (compra, venda, resgate), vinculada a `assets`. As funções que os calculam ficam em `src/utils/` e ganham teste em `src/utils/*.test.js` (seção 4.5).
+### 6.4 Casos de uso que dependem do Authentication
 
-### 6.4 Exclusão de conta (UC18)
-
-O cliente (app) não consegue remover um usuário do Supabase Auth. A remoção definitiva exige uma **Edge Function** com a chave `service_role`, mantida apenas no servidor do Supabase. Para o escopo da disciplina, uma alternativa simples é a coluna `delete_after` em `profiles`, registrando a exclusão agendada, conforme descrito no caso de uso. A decisão deve ser tomada cedo.
+* **Recuperar senha (UC02):** `sendPasswordResetEmail`. O link do e-mail abre uma página do Firebase para definir a nova senha; o aplicativo não precisa de tela de redefinição.
+* **Alterar senha (UC13):** `reauthenticateWithCredential` seguido de `updatePassword`.
+* **Excluir conta (UC18):** `deleteUser` exige login recente, portanto a senha deve ser confirmada (`reauthenticateWithCredential`) antes. As subcoleções de `usuarios/{uid}` não são removidas automaticamente com o documento: devem ser apagadas pelo aplicativo antes de excluir o usuário.
 
 ## 7. Cotações (brapi)
 
@@ -439,7 +436,7 @@ Antes de abrir o Pull Request:
 * [ ] Se mexeu em `src/utils/`, rodou `npx jest src/utils/<arquivo>.test.js` localmente e o teste passa
 * [ ] Testado no Expo Go: caminho feliz e cenários alternativos
 * [ ] Ausência de `console.log`, `.env` ou chaves secretas no diff
-* [ ] Alterações de banco de dados acompanhadas de migration
+* [ ] Alterações nas regras do Firestore acompanhadas de atualização em `firestore.rules`
 
 Pull Requests com CI falhando não devem ser mergeados.
 
@@ -450,7 +447,7 @@ A revisão segue esta ordem: (1) funciona no celular; (2) cobre os cenários do 
 ## 9. Divisão de trabalho sugerida
 
 **Etapa 0, base** (em conjunto ou por uma pessoa, em Pull Requests pequenos):
-`queryClient.js`, `brapi.js`, componentes básicos de `components/` (Button, Input, Card, Screen), proteção de rotas no `_layout.jsx` (usuário sem sessão é direcionado para o login) e revisão da migration inicial.
+`queryClient.js`, `brapi.js`, componentes básicos de `components/` (Button, Input, Card, Screen), proteção de rotas no `_layout.jsx` (usuário sem sessão é direcionado para o login) e publicação inicial do `firestore.rules`.
 
 **Etapa 1, em paralelo:**
 
@@ -523,8 +520,8 @@ Todo `<Text>` deve declarar uma dessas classes; sem ela, o aplicativo usa a font
 | QR code não conecta | Confirme a mesma rede Wi-Fi; se a rede bloquear, `npx expo start --tunnel` |
 | `.env` alterado sem efeito | `npx expo start -c` (limpa o cache e reinicia) |
 | Classes do Tailwind não aplicadas | Verifique se `global.css` é importado em `src/app/_layout.jsx` e se o arquivo está coberto por `content` em `tailwind.config.js`; reinicie com `-c` |
-| `Network request failed` | URL do Supabase incorreta ou sem `https://`; `.env` não preenchido |
-| Lista vazia, sem erro | RLS: usuário não autenticado ou policy ausente na tabela |
+| `FirebaseError: Missing or insufficient permissions` | Regras do Firestore (`firestore.rules`): usuário não autenticado, regras não publicadas ou caminho fora de `usuarios/{uid}` |
+| `Firebase: Error (auth/invalid-api-key)` | Variáveis `EXPO_PUBLIC_FIREBASE_*` incorretas ou não preenchidas no `.env`; reinicie com `-c` |
 | Erros estranhos depois do `npm install` | `npx expo install --check`; se persistir, remova `node_modules` e reinstale |
 | `npm install` falha com `EBADENGINE` | Node abaixo de 22.13: reinstale o Node 22.x e reabra o terminal |
 | Expo Go pede login ou não abre o projeto | Execute `npx expo login` e entre na mesma conta no Expo Go |

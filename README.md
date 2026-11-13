@@ -17,7 +17,7 @@ Projeto da disciplina **Programação para Dispositivos Móveis** (Engenharia de
 
 - React Native com Expo e JavaScript
 - Tailwind CSS (NativeWind)
-- Supabase (banco de dados e autenticação)
+- Firebase (banco de dados e autenticação)
 - brapi.dev (cotações da bolsa)
 
 ## Execução
