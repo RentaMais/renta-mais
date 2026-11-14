@@ -1,7 +1,6 @@
-import { View } from "react-native";
+import { Text, View } from "react-native";
 import { useState } from "react";
 import { LockSimpleIcon } from "phosphor-react-native";
-import { useRouter } from "expo-router";
 
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
@@ -10,10 +9,33 @@ import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { IconeCustomer } from "@/components/IconeCustomer";
+import { enviarEmailRecuperacaoSenha } from "@/services/authService";
 
 export default function EsqueciSenhaScreen() {
   const [email, setEmail] = useState("");
-  const router = useRouter();
+  const [enviado, setEnviado] = useState(false);
+  const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(false);
+
+  async function handleRecuperarSenha() {
+    setErro("");
+    setEnviado(false);
+
+    if (!email.trim() || !email.includes("@")) {
+      setErro("Informe um e-mail válido.");
+      return;
+    }
+
+    try {
+      setCarregando(true);
+      await enviarEmailRecuperacaoSenha(email);
+      setEnviado(true);
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setCarregando(false);
+    }
+  }
 
   return (
     <TelaCustomer className="justify-between">
@@ -30,21 +52,36 @@ export default function EsqueciSenhaScreen() {
           titulo="E-mail"
           placeholder="Digite seu email"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(texto) => {
+            setEmail(texto);
+            setEnviado(false);
+          }}
+          autoCapitalize="none"
+          keyboardType="email-address"
           className="mt-[36]"
         />
+
+        {erro ? (
+          <Text className="text-erro font-corpo-medium text-sm mt-3">
+            {erro}
+          </Text>
+        ) : null}
       </View>
-      <BotaoCustomer
-        titulo="Enviar link de recuperação"
-        className="mt-[48]"
-        onPress={() => router.push("/redefinir-senha")}
-      />
-      {email ? (
-        <AvisoCustomer
-          mensagem={`Link enviado para ${email}.\nVerifique também a caixa de spam.`}
-          className="mt-4"
+
+      <View>
+        <BotaoCustomer
+          titulo={carregando ? "Enviando..." : "Enviar link de recuperação"}
+          className="mt-[48]"
+          onPress={handleRecuperarSenha}
+          disabled={carregando}
         />
-      ) : null}
+        {enviado ? (
+          <AvisoCustomer
+            mensagem={`Link enviado para ${email.trim()}.\nVerifique também a caixa de spam.`}
+            className="mt-4"
+          />
+        ) : null}
+      </View>
     </TelaCustomer>
   );
 }
