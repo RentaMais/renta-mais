@@ -1,5 +1,6 @@
 import { View, Text, Dimensions, Pressable } from "react-native";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useFocusEffect } from "expo-router";
 import { Eye, EyeSlash } from "phosphor-react-native";
 import { LineChart } from "react-native-chart-kit";
 import Svg, { Circle } from "react-native-svg";
@@ -10,6 +11,8 @@ import { CardCustomer } from "@/components/CardCustomer";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
 import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { VariacaoCustomer } from "@/components/VariacaoCustomer";
+
+import { obterUsuarioAtual } from "@/services/authService";
 
 import { formatarMil } from "@/utils/formatarMil";
 import { formatarReais } from "@/utils/formatarReais";
@@ -54,8 +57,26 @@ function Rosca({ dados }) {
   );
 }
 
+function obterSaudacao(nomeCompleto) {
+  const hora = new Date().getHours();
+  const cumprimento =
+    hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
+  const primeiroNome = (nomeCompleto || "Usuário").trim().split(/\s+/)[0];
+  return `${cumprimento}, ${primeiroNome}`;
+}
+
 export default function HomeScreen() {
   const [esconder, setEsconder] = useState(false);
+  const [saudacao, setSaudacao] = useState(() =>
+    obterSaudacao(obterUsuarioAtual()?.displayName),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      const usuario = obterUsuarioAtual();
+      setSaudacao(obterSaudacao(usuario?.displayName));
+    }, []),
+  );
 
   const coresDivisao = [cores.texto, cores.primaria];
 
@@ -66,10 +87,7 @@ export default function HomeScreen() {
 
   return (
     <TelaCustomer>
-      <CabecalhoPrincipal
-        subtitulo={inicioData.saudacao}
-        titulo="Sua carteira"
-      />
+      <CabecalhoPrincipal subtitulo={saudacao} titulo="Sua carteira" />
 
       {/* Patrimônio total */}
       <View className="bg-texto rounded-2xl p-6 flex-row items-center justify-between">
