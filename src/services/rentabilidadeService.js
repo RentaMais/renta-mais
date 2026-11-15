@@ -4,7 +4,8 @@ import { obterUsuarioAtual } from "@/services/authService";
 
 async function buscarCDIBancoCentral() {
   try {
-    const url = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/6?formato=json";
+    const url =
+      "https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/6?formato=json";
     const response = await fetch(url);
     const data = await response.json();
     return data;
@@ -16,8 +17,9 @@ async function buscarCDIBancoCentral() {
 
 async function buscarIbovespaYahoo() {
   try {
-    const urlYahoo = "https://query1.finance.yahoo.com/v8/finance/chart/^BVSP?interval=1mo&range=7m";
-    
+    const urlYahoo =
+      "https://query1.finance.yahoo.com/v8/finance/chart/^BVSP?interval=1mo&range=7m";
+
     //evitar erro de requisicao utilizando um servidor intermediario
     const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlYahoo)}`;
 
@@ -38,16 +40,17 @@ async function buscarIbovespaYahoo() {
     for (let i = 1; i < timestamps.length; i++) {
       const precoAnterior = closes[i - 1];
       const precoAtual = closes[i];
-      
+
       if (precoAnterior && precoAtual) {
-        const variacaoPercentual = ((precoAtual - precoAnterior) / precoAnterior) * 100;
+        const variacaoPercentual =
+          ((precoAtual - precoAnterior) / precoAnterior) * 100;
         const dataObj = new Date(timestamps[i] * 1000);
-        
+
         historicoIbov.push({
           ano: dataObj.getFullYear(),
-          mesIndex: dataObj.getMonth(), 
+          mesIndex: dataObj.getMonth(),
           variacao: Number(variacaoPercentual.toFixed(2)),
-          dataOriginal: dataObj
+          dataOriginal: dataObj,
         });
       }
     }
@@ -66,25 +69,38 @@ export async function buscarDadosRentabilidade() {
   }
 
   const assetsRef = collection(db, "users", user.uid, "assets");
-  
+
   const [snapshotAtivos, dadosCDI, dadosIbov] = await Promise.all([
     getDocs(assetsRef),
     buscarCDIBancoCentral(),
-    buscarIbovespaYahoo()
+    buscarIbovespaYahoo(),
   ]);
 
   if (snapshotAtivos.empty) {
     return {
       textoDescritivo: "Sem ativos registados",
-      meses: []
+      meses: [],
     };
   }
 
-  const ativos = snapshotAtivos.docs.map(doc => doc.data());
+  const ativos = snapshotAtivos.docs.map((doc) => doc.data());
 
-  const mesesAbrev = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-  
-  const periodoAvaliado = dadosIbov.slice(-6).map(ibovItem => {
+  const mesesAbrev = [
+    "Jan",
+    "Fev",
+    "Mar",
+    "Abr",
+    "Mai",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Set",
+    "Out",
+    "Nov",
+    "Dez",
+  ];
+
+  const periodoAvaliado = dadosIbov.slice(-6).map((ibovItem) => {
     const nomeMes = mesesAbrev[ibovItem.mesIndex];
     const nomeFormatado = `${nomeMes} ${ibovItem.ano}`;
 
@@ -93,17 +109,19 @@ export async function buscarDadosRentabilidade() {
     let capitalFixaAteMes = 0;
     let capitalVariavelAteMes = 0;
 
-    ativos.forEach(ativo => {
+    ativos.forEach((ativo) => {
       const tipoAtivo = ativo.type || ativo.tipo;
       const isFixed = tipoAtivo === "fixed" || tipoAtivo === "renda_fixa";
 
       if (ativo.aportes && Array.isArray(ativo.aportes)) {
-        ativo.aportes.forEach(aporte => {
+        ativo.aportes.forEach((aporte) => {
           const dataStr = aporte.purchaseDate || aporte.date;
           if (dataStr) {
             const dataAporte = new Date(dataStr);
             if (!isNaN(dataAporte) && dataAporte <= dataFimDoMes) {
-              const valorAporte = Number(aporte.invested || (aporte.quantity * aporte.unitPrice) || 0);
+              const valorAporte = Number(
+                aporte.invested || aporte.quantity * aporte.unitPrice || 0,
+              );
               if (isFixed) {
                 capitalFixaAteMes += valorAporte;
               } else {
@@ -118,10 +136,16 @@ export async function buscarDadosRentabilidade() {
     const patrimonioTotalMes = capitalFixaAteMes + capitalVariavelAteMes;
 
     if (patrimonioTotalMes === 0) {
-      return { mes: nomeMes, nome: nomeFormatado, carteira: 0, cdi: 0, ibovespa: 0 };
+      return {
+        mes: nomeMes,
+        nome: nomeFormatado,
+        carteira: 0,
+        cdi: 0,
+        ibovespa: 0,
+      };
     }
 
-    const cdiEncontrado = dadosCDI.find(c => {
+    const cdiEncontrado = dadosCDI.find((c) => {
       if (!c.data) return false;
       const partesData = c.data.split("/");
       const mesNum = parseInt(partesData[1], 10) - 1;
@@ -135,18 +159,22 @@ export async function buscarDadosRentabilidade() {
     const pesoFixa = capitalFixaAteMes / patrimonioTotalMes;
     const pesoVariavel = capitalVariavelAteMes / patrimonioTotalMes;
 
-    const rentabilidadePonderada = (pesoFixa * taxaCdiMes) + (pesoVariavel * taxaIbovMes);
+    const rentabilidadePonderada =
+      pesoFixa * taxaCdiMes + pesoVariavel * taxaIbovMes;
 
     return {
       mes: nomeMes,
       nome: nomeFormatado,
       carteira: Number(rentabilidadePonderada.toFixed(2)),
       cdi: Number(taxaCdiMes.toFixed(1)),
-      ibovespa: Number(taxaIbovMes.toFixed(1))
+      ibovespa: Number(taxaIbovMes.toFixed(1)),
     };
   });
 
-  const rendimentoAcumulado = periodoAvaliado.reduce((acumulado, m) => acumulado + m.carteira, 0);
+  const rendimentoAcumulado = periodoAvaliado.reduce(
+    (acumulado, m) => acumulado + m.carteira,
+    0,
+  );
   const totalMeses = periodoAvaliado.length;
 
   let textoDescritivo = "";
@@ -160,6 +188,6 @@ export async function buscarDadosRentabilidade() {
 
   return {
     textoDescritivo,
-    meses: periodoAvaliado
+    meses: periodoAvaliado,
   };
 }

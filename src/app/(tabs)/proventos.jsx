@@ -1,5 +1,5 @@
-import { useState, useCallback} from "react";
-import { Text, View, FlatList ,ActivityIndicator} from "react-native";
+import { useState, useCallback } from "react";
+import { Text, View, FlatList, ActivityIndicator } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { BarChart } from "react-native-chart-kit";
 
@@ -10,7 +10,6 @@ import { TituloCardCustomer } from "@/components/TituloCardCustomer";
 
 import { cores } from "@/cores";
 import { buscarDadosProventos } from "@/services/proventosService";
-
 
 const QTD_MESES = 12;
 const MESES = [
@@ -28,26 +27,25 @@ const MESES = [
   "Dez",
 ];
 
-
-
 const gerarUltimosMeses = (qtd) => {
   const hoje = new Date();
   const mesesGerados = [];
-  
+
   for (let i = 0; i < qtd; i++) {
     const d = new Date(hoje.getFullYear(), hoje.getMonth() - (qtd - 1 - i), 1);
     mesesGerados.push(MESES[d.getMonth()]);
   }
-  
+
   return mesesGerados;
 };
 
-function GraficoProventos({valores}) {
+function GraficoProventos({ valores }) {
   const [largura, setLargura] = useState(0);
 
-  const dadosValores = valores && valores.length === QTD_MESES ? valores : Array(12).fill(0);
-  const maxVal = Math.max(...dadosValores, 1); 
-  
+  const dadosValores =
+    valores && valores.length === QTD_MESES ? valores : Array(12).fill(0);
+  const maxVal = Math.max(...dadosValores, 1);
+
   const corDaBarra = (v) => {
     const p = v / maxVal;
     return p >= 0.75
@@ -65,11 +63,11 @@ function GraficoProventos({valores}) {
       },
     ],
   };
-  
+
   return (
     <View
-    className="w-full"
-    onLayout={(e) => setLargura(e.nativeEvent.layout.width)}
+      className="w-full"
+      onLayout={(e) => setLargura(e.nativeEvent.layout.width)}
     >
       {largura > 0 && (
         <BarChart
@@ -115,8 +113,8 @@ export default function ProventosScreen() {
       async function carregarDados() {
         try {
           setLoading(true);
-          const dados = await buscarDadosProventos(); 
-          
+          const dados = await buscarDadosProventos();
+
           if (isMounted) {
             setTotalRecebido(dados.totalRecebido);
             setDyMedio(dados.dyMedio);
@@ -135,7 +133,7 @@ export default function ProventosScreen() {
       return () => {
         isMounted = false;
       };
-    }, [])
+    }, []),
   );
 
   return (
@@ -152,13 +150,19 @@ export default function ProventosScreen() {
           <Text className="mb-1 font-corpo-bold text-xs text-container/60">
             Total recebido
           </Text>
-          <Text className="font-titulo text-xl text-container">{loading ? "..." : `R$ ${totalRecebido.toFixed(2).replace(".", ",")}`}</Text>
+          <Text className="font-titulo text-xl text-container">
+            {loading
+              ? "..."
+              : `R$ ${totalRecebido.toFixed(2).replace(".", ",")}`}
+          </Text>
         </View>
         <View className="flex-1 items-center">
           <Text className="mb-1 font-corpo-bold text-xs text-container/60">
             DY médio
           </Text>
-          <Text className="font-titulo text-xl text-container">{loading ? "..." : `${dyMedio.toFixed(1).replace(".", ",")}%`}</Text>
+          <Text className="font-titulo text-xl text-container">
+            {loading ? "..." : `${dyMedio.toFixed(1).replace(".", ",")}%`}
+          </Text>
         </View>
       </View>
 
@@ -186,7 +190,7 @@ export default function ProventosScreen() {
             <View className="h-[1px] my-3 bg-texto/10" />
           )}
           ListEmptyComponent={() => (
-           <View className="items-center justify-center py-8">
+            <View className="items-center justify-center py-8">
               {loading ? (
                 <ActivityIndicator size="small" color={cores.primaria} />
               ) : (

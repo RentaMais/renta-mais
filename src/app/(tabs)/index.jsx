@@ -37,7 +37,7 @@ function Rosca({ dados }) {
           cy={centro}
           r={RAIO_ROSCA}
           fill="none"
-          stroke={cores.inativo} 
+          stroke={cores.inativo}
           strokeWidth={ESPESSURA_ROSCA}
         />
       </Svg>
@@ -81,15 +81,14 @@ function obterSaudacao(nomeCompleto) {
 export default function HomeScreen() {
   const [esconder, setEsconder] = useState(false);
   const [saudacao, setSaudacao] = useState("");
-  
+
   const [dadosInicio, setDadosInicio] = useState({
     patrimonioTotal: 0,
     variacao: 0,
     divisao: [],
-    evolucao: { labels: [], datasets: [{ data: [] }] }
+    evolucao: { labels: [], datasets: [{ data: [] }] },
   });
 
-  
   useFocusEffect(
     useCallback(() => {
       async function carregarDadosTela() {
@@ -105,16 +104,19 @@ export default function HomeScreen() {
       }
 
       carregarDadosTela();
-    }, [])
+    }, []),
   );
 
   const coresDivisao = [cores.texto, cores.primaria];
 
-  const totalGeral = dadosInicio.divisao.reduce((soma, item) => soma + (item.valor || 0), 0);
+  const totalGeral = dadosInicio.divisao.reduce(
+    (soma, item) => soma + (item.valor || 0),
+    0,
+  );
 
   const dadosDivisaoFormatados = dadosInicio.divisao.map((item, index) => ({
     ...item,
-    color: totalGeral === 0 ? cores.inativo :(coresDivisao[index]),
+    color: totalGeral === 0 ? cores.inativo : coresDivisao[index],
   }));
 
   return (

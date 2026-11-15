@@ -1,31 +1,35 @@
 import { db } from "@/services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { obterUsuarioAtual } from "@/services/authService";
-import { buscarDadosRentabilidade } from "@/services/rentabilidadeService"; 
+import { buscarDadosRentabilidade } from "@/services/rentabilidadeService";
 
 export async function buscarDadosInicio() {
   const user = obterUsuarioAtual();
-  
+
   if (!user) {
     throw new Error("Utilizador não autenticado.");
   }
 
   const [assetsSnapshot, dadosRentabilidade] = await Promise.all([
     getDocs(collection(db, "users", user.uid, "assets")),
-    buscarDadosRentabilidade().catch(() => ({ meses: [] }))
+    buscarDadosRentabilidade().catch(() => ({ meses: [] })),
   ]);
 
-  const ativos = assetsSnapshot.docs.map(doc => doc.data());
+  const ativos = assetsSnapshot.docs.map((doc) => doc.data());
 
   let patrimonioTotal = 0;
   let totalRendaFixa = 0;
   let totalRendaVariavel = 0;
 
-  ativos.forEach(ativo => {
+  ativos.forEach((ativo) => {
     let valorAtivo = Number(ativo.totalInvested || 0);
-    
+
     if (valorAtivo === 0 && ativo.aportes && Array.isArray(ativo.aportes)) {
-      valorAtivo = ativo.aportes.reduce((acc, ap) => acc + Number(ap.invested || (ap.quantity * ap.unitPrice) || 0), 0);
+      valorAtivo = ativo.aportes.reduce(
+        (acc, ap) =>
+          acc + Number(ap.invested || ap.quantity * ap.unitPrice || 0),
+        0,
+      );
     }
 
     patrimonioTotal += valorAtivo;
@@ -43,7 +47,7 @@ export async function buscarDadosInicio() {
 
   if (patrimonioTotal > 0) {
     percentualFixa = Math.round((totalRendaFixa / patrimonioTotal) * 100);
-    percentualVariavel = 100 - percentualFixa; 
+    percentualVariavel = 100 - percentualFixa;
   }
 
   let labelsGrafico = [];
@@ -56,7 +60,7 @@ export async function buscarDadosInicio() {
     const ultimoMes = meses[meses.length - 1];
     variacaoDinamica = ultimoMes ? ultimoMes.carteira : 0;
 
-    labelsGrafico = meses.map(m => m.mes);
+    labelsGrafico = meses.map((m) => m.mes);
 
     let valoresReconstruidos = [];
     let valorCorrente = patrimonioTotal;
@@ -78,11 +82,11 @@ export async function buscarDadosInicio() {
     variacao: variacaoDinamica,
     divisao: [
       { name: "Renda variável", valor: percentualVariavel },
-      { name: "Renda fixa", valor: percentualFixa }
+      { name: "Renda fixa", valor: percentualFixa },
     ],
     evolucao: {
       labels: labelsGrafico,
-      datasets: [{ data: dataGrafico }]
-    }
+      datasets: [{ data: dataGrafico }],
+    },
   };
 }

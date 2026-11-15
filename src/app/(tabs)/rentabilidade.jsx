@@ -1,5 +1,5 @@
 import { View, Text, FlatList } from "react-native";
-import { useState, useCallback} from "react";
+import { useState, useCallback } from "react";
 import { useFocusEffect } from "expo-router";
 import { BarChart } from "react-native-gifted-charts";
 import { TelaCustomer } from "@/components/TelaCustomer";
@@ -37,7 +37,9 @@ function GraficoRentabilidade({ meses }) {
   if (!meses || meses.length === 0) {
     return (
       <View className="py-6 items-center">
-        <Text className="font-corpo text-sm text-inativo">Sem dados de rentabilidade para exibir.</Text>
+        <Text className="font-corpo text-sm text-inativo">
+          Sem dados de rentabilidade para exibir.
+        </Text>
       </View>
     );
   }
@@ -129,8 +131,8 @@ function GraficoRentabilidade({ meses }) {
 
 export default function RentabilidadeScreen() {
   const [dadosRentabilidade, setDadosRentabilidade] = useState({
-      textoDescritivo: "Carregando...",
-      meses: []
+    textoDescritivo: "Carregando...",
+    meses: [],
   });
 
   useFocusEffect(
@@ -144,11 +146,10 @@ export default function RentabilidadeScreen() {
         }
       }
       carregarDados();
-    }, [])
+    }, []),
   );
 
   const tabela = [...(dadosRentabilidade.meses || [])].slice(-6).reverse();
-  
 
   return (
     <TelaCustomer>
