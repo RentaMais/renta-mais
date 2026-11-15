@@ -13,10 +13,10 @@ import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { VariacaoCustomer } from "@/components/VariacaoCustomer";
 
 import { obterUsuarioAtual } from "@/services/authService";
+import { buscarDadosInicio } from "@/services/inicioService";
 
 import { formatarMil } from "@/utils/formatarMil";
 import { formatarReais } from "@/utils/formatarReais";
-import inicioData from "@/mocks/inicio.json";
 
 const larguraTela = Dimensions.get("window").width;
 const larguraGrafico = larguraTela * 0.85;
@@ -29,7 +29,20 @@ const CIRCUNFERENCIA = 2 * Math.PI * RAIO_ROSCA;
 function Rosca({ dados }) {
   const total = dados.reduce((soma, item) => soma + item.valor, 0);
   const centro = TAMANHO_ROSCA / 2;
-
+  if (total === 0) {
+    return (
+      <Svg width={TAMANHO_ROSCA} height={TAMANHO_ROSCA}>
+        <Circle
+          cx={centro}
+          cy={centro}
+          r={RAIO_ROSCA}
+          fill="none"
+          stroke={cores.inativo}
+          strokeWidth={ESPESSURA_ROSCA}
+        />
+      </Svg>
+    );
+  }
   return (
     <Svg width={TAMANHO_ROSCA} height={TAMANHO_ROSCA}>
       {dados.map((item, index) => {
@@ -67,22 +80,43 @@ function obterSaudacao(nomeCompleto) {
 
 export default function HomeScreen() {
   const [esconder, setEsconder] = useState(false);
-  const [saudacao, setSaudacao] = useState(() =>
-    obterSaudacao(obterUsuarioAtual()?.displayName),
-  );
+  const [saudacao, setSaudacao] = useState("");
+
+  const [dadosInicio, setDadosInicio] = useState({
+    patrimonioTotal: 0,
+    variacao: 0,
+    divisao: [],
+    evolucao: { labels: [], datasets: [{ data: [] }] },
+  });
 
   useFocusEffect(
     useCallback(() => {
-      const usuario = obterUsuarioAtual();
-      setSaudacao(obterSaudacao(usuario?.displayName));
+      async function carregarDadosTela() {
+        try {
+          const usuario = obterUsuarioAtual();
+          setSaudacao(obterSaudacao(usuario?.displayName));
+
+          const dadosDoBanco = await buscarDadosInicio();
+          setDadosInicio(dadosDoBanco);
+        } catch (erro) {
+          console.error("Erro ao carregar dados da tela de início:", erro);
+        }
+      }
+
+      carregarDadosTela();
     }, []),
   );
 
   const coresDivisao = [cores.texto, cores.primaria];
 
-  const dadosDivisaoFormatados = inicioData.divisao.map((item, index) => ({
+  const totalGeral = dadosInicio.divisao.reduce(
+    (soma, item) => soma + (item.valor || 0),
+    0,
+  );
+
+  const dadosDivisaoFormatados = dadosInicio.divisao.map((item, index) => ({
     ...item,
-    color: coresDivisao[index],
+    color: totalGeral === 0 ? cores.inativo : coresDivisao[index],
   }));
 
   return (
@@ -99,11 +133,11 @@ export default function HomeScreen() {
           <Text className="font-titulo text-4xl text-container">
             {esconder
               ? "R$ ••••••••"
-              : formatarReais(Number(inicioData.patrimonioTotal))}
+              : formatarReais(Number(dadosInicio.patrimonioTotal))}
           </Text>
 
           <View className="flex-row items-center gap-2">
-            <VariacaoCustomer valor={inicioData.variacao} />
+            <VariacaoCustomer valor={dadosInicio.variacao} />
             <Text className="font-corpo text-sm text-fundo">
               nos últimos 30 dias
             </Text>
@@ -159,7 +193,7 @@ export default function HomeScreen() {
         />
 
         <LineChart
-          data={inicioData.evolucao}
+          data={dadosInicio.evolucao}
           width={larguraGrafico}
           height={180}
           segments={3}
