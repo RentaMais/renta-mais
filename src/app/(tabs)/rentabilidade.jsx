@@ -1,11 +1,13 @@
 import { View, Text, FlatList } from "react-native";
-import { useState } from "react";
+import { useState, useCallback} from "react";
+import { useFocusEffect } from "expo-router";
 import { BarChart } from "react-native-gifted-charts";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CardCustomer } from "@/components/CardCustomer";
 import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { formatarPercentual } from "@/utils/formatarPercentual";
-import rentabilidadeDados from "@/mocks/rentabilidade.json";
+import { buscarDadosRentabilidade } from "@/services/rentabilidadeService";
+
 import { cores } from "@/cores";
 
 const series = [
@@ -32,6 +34,14 @@ function GraficoRentabilidade({ meses }) {
     setLargura(largura);
   }
 
+  if (!meses || meses.length === 0) {
+    return (
+      <View className="py-6 items-center">
+        <Text className="font-corpo text-sm text-inativo">Sem dados de rentabilidade para exibir.</Text>
+      </View>
+    );
+  }
+
   const larguraColuna = largura / meses.length;
   const folga = larguraColuna - 32;
 
@@ -42,7 +52,7 @@ function GraficoRentabilidade({ meses }) {
     dadosBarras.push({
       value: mes.carteira,
       spacing: 4,
-      frontColor: mes.carteira >= 0 ? cores.primaria : "#A83E45",
+      frontColor: mes.carteira >= 0 ? cores.primaria : cores.secundariaCarteira,
     });
     dadosBarras.push({
       value: mes.cdi,
@@ -118,18 +128,37 @@ function GraficoRentabilidade({ meses }) {
 }
 
 export default function RentabilidadeScreen() {
-  const tabela = rentabilidadeDados.meses.slice(-6).reverse();
+  const [dadosRentabilidade, setDadosRentabilidade] = useState({
+      textoDescritivo: "Carregando...",
+      meses: []
+  });
+
+  useFocusEffect(
+    useCallback(() => {
+      async function carregarDados() {
+        try {
+          const resultado = await buscarDadosRentabilidade();
+          setDadosRentabilidade(resultado);
+        } catch (erro) {
+          console.error("Erro ao carregar dados de rentabilidade:", erro);
+        }
+      }
+      carregarDados();
+    }, [])
+  );
+
+  const tabela = [...(dadosRentabilidade.meses || [])].slice(-6).reverse();
+  
 
   return (
     <TelaCustomer>
       <CabecalhoPrincipal
         subtitulo="Comparativo de performance"
         titulo="Rentabilidade"
-        descricao={`Rendeu ${rentabilidadeDados.rendimento12Meses}% em 12 meses`}
-        className={`h-3 w-3 rounded-full ${series.cor}`}
+        descricao={dadosRentabilidade.textoDescritivo}
       />
       <CardCustomer>
-        <GraficoRentabilidade meses={rentabilidadeDados.meses} />
+        <GraficoRentabilidade meses={dadosRentabilidade.meses} />
       </CardCustomer>
       <CardCustomer>
         <View className="flex-row border-b border-texto/10 pb-1.5 mb-2.5">
@@ -152,6 +181,13 @@ export default function RentabilidadeScreen() {
           scrollEnabled={false}
           ItemSeparatorComponent={() => (
             <View className="h-[1px] bg-texto/10 my-2.5" />
+          )}
+          ListEmptyComponent={() => (
+            <View className="py-4 items-center">
+              <Text className="font-corpo text-sm text-inativo">
+                Nenhum registro mensal encontrado.
+              </Text>
+            </View>
           )}
           renderItem={({ item }) => (
             <View className="flex-row items-center">

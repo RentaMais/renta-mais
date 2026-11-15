@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Text, View, FlatList } from "react-native";
+import { useState, useCallback} from "react";
+import { Text, View, FlatList ,ActivityIndicator} from "react-native";
+import { useFocusEffect } from "expo-router";
 import { BarChart } from "react-native-chart-kit";
 
 import { TelaCustomer } from "@/components/TelaCustomer";
@@ -8,8 +9,8 @@ import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
 
 import { cores } from "@/cores";
-import proventosMock from "@/mocks/proventos.json";
-import valores from "@/mocks/historicoProventos.json";
+import { buscarDadosProventos } from "@/services/proventosService";
+
 
 const QTD_MESES = 12;
 const MESES = [
@@ -27,32 +28,34 @@ const MESES = [
   "Dez",
 ];
 
-const MAX = Math.max(...valores);
 
-const corDaBarra = (v) => {
-  const p = v / MAX;
-  return p >= 0.75
-    ? cores.primaria
-    : p >= 0.45
-      ? `${cores.primaria}B3`
-      : `${cores.primaria}66`;
-};
 
 const gerarUltimosMeses = (qtd) => {
   const hoje = new Date();
   const mesesGerados = [];
-
+  
   for (let i = 0; i < qtd; i++) {
     const d = new Date(hoje.getFullYear(), hoje.getMonth() - (qtd - 1 - i), 1);
     mesesGerados.push(MESES[d.getMonth()]);
   }
-
+  
   return mesesGerados;
 };
 
-function GraficoProventos() {
+function GraficoProventos({valores}) {
   const [largura, setLargura] = useState(0);
 
+  const dadosValores = valores && valores.length === QTD_MESES ? valores : Array(12).fill(0);
+  const maxVal = Math.max(...dadosValores, 1); 
+  
+  const corDaBarra = (v) => {
+    const p = v / maxVal;
+    return p >= 0.75
+      ? cores.primaria
+      : p >= 0.45
+        ? `${cores.primaria}B3`
+        : `${cores.primaria}66`;
+  };
   const dados = {
     labels: gerarUltimosMeses(QTD_MESES),
     datasets: [
@@ -62,11 +65,11 @@ function GraficoProventos() {
       },
     ],
   };
-
+  
   return (
     <View
-      className="w-full"
-      onLayout={(e) => setLargura(e.nativeEvent.layout.width)}
+    className="w-full"
+    onLayout={(e) => setLargura(e.nativeEvent.layout.width)}
     >
       {largura > 0 && (
         <BarChart
@@ -99,6 +102,42 @@ function GraficoProventos() {
 }
 
 export default function ProventosScreen() {
+  const [loading, setLoading] = useState(true);
+  const [totalRecebido, setTotalRecebido] = useState(0);
+  const [dyMedio, setDyMedio] = useState(0);
+  const [valoresMensais, setValoresMensais] = useState(Array(12).fill(0));
+  const [listaProventos, setListaProventos] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true;
+
+      async function carregarDados() {
+        try {
+          setLoading(true);
+          const dados = await buscarDadosProventos(); 
+          
+          if (isMounted) {
+            setTotalRecebido(dados.totalRecebido);
+            setDyMedio(dados.dyMedio);
+            setValoresMensais(dados.valoresMensais);
+            setListaProventos(dados.listaProventos);
+          }
+        } catch (error) {
+          console.error("Erro ao carregar dados de proventos:", error);
+        } finally {
+          if (isMounted) setLoading(false);
+        }
+      }
+
+      carregarDados();
+
+      return () => {
+        isMounted = false;
+      };
+    }, [])
+  );
+
   return (
     <TelaCustomer>
       <CabecalhoPrincipal
@@ -113,20 +152,26 @@ export default function ProventosScreen() {
           <Text className="mb-1 font-corpo-bold text-xs text-container/60">
             Total recebido
           </Text>
-          <Text className="font-titulo text-xl text-container">R$ 7.460</Text>
+          <Text className="font-titulo text-xl text-container">{loading ? "..." : `R$ ${totalRecebido.toFixed(2).replace(".", ",")}`}</Text>
         </View>
         <View className="flex-1 items-center">
           <Text className="mb-1 font-corpo-bold text-xs text-container/60">
             DY médio
           </Text>
-          <Text className="font-titulo text-xl text-container">7,4%</Text>
+          <Text className="font-titulo text-xl text-container">{loading ? "..." : `${dyMedio.toFixed(1).replace(".", ",")}%`}</Text>
         </View>
       </View>
 
       {/* Gráfico */}
       <CardCustomer className="gap-4">
         <TituloCardCustomer titulo={`Últimos ${QTD_MESES} meses`} />
-        <GraficoProventos />
+        {loading ? (
+          <View className="py-12 items-center justify-center">
+            <ActivityIndicator size="small" color={cores.primaria} />
+          </View>
+        ) : (
+          <GraficoProventos valores={valoresMensais} />
+        )}
       </CardCustomer>
 
       {/* Próximos Pagamentos */}
@@ -134,17 +179,21 @@ export default function ProventosScreen() {
         <TituloCardCustomer titulo="Próximos pagamentos" className="mb-4" />
 
         <FlatList
-          data={proventosMock}
+          data={listaProventos}
           keyExtractor={(item) => item.id}
           scrollEnabled={false}
           ItemSeparatorComponent={() => (
             <View className="h-[1px] my-3 bg-texto/10" />
           )}
           ListEmptyComponent={() => (
-            <View className="items-center justify-center py-8">
-              <Text className="text-center font-corpo text-sm text-texto/40">
-                Nenhum provento disponível no momento.
-              </Text>
+           <View className="items-center justify-center py-8">
+              {loading ? (
+                <ActivityIndicator size="small" color={cores.primaria} />
+              ) : (
+                <Text className="text-center font-corpo text-sm text-texto/40">
+                  Nenhum provento disponível no momento.
+                </Text>
+              )}
             </View>
           )}
           renderItem={({ item }) => (
