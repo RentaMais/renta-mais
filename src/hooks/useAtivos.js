@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useFocusEffect } from "expo-router";
 import {
+  atualizarCotacoesCarteira,
   buscarAtivo,
   cadastrarRendaVariavel,
   criarRendaFixa,
@@ -28,27 +29,46 @@ export function useCarteiraAtivos() {
 
   useFocusEffect(
     useCallback(() => {
+      let ativo = true;
+
       async function carregar() {
         try {
-          const lista = await listarAtivos();
-          setAtivos(lista);
-          setErro("");
+          const listaInicial = await listarAtivos();
+          if (ativo) {
+            setAtivos(listaInicial);
+            setErro("");
+            setCarregando(false);
+          }
+
+          await atualizarCotacoesCarteira(listaInicial);
+          const listaAtualizada = await listarAtivos();
+          if (ativo) {
+            setAtivos(listaAtualizada);
+          }
         } catch (_e) {
-          setErro("Não foi possível carregar os ativos.");
-        } finally {
-          setCarregando(false);
+          if (ativo) {
+            setErro("Não foi possível carregar os ativos.");
+            setCarregando(false);
+          }
         }
       }
+
       carregar();
+
+      return () => {
+        ativo = false;
+      };
     }, []),
   );
 
-  const { variaveis, fixos, totalInvestido } = resumirCarteira(ativos);
+  const { variaveis, fixos, totalInvestido, totalAtual } =
+    resumirCarteira(ativos);
 
   return {
     variaveis,
     fixos,
     totalInvestido,
+    totalAtual,
     carregando,
     erro,
   };

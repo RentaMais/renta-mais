@@ -91,7 +91,7 @@ function FormularioVenda({ dados }) {
           <View className="flex-1">
             <InputCustomer
               titulo="Preço de venda"
-              placeholder={dados.placeholderPreco}
+              placeholder={dados.placeholderPreco || "25,00"}
               value={dados.precoVenda}
               onChangeText={dados.setPrecoVenda}
               keyboardType="decimal-pad"

@@ -3,10 +3,19 @@ import { dataParaBR } from "@/utils/formatarData";
 
 export function converterAtivo(id, dados) {
   if (dados.type === "variable") {
-    const quantidade = Number(dados.quantity);
-    const precoMedio = Number(dados.averagePrice);
+    let quantidade = Number(dados.quantity || 0);
+    if (quantidade === 0 && Array.isArray(dados.aportes)) {
+      quantidade = dados.aportes.reduce(
+        (acc, ap) => acc + Number(ap.quantity || 0),
+        0,
+      );
+    }
+
+    const precoMedio = Number(dados.averagePrice || 0);
     const precoAtual = Number(dados.currentPrice) || precoMedio;
     const valorAtual = quantidade * precoAtual;
+    const totalInvestido =
+      Number(dados.totalInvested) || quantidade * precoMedio;
 
     const variacaoPercentual =
       precoMedio > 0 ? ((precoAtual - precoMedio) / precoMedio) * 100 : 0;
@@ -22,7 +31,7 @@ export function converterAtivo(id, dados) {
       valorAtual,
       variacao: variacaoPercentual.toFixed(1).replace(".", ","),
       imagem: dados.logoUrl || "",
-      totalInvestido: Number(dados.totalInvested) || 0,
+      totalInvestido,
     };
   }
 
@@ -37,7 +46,7 @@ export function converterAtivo(id, dados) {
     taxa: taxaTexto,
     vencimento:
       typeof dados.dueDate === "string" ? dataParaBR(dados.dueDate) : "",
-    valorInicial: Number(dados.totalInvested),
+    valorInicial: Number(dados.totalInvested) || 0,
     valor: formatarMoeda(dados.totalInvested),
     totalInvestido: Number(dados.totalInvested) || 0,
   };
@@ -46,12 +55,22 @@ export function converterAtivo(id, dados) {
 export function resumirCarteira(ativos = []) {
   const variaveis = ativos.filter((ativo) => ativo.tipo === "renda_variavel");
   const fixos = ativos.filter((ativo) => ativo.tipo === "renda_fixa");
+
   const totalInvestido = ativos.reduce(
     (acumulado, ativo) => acumulado + (Number(ativo.totalInvestido) || 0),
     0,
   );
 
-  return { variaveis, fixos, totalInvestido };
+  const totalAtual = ativos.reduce(
+    (acumulado, ativo) =>
+      acumulado +
+      (ativo.tipo === "renda_variavel"
+        ? Number(ativo.valorAtual) || 0
+        : Number(ativo.valorInicial) || 0),
+    0,
+  );
+
+  return { variaveis, fixos, totalInvestido, totalAtual };
 }
 
 export function montarDetalhesAtivo(ativo) {
@@ -63,7 +82,7 @@ export function montarDetalhesAtivo(ativo) {
       { rotulo: "Preço médio", valor: formatarMoeda(ativo.precoMedio) },
       {
         rotulo: "Valor investido",
-        valor: formatarMoeda(ativo.quantidade * ativo.precoMedio),
+        valor: formatarMoeda(ativo.totalInvestido),
       },
       { rotulo: "Valor atual", valor: ativo.valor },
     ];
