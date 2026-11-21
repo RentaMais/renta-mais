@@ -68,6 +68,16 @@ export function validarSenhaForte(senha = "") {
   return { valida: true, erro: "" };
 }
 
+export function validarConfirmacaoSenha(senha = "", confirmarSenha = "") {
+  if (!confirmarSenha) {
+    return { valida: false, erro: "Confirme sua senha." };
+  }
+  if (senha !== confirmarSenha) {
+    return { valida: false, erro: "As senhas não coincidem." };
+  }
+  return { valida: true, erro: "" };
+}
+
 const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export function validarEmail(email = "") {

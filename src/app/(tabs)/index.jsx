@@ -1,6 +1,5 @@
 import { View, Text, Dimensions, Pressable } from "react-native";
-import { useState, useCallback } from "react";
-import { useFocusEffect } from "expo-router";
+import { useState } from "react";
 import { Eye, EyeSlash } from "phosphor-react-native";
 import { LineChart } from "react-native-chart-kit";
 import Svg, { Circle } from "react-native-svg";
@@ -11,9 +10,7 @@ import { CardCustomer } from "@/components/CardCustomer";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
 import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { VariacaoCustomer } from "@/components/VariacaoCustomer";
-
-import { obterUsuarioAtual } from "@/services/authService";
-import { buscarDadosInicio } from "@/services/inicioService";
+import { useInicio } from "@/hooks/useInicio";
 
 import { formatarMil } from "@/utils/formatarMil";
 import { formatarReais } from "@/utils/formatarReais";
@@ -80,33 +77,9 @@ function obterSaudacao(nomeCompleto) {
 
 export default function HomeScreen() {
   const [esconder, setEsconder] = useState(false);
-  const [saudacao, setSaudacao] = useState("");
+  const { nomeUsuario, dadosInicio, erro } = useInicio();
 
-  const [dadosInicio, setDadosInicio] = useState({
-    patrimonioTotal: 0,
-    variacao: 0,
-    divisao: [],
-    evolucao: { labels: [], datasets: [{ data: [] }] },
-  });
-
-  useFocusEffect(
-    useCallback(() => {
-      async function carregarDadosTela() {
-        try {
-          const usuario = obterUsuarioAtual();
-          setSaudacao(obterSaudacao(usuario?.displayName));
-
-          const dadosDoBanco = await buscarDadosInicio();
-          setDadosInicio(dadosDoBanco);
-        } catch (erro) {
-          console.error("Erro ao carregar dados da tela de início:", erro);
-        }
-      }
-
-      carregarDadosTela();
-    }, []),
-  );
-
+  const saudacao = obterSaudacao(nomeUsuario);
   const coresDivisao = [cores.texto, cores.primaria];
 
   const totalGeral = dadosInicio.divisao.reduce(
@@ -122,6 +95,10 @@ export default function HomeScreen() {
   return (
     <TelaCustomer>
       <CabecalhoPrincipal subtitulo={saudacao} titulo="Sua carteira" />
+
+      {erro !== "" && (
+        <Text className="font-corpo-medium text-sm text-erro">{erro}</Text>
+      )}
 
       {/* Patrimônio total */}
       <View className="bg-texto rounded-2xl p-6 flex-row items-center justify-between">

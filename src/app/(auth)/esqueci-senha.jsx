@@ -1,5 +1,4 @@
 import { Text, View } from "react-native";
-import { useState } from "react";
 import { LockSimpleIcon } from "phosphor-react-native";
 
 import { InputCustomer } from "@/components/InputCustomer";
@@ -9,33 +8,17 @@ import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { IconeCustomer } from "@/components/IconeCustomer";
-import { enviarEmailRecuperacaoSenha } from "@/services/authService";
+import { useEsqueciSenha } from "@/hooks/useAuth";
 
 export default function EsqueciSenhaScreen() {
-  const [email, setEmail] = useState("");
-  const [enviado, setEnviado] = useState(false);
-  const [erro, setErro] = useState("");
-  const [carregando, setCarregando] = useState(false);
-
-  async function handleRecuperarSenha() {
-    setErro("");
-    setEnviado(false);
-
-    if (!email.trim() || !email.includes("@")) {
-      setErro("Informe um e-mail válido.");
-      return;
-    }
-
-    try {
-      setCarregando(true);
-      await enviarEmailRecuperacaoSenha(email);
-      setEnviado(true);
-    } catch (e) {
-      setErro(e.message);
-    } finally {
-      setCarregando(false);
-    }
-  }
+  const {
+    email,
+    alterarEmail,
+    enviado,
+    erro,
+    carregando,
+    handleRecuperarSenha,
+  } = useEsqueciSenha();
 
   return (
     <TelaCustomer className="justify-between">
@@ -52,10 +35,7 @@ export default function EsqueciSenhaScreen() {
           titulo="E-mail"
           placeholder="Digite seu email"
           value={email}
-          onChangeText={(texto) => {
-            setEmail(texto);
-            setEnviado(false);
-          }}
+          onChangeText={alterarEmail}
           autoCapitalize="none"
           keyboardType="email-address"
           className="mt-[36]"

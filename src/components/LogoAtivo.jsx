@@ -11,7 +11,9 @@ export function LogoAtivo({ url, tamanho = 42 }) {
     );
   }
 
-  if (url.endsWith(".svg")) {
+  const ehSvg = url.split("?")[0].toLowerCase().endsWith(".svg");
+
+  if (ehSvg) {
     return (
       <View
         style={{ width: tamanho, height: tamanho }}

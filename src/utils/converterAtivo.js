@@ -25,6 +25,7 @@ export function converterAtivo(id, dados) {
       totalInvestido: Number(dados.totalInvested) || 0,
     };
   }
+
   const taxaTexto = dados.category
     ? `${dados.rate} ${dados.category}`
     : `${dados.rate}`;
@@ -40,4 +41,37 @@ export function converterAtivo(id, dados) {
     valor: formatarMoeda(dados.totalInvested),
     totalInvestido: Number(dados.totalInvested) || 0,
   };
+}
+
+export function resumirCarteira(ativos = []) {
+  const variaveis = ativos.filter((ativo) => ativo.tipo === "renda_variavel");
+  const fixos = ativos.filter((ativo) => ativo.tipo === "renda_fixa");
+  const totalInvestido = ativos.reduce(
+    (acumulado, ativo) => acumulado + (Number(ativo.totalInvestido) || 0),
+    0,
+  );
+
+  return { variaveis, fixos, totalInvestido };
+}
+
+export function montarDetalhesAtivo(ativo) {
+  if (!ativo) return [];
+
+  if (ativo.tipo === "renda_variavel") {
+    return [
+      { rotulo: "Quantidade", valor: `${ativo.quantidade} un` },
+      { rotulo: "Preço médio", valor: formatarMoeda(ativo.precoMedio) },
+      {
+        rotulo: "Valor investido",
+        valor: formatarMoeda(ativo.quantidade * ativo.precoMedio),
+      },
+      { rotulo: "Valor atual", valor: ativo.valor },
+    ];
+  }
+
+  return [
+    { rotulo: "Taxa", valor: ativo.taxa },
+    { rotulo: "Vencimento", valor: ativo.vencimento },
+    { rotulo: "Valor investido", valor: formatarMoeda(ativo.valorInicial) },
+  ];
 }

@@ -6,36 +6,17 @@ import { Eye, EyeSlash } from "phosphor-react-native";
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
-import { cores } from "@/cores";
 import { TelaCustomer } from "@/components/TelaCustomer";
-import { entrarComEmailESenha } from "@/services/authService";
+import { useLogin } from "@/hooks/useAuth";
+import { cores } from "@/cores";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
   const [esconderSenha, setEsconderSenha] = useState(true);
-  const [erro, setErro] = useState("");
-  const [carregando, setCarregando] = useState(false);
   const router = useRouter();
-
-  async function handleLogin() {
-    setErro("");
-
-    if (!email.trim() || !senha) {
-      setErro("Preencha e-mail e senha.");
-      return;
-    }
-
-    try {
-      setCarregando(true);
-      await entrarComEmailESenha({ email, password: senha });
-      router.replace("/(tabs)");
-    } catch (e) {
-      setErro(e.message);
-    } finally {
-      setCarregando(false);
-    }
-  }
+  const { email, setEmail, senha, setSenha, erro, carregando, handleLogin } =
+    useLogin({
+      onSucesso: () => router.replace("/(tabs)"),
+    });
 
   return (
     <TelaCustomer className="justify-between">

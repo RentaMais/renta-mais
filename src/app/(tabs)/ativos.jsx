@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { useRouter, useNavigation } from "expo-router";
-import { View, Text, Pressable, Image } from "react-native";
+import { useState } from "react";
+import { useRouter } from "expo-router";
+import { View, Text, Pressable } from "react-native";
 import {
   CaretUpIcon,
   CaretDownIcon,
@@ -12,48 +12,18 @@ import { TelaCustomer } from "@/components/TelaCustomer";
 import { CardCustomer } from "@/components/CardCustomer";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
 import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
-import { cores } from "@/cores";
-import { formatarMoeda } from "@/utils/formatarMoeda";
-import { VariacaoCustomer } from "@/components/VariacaoCustomer";
-import {
-  listarAtivos,
-  atualizarCotacoesCarteira,
-} from "@/services/ativosService";
 import { LogoAtivo } from "@/components/LogoAtivo";
+import { VariacaoCustomer } from "@/components/VariacaoCustomer";
+import { useCarteiraAtivos } from "@/hooks/useAtivos";
+import { formatarMoeda } from "@/utils/formatarMoeda";
+import { cores } from "@/cores";
 
 export default function AtivoScreen() {
   const [variavelAberto, setVariavelAberto] = useState(true);
   const [fixaAberto, setFixaAberto] = useState(false);
-  const [ativos, setAtivos] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState("");
   const router = useRouter();
-  const navigation = useNavigation();
-
-  async function carregar() {
-    try {
-      const lista = await listarAtivos();
-      setAtivos(lista);
-      setErro("");
-    } catch (e) {
-      setErro("Não foi possível carregar os ativos.");
-    }
-    setCarregando(false);
-  }
-
-  useEffect(() => {
-    carregar();
-    const parar = navigation.addListener("focus", carregar);
-    return parar;
-  }, []);
-
-  const variaveis = ativos.filter((ativo) => ativo.tipo === "renda_variavel");
-  const fixos = ativos.filter((ativo) => ativo.tipo === "renda_fixa");
-
-  let total = 0;
-  for (let i = 0; i < ativos.length; i++) {
-    total = total + ativos[i].totalInvestido;
-  }
+  const { variaveis, fixos, totalInvestido, carregando, erro } =
+    useCarteiraAtivos();
 
   return (
     <View className="flex-1">
@@ -61,14 +31,11 @@ export default function AtivoScreen() {
         <CabecalhoPrincipal
           subtitulo="Carteira completa"
           titulo="Meus ativos"
-          descricao={"Total investido: " + formatarMoeda(total)}
+          descricao={"Total investido: " + formatarMoeda(totalInvestido)}
         />
 
         {carregando && (
-          <Text className="font-corpo text-base text-texto">
-            {" "}
-            Carregando...
-          </Text>
+          <Text className="font-corpo text-base text-texto">Carregando...</Text>
         )}
         {erro !== "" && (
           <Text className="font-corpo-medium text-sm text-erro">{erro}</Text>
@@ -81,7 +48,6 @@ export default function AtivoScreen() {
             className="flex-row items-center justify-between"
           >
             <TituloCardCustomer titulo="Renda variável" />
-
             {variavelAberto ? (
               <CaretUpIcon size={20} weight="bold" color={cores.primaria} />
             ) : (
@@ -142,7 +108,6 @@ export default function AtivoScreen() {
             className="flex-row items-center justify-between"
           >
             <TituloCardCustomer titulo="Renda fixa" />
-
             {fixaAberto ? (
               <CaretUpIcon size={20} weight="bold" color={cores.primaria} />
             ) : (
@@ -197,9 +162,9 @@ export default function AtivoScreen() {
 
       <Pressable
         onPress={() => router.push("/ativos/novo")}
-        className="absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full bg-primaria"
+        className="w-16 h-16 rounded-full bg-primaria items-center justify-center absolute bottom-6 right-6"
       >
-        <PlusIcon size={28} weight="bold" color={cores.container} />
+        <PlusIcon size={28} weight="bold" color={cores.fundo} />
       </Pressable>
     </View>
   );

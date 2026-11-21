@@ -9,58 +9,28 @@ import { InputCustomer } from "@/components/InputCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { IconeCustomer } from "@/components/IconeCustomer";
-import { excluirConta } from "@/services/authService";
+import { useExcluirConta } from "@/hooks/useConfiguracoes";
 import { cores } from "@/cores";
 
 export default function ExcluirContaScreen() {
   const router = useRouter();
-  const [senha, setSenha] = useState("");
-  const [confirmarSenha, setConfirmarSenha] = useState("");
-  const [senhaIncorreta, setSenhaIncorreta] = useState(false);
-  const [tentouEnviar, setTentouEnviar] = useState(false);
   const [esconderSenha, setEsconderSenha] = useState(true);
   const [esconderConfirmarSenha, setEsconderConfirmarSenha] = useState(true);
-  const [erro, setErro] = useState("");
-  const [carregando, setCarregando] = useState(false);
 
-  const estadoSenha =
-    (tentouEnviar && !senha) || senhaIncorreta ? "erro" : "padrao";
-
-  const estadoConfirmar =
-    (confirmarSenha.length > 0 || tentouEnviar) &&
-    (confirmarSenha.length === 0 || senha !== confirmarSenha)
-      ? "erro"
-      : confirmarSenha.length > 0 && senha === confirmarSenha
-        ? "sucesso"
-        : "padrao";
-
-  async function handleExcluirConta() {
-    setErro("");
-    setSenhaIncorreta(false);
-    setTentouEnviar(true);
-
-    if (!senha || !confirmarSenha) {
-      setErro("Digite e confirme sua senha.");
-      return;
-    }
-    if (senha !== confirmarSenha) {
-      setErro("As senhas não coincidem.");
-      return;
-    }
-
-    try {
-      setCarregando(true);
-      await excluirConta(senha);
-      router.replace("/(auth)/login");
-    } catch (e) {
-      if (e.message.includes("incorreta")) {
-        setSenhaIncorreta(true);
-      }
-      setErro(e.message);
-    } finally {
-      setCarregando(false);
-    }
-  }
+  const {
+    senha,
+    alterarCampoSenha,
+    estadoSenha,
+    confirmarSenha,
+    setConfirmarSenha,
+    estadoConfirmar,
+    senhasDiferentes,
+    erro,
+    carregando,
+    handleExcluirConta,
+  } = useExcluirConta({
+    onSucesso: () => router.replace("/(auth)/login"),
+  });
 
   return (
     <View className="flex-1 items-center justify-center bg-fundo">
@@ -78,10 +48,7 @@ export default function ExcluirContaScreen() {
             titulo="Senha"
             placeholder="Digite sua senha"
             value={senha}
-            onChangeText={(texto) => {
-              setSenha(texto);
-              setSenhaIncorreta(false);
-            }}
+            onChangeText={alterarCampoSenha}
             secureTextEntry={esconderSenha}
             estado={estadoSenha}
             className="mt-6"
@@ -120,7 +87,7 @@ export default function ExcluirContaScreen() {
           </Pressable>
         </View>
 
-        {confirmarSenha.length > 0 && senha !== confirmarSenha ? (
+        {senhasDiferentes ? (
           <Text className="text-erro font-corpo text-xs mt-1.5">
             As senhas ainda não coincidem.
           </Text>

@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { View, Text } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { InfoIcon } from "phosphor-react-native";
@@ -8,69 +7,65 @@ import { TelaCustomer } from "@/components/TelaCustomer";
 import { CabecalhoAtivo } from "@/components/CabecalhoAtivo";
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
-
-import {
-  buscarAtivo,
-  venderAtivo,
-  resgatarAtivo,
-} from "@/services/ativosService";
+import { useOperacaoAtivo } from "@/hooks/useAtivos";
+import { formatarMoeda } from "@/utils/formatarMoeda";
 import { cores } from "@/cores";
 
-function reais(numero) {
-  return (
-    "R$ " +
-    numero.toLocaleString("pt-BR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })
-  );
-}
-
-// Renda Fixa
-function FormularioResgate({
-  valorResgate,
-  setValorResgate,
-  dataResgate,
-  setDataResgate,
-  valorResgateNumero,
-  rendimento,
-  valorInicial,
-}) {
+function FormularioResgate({ dados }) {
   return (
     <View className="gap-4">
-      <View className="w-1/2">
-        <InputCustomer
-          titulo="Valor a resgatar"
-          placeholder="16850,00"
-          value={valorResgate}
-          onChangeText={setValorResgate}
-        />
+      <View>
+        <View className="w-1/2">
+          <InputCustomer
+            titulo="Valor a resgatar"
+            placeholder={dados.placeholderValor}
+            value={dados.valorResgate}
+            onChangeText={dados.setValorResgate}
+            keyboardType="decimal-pad"
+            estado={dados.estadoValor}
+          />
+        </View>
+        {dados.alertaValor ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            {dados.alertaValor}
+          </Text>
+        ) : null}
       </View>
-      <InputCustomer
-        titulo="Data do resgate"
-        placeholder="dd/mm/aaaa"
-        value={dataResgate}
-        onChangeText={setDataResgate}
-      />
+
+      <View>
+        <InputCustomer
+          titulo="Data do resgate"
+          placeholder="dd/mm/aaaa"
+          value={dados.dataResgate}
+          onChangeText={dados.setDataResgate}
+          estado={dados.estadoData}
+        />
+        {dados.alertaData ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            {dados.alertaData}
+          </Text>
+        ) : null}
+      </View>
+
       <View className="flex-row items-start gap-3 rounded-2xl border border-primaria/40 bg-primaria/20 p-4">
         <InfoIcon size={22} color={cores.primaria} />
         <View className="flex-1 gap-1">
           <Text className="font-corpo-medium text-sm text-primaria">
-            {"Valor do resgate: " + reais(valorResgateNumero)}
+            {"Valor do resgate: " + formatarMoeda(dados.valorResgateNumero)}
           </Text>
           <Text
             className={
-              rendimento >= 0
+              dados.rendimento >= 0
                 ? "font-corpo-medium text-sm text-positivo"
                 : "font-corpo-medium text-sm text-negativo"
             }
           >
             {"Rendimento: " +
-              (rendimento >= 0 ? "+ " : "- ") +
-              reais(rendimento)}
+              (dados.rendimento >= 0 ? "+ " : "- ") +
+              formatarMoeda(Math.abs(dados.rendimento))}
           </Text>
           <Text className="font-corpo-medium text-sm text-primaria">
-            {"Valor inicial: " + reais(valorInicial)}
+            {"Valor inicial: " + formatarMoeda(dados.valorInicial)}
           </Text>
         </View>
       </View>
@@ -78,57 +73,77 @@ function FormularioResgate({
   );
 }
 
-// Renda Variável
-function FormularioVenda({
-  quantidadeVenda,
-  setQuantidadeVenda,
-  precoVenda,
-  setPrecoVenda,
-  dataVenda,
-  setDataVenda,
-  valorVenda,
-  lucro,
-}) {
+function FormularioVenda({ dados }) {
   return (
     <View className="gap-4">
-      <View className="flex-row gap-3">
-        <View className="flex-1">
-          <InputCustomer
-            titulo="Quantidade a vender"
-            placeholder="120"
-            value={quantidadeVenda}
-            onChangeText={setQuantidadeVenda}
-          />
+      <View>
+        <View className="flex-row gap-3">
+          <View className="flex-1">
+            <InputCustomer
+              titulo="Quantidade a vender"
+              placeholder={dados.placeholderQuantidade}
+              value={dados.quantidadeVenda}
+              onChangeText={dados.setQuantidadeVenda}
+              keyboardType="decimal-pad"
+              estado={dados.estadoQuantidade}
+            />
+          </View>
+          <View className="flex-1">
+            <InputCustomer
+              titulo="Preço de venda"
+              placeholder={dados.placeholderPreco}
+              value={dados.precoVenda}
+              onChangeText={dados.setPrecoVenda}
+              keyboardType="decimal-pad"
+              estado={dados.estadoPreco}
+            />
+          </View>
         </View>
-        <View className="flex-1">
-          <InputCustomer
-            titulo="Preço de venda"
-            placeholder="46,80"
-            value={precoVenda}
-            onChangeText={setPrecoVenda}
-          />
-        </View>
+
+        {dados.alertaQuantidade ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            {dados.alertaQuantidade}
+          </Text>
+        ) : null}
+
+        {dados.alertaPreco ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            {dados.alertaPreco}
+          </Text>
+        ) : null}
       </View>
-      <InputCustomer
-        titulo="Data da venda"
-        placeholder="dd/mm/aaaa"
-        value={dataVenda}
-        onChangeText={setDataVenda}
-      />
+
+      <View>
+        <InputCustomer
+          titulo="Data da venda"
+          placeholder="dd/mm/aaaa"
+          value={dados.dataVenda}
+          onChangeText={dados.setDataVenda}
+          estado={dados.estadoData}
+        />
+        {dados.alertaData ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            {dados.alertaData}
+          </Text>
+        ) : null}
+      </View>
+
       <View className="flex-row items-start gap-3 rounded-2xl border border-primaria/40 bg-primaria/20 p-4">
         <InfoIcon size={22} color={cores.primaria} />
         <View className="flex-1 gap-1">
           <Text className="font-corpo-medium text-sm text-primaria">
-            {"Valor da venda: " + reais(valorVenda)}
+            {"Valor da venda: " + formatarMoeda(dados.valorVenda)}
           </Text>
           <Text
             className={
-              lucro >= 0
+              dados.lucro >= 0
                 ? "font-corpo-medium text-sm text-positivo"
                 : "font-corpo-medium text-sm text-negativo"
             }
           >
-            {"Lucro obtido: " + (lucro >= 0 ? "+ " : "- ") + reais(lucro)}
+            {"Lucro obtido: " +
+              (dados.lucro >= 0 ? "+ " : "- ") +
+              formatarMoeda(Math.abs(dados.lucro))}
           </Text>
         </View>
       </View>
@@ -139,94 +154,36 @@ function FormularioVenda({
 export default function OperacaoAtivoScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const [ativo, setAtivo] = useState(null);
+  const {
+    ativo,
+    ehVariavel,
+    carregando,
+    salvando,
+    erro,
+    confirmar,
+    venda,
+    resgate,
+  } = useOperacaoAtivo(id, {
+    onSucesso: () => router.replace("/(tabs)/ativos"),
+  });
 
-  useEffect(() => {
-    async function carregar() {
-      const dados = await buscarAtivo(id);
-      setAtivo(dados);
-    }
-    carregar();
-  }, [id]);
-
-  const hoje = new Date().toLocaleDateString("pt-BR");
-  const [erro, setErro] = useState("");
-
-  const [quantidadeVenda, setQuantidadeVenda] = useState("");
-  const [precoVenda, setPrecoVenda] = useState("");
-  const [dataVenda, setDataVenda] = useState(hoje);
-
-  const [valorResgate, setValorResgate] = useState("");
-  const [dataResgate, setDataResgate] = useState(hoje);
-
-  if (!ativo) {
+  if (carregando) {
     return (
       <TelaCustomer>
-        <Text className="font-corpo text-base text-texto">Carrregando...</Text>
+        <Text className="font-corpo text-base text-texto">Carregando...</Text>
       </TelaCustomer>
     );
   }
 
-  const ehVariavel = ativo.tipo === "renda_variavel";
-  const quantidadeNumero = Number(quantidadeVenda.replace(",", ".")) || 0;
-  const precoNumero = Number(precoVenda.replace(",", ".")) || 0;
-  const valorResgateNumero = Number(valorResgate.replace(",", ".")) || 0;
-
-  const valorVenda = quantidadeNumero * precoNumero;
-
-  let lucro = 0;
-  if (ehVariavel && precoNumero > 0) {
-    lucro = quantidadeNumero * (precoNumero - ativo.precoMedio);
-  }
-
-  let rendimento = 0;
-  if (!ehVariavel && valorResgateNumero > 0) {
-    rendimento = valorResgateNumero - ativo.valorInicial;
-  }
-
-  async function confirmar() {
-    if (ehVariavel) {
-      if (!quantidadeVenda.trim() || !precoVenda.trim() || !dataVenda.trim()) {
-        setErro("Preencha todos os campos");
-        return;
-      }
-      if (quantidadeNumero <= 0 || precoNumero <= 0) {
-        setErro("Quantidade e preço de venda devem ser maiores que 0");
-        return;
-      }
-      if (quantidadeNumero > ativo.quantidade) {
-        setErro(`Você possui apenas ${ativo.quantidade} unidades deste ativo`);
-        return;
-      }
-      if (dataVenda.length !== 10) {
-        setErro("Use a data no formato dd/mm/aaaa");
-        return;
-      }
-    } else {
-      if (!valorResgate.trim() || !dataResgate.trim()) {
-        setErro("Preencha todos os campos");
-        return;
-      }
-      if (valorResgateNumero <= 0) {
-        setErro("O valor deve ser maior que zero");
-        return;
-      }
-      if (dataResgate.length !== 10) {
-        setErro("Use a data no formato dd/mm/aaaa");
-        return;
-      }
-    }
-    try {
-      if (ehVariavel) {
-        await venderAtivo(ativo.id, quantidadeNumero, precoNumero, dataVenda);
-      } else {
-        await resgatarAtivo(ativo.id);
-      }
-      setErro("");
-      router.replace("/(tabs)/ativos");
-    } catch (e) {
-      setErro("Não foi possivel concluir. Tente novamente. ");
-    }
+  if (!ativo) {
+    return (
+      <TelaCustomer>
+        <VoltarCustomer />
+        <Text className="mt-4 font-corpo text-base text-texto">
+          Ativo não encontrado.
+        </Text>
+      </TelaCustomer>
+    );
   }
 
   return (
@@ -239,26 +196,9 @@ export default function OperacaoAtivoScreen() {
         </View>
 
         {ehVariavel ? (
-          <FormularioVenda
-            quantidadeVenda={quantidadeVenda}
-            setQuantidadeVenda={setQuantidadeVenda}
-            precoVenda={precoVenda}
-            setPrecoVenda={setPrecoVenda}
-            dataVenda={dataVenda}
-            setDataVenda={setDataVenda}
-            valorVenda={valorVenda}
-            lucro={lucro}
-          />
+          <FormularioVenda dados={venda} />
         ) : (
-          <FormularioResgate
-            valorResgate={valorResgate}
-            setValorResgate={setValorResgate}
-            dataResgate={dataResgate}
-            setDataResgate={setDataResgate}
-            valorResgateNumero={valorResgateNumero}
-            rendimento={rendimento}
-            valorInicial={ativo.valorInicial}
-          />
+          <FormularioResgate dados={resgate} />
         )}
 
         {erro !== "" && (
@@ -269,8 +209,15 @@ export default function OperacaoAtivoScreen() {
       </View>
 
       <BotaoCustomer
-        titulo={ehVariavel ? "Confirmar venda" : "Confirmar resgate"}
+        titulo={
+          salvando
+            ? "Confirmando..."
+            : ehVariavel
+              ? "Confirmar venda"
+              : "Confirmar resgate"
+        }
         onPress={confirmar}
+        disabled={salvando}
       />
     </TelaCustomer>
   );

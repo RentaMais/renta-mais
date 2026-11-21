@@ -1,17 +1,20 @@
-import { db } from "@/services/firebase";
 import {
-  collection,
-  getDocs,
-  getDoc,
-  doc,
   addDoc,
-  updateDoc,
+  collection,
   deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
 } from "firebase/firestore";
+import { db } from "@/services/firebase";
 import { obterUsuarioAtual } from "@/services/authService";
+import {
+  buscarCotacoesAtuais,
+  buscarInfoTicker,
+} from "@/services/cotacoesService";
 import { dataParaBanco } from "@/utils/formatarData";
 import { converterAtivo } from "@/utils/converterAtivo";
-import { buscarCotacoesAtuais } from "@/services/cotacoesService";
 
 function colecaoAtivos() {
   const user = obterUsuarioAtual();
@@ -19,25 +22,6 @@ function colecaoAtivos() {
     throw new Error("Usuário não autenticado.");
   }
   return collection(db, "users", user.uid, "assets");
-}
-
-export async function buscarInfoTicker(ticker) {
-  const token = process.env.EXPO_PUBLIC_BRAPI_TOKEN;
-  let url = "https://brapi.dev/api/quote/" + ticker;
-  if (token) {
-    url = url + "?token=" + token;
-  }
-  const resposta = await fetch(url);
-  const dados = await resposta.json();
-  const item = dados.results && dados.results[0];
-  if (!item) {
-    return null;
-  }
-  return {
-    preco: item.regularMarketPrice,
-    logo: item.logourl || "",
-    nome: item.shortName || ticker,
-  };
 }
 
 export async function listarAtivos() {
@@ -62,15 +46,20 @@ export async function buscarAtivo(id) {
 
 export async function criarRendaFixa(dados) {
   const hoje = dataParaBanco(new Date().toLocaleDateString("pt-BR"));
+  const valor = Number(dados.valor);
+
+  if (!Number.isFinite(valor) || valor <= 0) {
+    throw new Error("O valor investido deve ser maior que zero.");
+  }
 
   await addDoc(colecaoAtivos(), {
     type: "fixed",
-    name: dados.nome,
+    name: dados.nome.trim(),
     category: dados.indexador,
-    rate: dados.taxa,
+    rate: dados.taxa.trim(),
     dueDate: dataParaBanco(dados.vencimento),
-    totalInvested: Number(dados.valor),
-    aportes: [{ purchaseDate: hoje, invested: Number(dados.valor) }],
+    totalInvested: valor,
+    aportes: [{ purchaseDate: hoje, invested: valor }],
   });
 }
 
@@ -78,18 +67,27 @@ export async function criarRendaVariavel(dados) {
   const ticker = dados.ticker.trim().toUpperCase();
   const quantidadeNova = Number(dados.quantidade);
   const precoNovo = Number(dados.precoMedio);
-  const valorCompra = quantidadeNova * precoNovo;
-  let precoAtual = precoNovo;
-  let logoUrl = "";
-  try {
-    const info = await buscarInfoTicker(ticker);
-    if (info) {
-      precoAtual = Number(info.preco) || precoNovo;
-      logoUrl = info.logo;
-    }
-  } catch (e) {
-    console.warn("Não foi possível consultar a brapi: ", e);
+
+  if (quantidadeNova <= 0 || precoNovo <= 0) {
+    throw new Error("Quantidade e preço médio devem ser maiores que zero.");
   }
+
+  const valorCompra = quantidadeNova * precoNovo;
+  let precoAtual = Number(dados.precoAtual) || precoNovo;
+  let logoUrl = dados.logoUrl ?? "";
+
+  if (dados.precoAtual === undefined || dados.logoUrl === undefined) {
+    try {
+      const info = await buscarInfoTicker(ticker);
+      if (info) {
+        precoAtual = Number(info.preco) || precoNovo;
+        logoUrl = info.logo;
+      }
+    } catch (_e) {
+      // Mantém preço de compra e logo vazia caso a consulta externa falhe
+    }
+  }
+
   const aporte = {
     purchaseDate: dataParaBanco(dados.dataCompra),
     invested: valorCompra,
@@ -111,22 +109,37 @@ export async function criarRendaVariavel(dados) {
       totalInvested: novoTotal,
       averagePrice: novoTotal / novaQuantidade,
       currentPrice: precoAtual,
-      logoUrl: logoUrl,
+      logoUrl: logoUrl || atual.logoUrl || "",
       aportes: [...aportesAntigos, aporte],
     });
   } else {
     await addDoc(colecaoAtivos(), {
       type: "variable",
       name: ticker,
-      ticker: ticker,
+      ticker,
       quantity: quantidadeNova,
       averagePrice: precoNovo,
       currentPrice: precoAtual,
       totalInvested: valorCompra,
-      logoUrl: logoUrl,
+      logoUrl,
       aportes: [aporte],
     });
   }
+}
+
+export async function cadastrarRendaVariavel(dados) {
+  const ticker = dados.ticker.trim().toUpperCase();
+  const info = await buscarInfoTicker(ticker);
+  if (!info) {
+    throw new Error("Ticker não encontrado.");
+  }
+
+  await criarRendaVariavel({
+    ...dados,
+    ticker,
+    precoAtual: info.preco,
+    logoUrl: info.logo,
+  });
 }
 
 export async function atualizarCotacoesCarteira(listaAtivos) {
@@ -134,9 +147,11 @@ export async function atualizarCotacoesCarteira(listaAtivos) {
     (ativo) => ativo.tipo === "renda_variavel" && ativo.ticker,
   );
   if (variaveis.length === 0) return;
+
   const cotacoes = await buscarCotacoesAtuais(
     variaveis.map((ativo) => ativo.ticker),
   );
+
   await Promise.all(
     variaveis.map(async (ativo) => {
       const preco = cotacoes[ativo.ticker.toUpperCase()];
@@ -149,21 +164,31 @@ export async function atualizarCotacoesCarteira(listaAtivos) {
   );
 }
 
-export async function venderAtivo(id, quantidade, dataVenda) {
+export async function venderAtivo(id, quantidade, precoVenda, dataVenda) {
+  if (!Number.isFinite(quantidade) || quantidade <= 0) {
+    throw new Error("A quantidade deve ser maior que zero.");
+  }
+  if (!Number.isFinite(precoVenda) || precoVenda <= 0) {
+    throw new Error("O preço de venda deve ser maior que zero.");
+  }
+
   const referencia = doc(colecaoAtivos(), id);
   const documento = await getDoc(referencia);
   if (!documento.exists()) {
     throw new Error("Ativo não encontrado.");
   }
+
   const ativo = documento.data();
   const quantidadeAtual = Number(ativo.quantity);
   if (quantidade > quantidadeAtual) {
     throw new Error("Quantidade maior do que a possuída.");
   }
+
   if (quantidade === quantidadeAtual) {
     await deleteDoc(referencia);
     return;
   }
+
   const custoBaixado = quantidade * Number(ativo.averagePrice);
   const aportesAntigos = Array.isArray(ativo.aportes) ? ativo.aportes : [];
 
@@ -171,8 +196,9 @@ export async function venderAtivo(id, quantidade, dataVenda) {
     purchaseDate: dataParaBanco(dataVenda),
     invested: -custoBaixado,
     quantity: -quantidade,
-    unitPrice: precoVenda,
+    unitPrice: Number(precoVenda),
   };
+
   await updateDoc(referencia, {
     quantity: quantidadeAtual - quantidade,
     totalInvested: Number(ativo.totalInvested) - custoBaixado,
@@ -182,4 +208,18 @@ export async function venderAtivo(id, quantidade, dataVenda) {
 
 export async function resgatarAtivo(id) {
   await deleteDoc(doc(colecaoAtivos(), id));
+}
+
+export async function registrarOperacaoAtivo(ativo, dados) {
+  if (ativo.tipo === "renda_variavel") {
+    await venderAtivo(
+      ativo.id,
+      dados.quantidade,
+      dados.precoVenda,
+      dados.dataVenda,
+    );
+    return;
+  }
+
+  await resgatarAtivo(ativo.id);
 }

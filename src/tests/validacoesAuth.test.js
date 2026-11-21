@@ -1,9 +1,10 @@
 import { describe, expect, test } from "@jest/globals";
 import {
   avaliarRequisitosSenha,
+  validarConfirmacaoSenha,
   validarEmail,
   validarSenhaForte,
-} from "./validacoes";
+} from "@/utils/validacoesAuth";
 
 describe("avaliarRequisitosSenha", () => {
   test("retorna força fraca e nenhum requisito atendido para senha vazia", () => {
@@ -44,6 +45,21 @@ describe("validarSenhaForte", () => {
 
   test("aprova senha dentro dos padrões OWASP", () => {
     const resultado = validarSenhaForte("RentaMais#2026");
+    expect(resultado.valida).toBe(true);
+    expect(resultado.erro).toBe("");
+  });
+});
+
+describe("validarConfirmacaoSenha", () => {
+  test("rejeita confirmação vazia ou divergente", () => {
+    expect(validarConfirmacaoSenha("Senha@123", "").valida).toBe(false);
+    expect(validarConfirmacaoSenha("Senha@123", "Senha@124").valida).toBe(
+      false,
+    );
+  });
+
+  test("aprova quando ambas as senhas coincidem", () => {
+    const resultado = validarConfirmacaoSenha("Senha@123", "Senha@123");
     expect(resultado.valida).toBe(true);
     expect(resultado.erro).toBe("");
   });

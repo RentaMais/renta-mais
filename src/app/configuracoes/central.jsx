@@ -4,12 +4,11 @@ import { CaretDown, CaretRight, Envelope } from "phosphor-react-native";
 import { IconeCustomer } from "@/components/IconeCustomer";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
+import { TelaCustomer } from "@/components/TelaCustomer";
 import { cores } from "@/cores";
 
 import faqs from "@/mocks/faq.json";
-import { TelaCustomer } from "@/components/TelaCustomer";
 
-// Componente local para os títulos de seção
 function TituloSecao({ titulo }) {
   return (
     <Text className="font-corpo-bold text-primaria text-sm pl-1 mb-2 mt-6">

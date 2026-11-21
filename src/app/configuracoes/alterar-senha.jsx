@@ -9,83 +9,34 @@ import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { RequisitosSenha } from "@/components/RequisitosSenha";
-import { validarSenhaForte } from "@/utils/validacoes";
-import { alterarSenha } from "@/services/authService";
+import { useAlterarSenha } from "@/hooks/useConfiguracoes";
 import { cores } from "@/cores";
 
 export default function AlterarSenhaScreen() {
   const router = useRouter();
-  const [senhaAtual, setSenhaAtual] = useState("");
-  const [senhaAtualIncorreta, setSenhaAtualIncorreta] = useState(false);
-  const [novaSenha, setNovaSenha] = useState("");
-  const [confirmarNovaSenha, setConfirmarNovaSenha] = useState("");
-  const [tentouEnviar, setTentouEnviar] = useState(false);
-  const [erro, setErro] = useState("");
-  const [sucesso, setSucesso] = useState("");
-  const [carregando, setCarregando] = useState(false);
-
   const [esconderSenhaAtual, setEsconderSenhaAtual] = useState(true);
   const [esconderNovaSenha, setEsconderNovaSenha] = useState(true);
   const [esconderConfirmarNovaSenha, setEsconderConfirmarNovaSenha] =
     useState(true);
 
-  const checkNovaSenha = validarSenhaForte(novaSenha);
-
-  const estadoSenhaAtual =
-    (tentouEnviar && !senhaAtual) || senhaAtualIncorreta ? "erro" : "padrao";
-
-  const estadoNovaSenha =
-    (novaSenha.length > 0 || tentouEnviar) && !checkNovaSenha.valida
-      ? "erro"
-      : checkNovaSenha.valida
-        ? "sucesso"
-        : "padrao";
-
-  const estadoConfirmarSenha =
-    (confirmarNovaSenha.length > 0 || tentouEnviar) &&
-    (confirmarNovaSenha.length === 0 || novaSenha !== confirmarNovaSenha)
-      ? "erro"
-      : confirmarNovaSenha.length > 0 && novaSenha === confirmarNovaSenha
-        ? "sucesso"
-        : "padrao";
-
-  async function handleAlterarSenha() {
-    setErro("");
-    setSucesso("");
-    setSenhaAtualIncorreta(false);
-    setTentouEnviar(true);
-
-    if (!senhaAtual || !novaSenha || !confirmarNovaSenha) {
-      setErro("Preencha todos os campos.");
-      return;
-    }
-    if (!checkNovaSenha.valida) {
-      setErro(checkNovaSenha.erro);
-      return;
-    }
-    if (novaSenha !== confirmarNovaSenha) {
-      setErro("As novas senhas não coincidem.");
-      return;
-    }
-    if (senhaAtual === novaSenha) {
-      setErro("A nova senha deve ser diferente da senha atual.");
-      return;
-    }
-
-    try {
-      setCarregando(true);
-      await alterarSenha({ senhaAtual, novaSenha });
-      setSucesso("Senha alterada com sucesso.");
-      setTimeout(() => router.back(), 1000);
-    } catch (e) {
-      if (e.message.includes("incorreta")) {
-        setSenhaAtualIncorreta(true);
-      }
-      setErro(e.message);
-    } finally {
-      setCarregando(false);
-    }
-  }
+  const {
+    senhaAtual,
+    alterarCampoSenhaAtual,
+    estadoSenhaAtual,
+    novaSenha,
+    setNovaSenha,
+    estadoNovaSenha,
+    confirmarNovaSenha,
+    setConfirmarNovaSenha,
+    estadoConfirmarSenha,
+    senhasDiferentes,
+    erro,
+    sucesso,
+    carregando,
+    handleAlterarSenha,
+  } = useAlterarSenha({
+    onSucesso: () => router.back(),
+  });
 
   return (
     <TelaCustomer className="justify-between">
@@ -101,10 +52,7 @@ export default function AlterarSenhaScreen() {
             titulo="Senha atual"
             placeholder="Digite sua senha atual"
             value={senhaAtual}
-            onChangeText={(texto) => {
-              setSenhaAtual(texto);
-              setSenhaAtualIncorreta(false);
-            }}
+            onChangeText={alterarCampoSenhaAtual}
             secureTextEntry={esconderSenhaAtual}
             estado={estadoSenhaAtual}
           />
@@ -165,7 +113,7 @@ export default function AlterarSenhaScreen() {
           </Pressable>
         </View>
 
-        {confirmarNovaSenha.length > 0 && novaSenha !== confirmarNovaSenha ? (
+        {senhasDiferentes ? (
           <Text className="text-erro font-corpo text-xs mt-1.5">
             As novas senhas ainda não coincidem.
           </Text>

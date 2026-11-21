@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import { CheckCircleIcon, CircleIcon } from "phosphor-react-native";
-import { avaliarRequisitosSenha } from "@/utils/validacoes";
+import { avaliarRequisitosSenha } from "@/utils/validacoesAuth";
 import { cores } from "@/cores";
 
 const CONFIG_FORCA = {

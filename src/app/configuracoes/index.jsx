@@ -1,13 +1,12 @@
 import { View, Text, Pressable } from "react-native";
-import { useCallback, useState } from "react";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { User, CaretRight } from "phosphor-react-native";
 
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
-import { obterUsuarioAtual, sairDaConta } from "@/services/authService";
+import { useConfiguracoes } from "@/hooks/useConfiguracoes";
 import { cores } from "@/cores";
 
 function TituloSecao({ titulo }) {
@@ -39,21 +38,9 @@ function ItemMenu({ titulo, valor, onPress, temSeta = true }) {
 
 export default function ConfiguracoesScreen() {
   const router = useRouter();
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-
-  useFocusEffect(
-    useCallback(() => {
-      const usuario = obterUsuarioAtual();
-      setNome(usuario?.displayName || "Usuário");
-      setEmail(usuario?.email || "");
-    }, []),
-  );
-
-  async function handleSairDaConta() {
-    await sairDaConta();
-    router.replace("/(auth)/login");
-  }
+  const { nome, email, handleSairDaConta } = useConfiguracoes({
+    onSair: () => router.replace("/(auth)/login"),
+  });
 
   return (
     <TelaCustomer>

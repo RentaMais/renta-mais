@@ -9,78 +9,32 @@ import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { RequisitosSenha } from "@/components/RequisitosSenha";
+import { useCadastro } from "@/hooks/useAuth";
 import { cores } from "@/cores";
 
-import { validarEmail, validarSenhaForte } from "@/utils/validacoes";
-import { cadastrarUsuario } from "@/services/authService";
-
 export default function CadastroScreen() {
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [confirmarSenha, setConfirmaSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(true);
   const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(true);
-  const [tentouEnviar, setTentouEnviar] = useState(false);
-  const [erro, setErro] = useState("");
-  const [carregando, setCarregando] = useState(false);
   const router = useRouter();
-
-  const checkEmail = validarEmail(email);
-  const estadoEmail =
-    (email.length > 0 || tentouEnviar) && !checkEmail.valido
-      ? "erro"
-      : checkEmail.valido
-        ? "sucesso"
-        : "padrao";
-
-  const checkSenha = validarSenhaForte(senha);
-  const estadoSenha =
-    (senha.length > 0 || tentouEnviar) && !checkSenha.valida
-      ? "erro"
-      : checkSenha.valida
-        ? "sucesso"
-        : "padrao";
-
-  const estadoConfirmar =
-    (confirmarSenha.length > 0 || tentouEnviar) &&
-    (confirmarSenha.length === 0 || senha !== confirmarSenha)
-      ? "erro"
-      : confirmarSenha.length > 0 && senha === confirmarSenha
-        ? "sucesso"
-        : "padrao";
-
-  async function validarCadastro() {
-    setErro("");
-    setTentouEnviar(true);
-
-    if (!nome.trim()) {
-      setErro("Informe como você gostaria de ser chamado.");
-      return;
-    }
-    if (!checkEmail.valido) {
-      setErro(checkEmail.erro);
-      return;
-    }
-    if (!checkSenha.valida) {
-      setErro(checkSenha.erro);
-      return;
-    }
-    if (senha !== confirmarSenha) {
-      setErro("As senhas não coincidem.");
-      return;
-    }
-
-    try {
-      setCarregando(true);
-      await cadastrarUsuario({ name: nome, email, password: senha });
-      router.replace("/(tabs)");
-    } catch (e) {
-      setErro(e.message);
-    } finally {
-      setCarregando(false);
-    }
-  }
+  const {
+    nome,
+    setNome,
+    email,
+    setEmail,
+    senha,
+    setSenha,
+    confirmarSenha,
+    setConfirmaSenha,
+    estadoEmail,
+    estadoSenha,
+    estadoConfirmar,
+    senhasDiferentes,
+    erro,
+    carregando,
+    validarCadastro,
+  } = useCadastro({
+    onSucesso: () => router.replace("/(tabs)"),
+  });
 
   return (
     <TelaCustomer className="justify-between">
@@ -149,7 +103,7 @@ export default function CadastroScreen() {
           </Pressable>
         </View>
 
-        {confirmarSenha.length > 0 && senha !== confirmarSenha ? (
+        {senhasDiferentes ? (
           <Text className="text-erro font-corpo text-xs mt-1.5">
             As senhas ainda não coincidem.
           </Text>

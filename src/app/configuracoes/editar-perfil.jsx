@@ -9,85 +9,29 @@ import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { InputCustomer } from "@/components/InputCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
-import { validarEmail } from "@/utils/validacoes";
-import {
-  alterarEmail,
-  alterarNome,
-  obterUsuarioAtual,
-} from "@/services/authService";
+import { useEditarPerfil } from "@/hooks/useConfiguracoes";
 import { cores } from "@/cores";
 
 export default function EditarPerfilScreen() {
   const router = useRouter();
-  const usuario = obterUsuarioAtual();
-
-  const [nome, setNome] = useState(usuario?.displayName ?? "");
-  const [email, setEmail] = useState(usuario?.email ?? "");
-  const [senhaAtual, setSenhaAtual] = useState("");
-  const [senhaAtualIncorreta, setSenhaAtualIncorreta] = useState(false);
   const [esconderSenha, setEsconderSenha] = useState(true);
-  const [tentouEnviar, setTentouEnviar] = useState(false);
-  const [erro, setErro] = useState("");
-  const [sucesso, setSucesso] = useState("");
-  const [carregando, setCarregando] = useState(false);
-
-  const emailOriginal = (usuario?.email ?? "").toLowerCase();
-  const emailAlterado = email.trim().toLowerCase() !== emailOriginal;
-
-  const checkEmail = validarEmail(email);
-  const estadoEmail = !checkEmail.valido
-    ? "erro"
-    : emailAlterado
-      ? "sucesso"
-      : "padrao";
-
-  const estadoSenhaAtual =
-    (tentouEnviar && emailAlterado && !senhaAtual) || senhaAtualIncorreta
-      ? "erro"
-      : "padrao";
-
-  async function handleSalvarAlteracoes() {
-    setErro("");
-    setSucesso("");
-    setSenhaAtualIncorreta(false);
-    setTentouEnviar(true);
-
-    if (!nome.trim()) {
-      setErro("Informe seu nome.");
-      return;
-    }
-    if (!checkEmail.valido) {
-      setErro(checkEmail.erro);
-      return;
-    }
-    if (emailAlterado && !senhaAtual) {
-      setErro("Digite sua senha atual para confirmar a alteração de e-mail.");
-      return;
-    }
-
-    try {
-      setCarregando(true);
-
-      if (emailAlterado) {
-        await alterarEmail({ novoEmail: email, senhaAtual });
-        setSenhaAtual("");
-      }
-
-      if (nome.trim() !== (usuario?.displayName ?? "")) {
-        await alterarNome(nome);
-      }
-
-      setSucesso("Perfil atualizado com sucesso.");
-      setTimeout(() => router.back(), 1000);
-    } catch (e) {
-      if (emailAlterado && e.message.includes("incorreta")) {
-        setSenhaAtualIncorreta(true);
-      }
-      setErro(e.message);
-    } finally {
-      setCarregando(false);
-    }
-  }
+  const {
+    nome,
+    setNome,
+    email,
+    alterarCampoEmail,
+    emailAlterado,
+    estadoEmail,
+    senhaAtual,
+    alterarCampoSenhaAtual,
+    estadoSenhaAtual,
+    erro,
+    sucesso,
+    carregando,
+    handleSalvarAlteracoes,
+  } = useEditarPerfil({
+    onSucesso: () => router.back(),
+  });
 
   return (
     <TelaCustomer className="justify-between">
@@ -124,13 +68,7 @@ export default function EditarPerfilScreen() {
           titulo="E-mail"
           placeholder="Digite seu e-mail"
           value={email}
-          onChangeText={(texto) => {
-            setEmail(texto);
-            if (texto.trim().toLowerCase() === emailOriginal) {
-              setSenhaAtual("");
-              setSenhaAtualIncorreta(false);
-            }
-          }}
+          onChangeText={alterarCampoEmail}
           autoCapitalize="none"
           keyboardType="email-address"
           estado={estadoEmail}
@@ -143,10 +81,7 @@ export default function EditarPerfilScreen() {
               titulo="Senha atual"
               placeholder="Confirme sua senha para trocar o e-mail"
               value={senhaAtual}
-              onChangeText={(texto) => {
-                setSenhaAtual(texto);
-                setSenhaAtualIncorreta(false);
-              }}
+              onChangeText={alterarCampoSenhaAtual}
               secureTextEntry={esconderSenha}
               estado={estadoSenhaAtual}
             />
