@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useRouter } from "expo-router";
+import { useState, useEffect } from "react";
+import { useRouter, useNavigation } from "expo-router";
 import { View, Text, Pressable, Image } from "react-native";
 import {
   CaretUpIcon,
@@ -14,23 +14,46 @@ import { TituloCardCustomer } from "@/components/TituloCardCustomer";
 import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { cores } from "@/cores";
 import { formatarMoeda } from "@/utils/formatarMoeda";
-import ativosDados from "@/mocks/ativos.json";
 import { VariacaoCustomer } from "@/components/VariacaoCustomer";
-
-import itauImg from "@/mocks/assets/itau.jpg";
-import petrobrasImg from "@/mocks/assets/petrobras.jpg";
-import valeImg from "@/mocks/assets/vale.jpg";
-
-const imagensAtivos = {
-  "itau.jpg": itauImg,
-  "petrobras.jpg": petrobrasImg,
-  "vale.jpg": valeImg,
-};
+import {
+  listarAtivos,
+  atualizarCotacoesCarteira,
+} from "@/services/ativosService";
+import { LogoAtivo } from "@/components/LogoAtivo";
 
 export default function AtivoScreen() {
   const [variavelAberto, setVariavelAberto] = useState(true);
   const [fixaAberto, setFixaAberto] = useState(false);
+  const [ativos, setAtivos] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
   const router = useRouter();
+  const navigation = useNavigation();
+
+  async function carregar() {
+    try {
+      const lista = await listarAtivos();
+      setAtivos(lista);
+      setErro("");
+    } catch (e) {
+      setErro("Não foi possível carregar os ativos.");
+    }
+    setCarregando(false);
+  }
+
+  useEffect(() => {
+    carregar();
+    const parar = navigation.addListener("focus", carregar);
+    return parar;
+  }, []);
+
+  const variaveis = ativos.filter((ativo) => ativo.tipo === "renda_variavel");
+  const fixos = ativos.filter((ativo) => ativo.tipo === "renda_fixa");
+
+  let total = 0;
+  for (let i = 0; i < ativos.length; i++) {
+    total = total + ativos[i].totalInvestido;
+  }
 
   return (
     <View className="flex-1">
@@ -38,8 +61,18 @@ export default function AtivoScreen() {
         <CabecalhoPrincipal
           subtitulo="Carteira completa"
           titulo="Meus ativos"
-          descricao={"Total investido: " + ativosDados.totalInvestido}
+          descricao={"Total investido: " + formatarMoeda(total)}
         />
+
+        {carregando && (
+          <Text className="font-corpo text-base text-texto">
+            {" "}
+            Carregando...
+          </Text>
+        )}
+        {erro !== "" && (
+          <Text className="font-corpo-medium text-sm text-erro">{erro}</Text>
+        )}
 
         {/* Renda Variável */}
         <CardCustomer className="px-5 overflow-hidden">
@@ -56,57 +89,50 @@ export default function AtivoScreen() {
             )}
           </Pressable>
 
-          {variavelAberto && (
-            <View className="divide-y divide-texto/10 gap-5">
-              {ativosDados.rendaVariavel.map((ativo) => {
-                const detalheFormatado = `${ativo.quantidade} un - PM ${formatarMoeda(ativo.precoMedio)}`;
-
-                return (
-                  <Pressable
-                    key={ativo.id}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/ativos/[id]",
-                        params: { id: ativo.id },
-                      })
-                    }
-                    className="flex-row items-center pt-5"
-                  >
-                    <Image
-                      source={imagensAtivos[ativo.imagem]}
-                      style={{ width: 42, height: 42 }}
-                      className="rounded-md bg-texto/10"
-                      resizeMode="cover"
-                    />
-
-                    <View className="ml-3 flex-1">
-                      <Text className="font-corpo-bold text-base text-texto">
-                        {ativo.ticker}
-                      </Text>
-                      <Text className="font-corpo text-xs text-inativo">
-                        {detalheFormatado}
-                      </Text>
-                    </View>
-
-                    <View className="mr-2 items-end">
-                      <Text className="font-corpo-bold text-base text-texto">
-                        {ativo.valor}
-                      </Text>
-                      <View className="flex-row items-center gap-1">
-                        <VariacaoCustomer valor={ativo.variacao} />
-                      </View>
-                    </View>
-
-                    <CaretRightIcon
-                      size={18}
-                      weight="bold"
-                      color={cores.primaria}
-                    />
-                  </Pressable>
-                );
-              })}
-            </View>
+          {variavelAberto && !carregando && variaveis.length === 0 && (
+            <Text className="pt-3 font-corpo text-sm text-inativo">
+              Nenhum ativo de renda variável
+            </Text>
           )}
+          {variavelAberto &&
+            variaveis.map((ativo) => (
+              <Pressable
+                key={ativo.id}
+                onPress={() =>
+                  router.push({
+                    pathname: "/ativos/[id]",
+                    params: { id: ativo.id },
+                  })
+                }
+                className="mt-3 flex-row items-center border-t border-texto/10 pt-3"
+              >
+                <LogoAtivo url={ativo.imagem} />
+
+                <View className="ml-3 flex-1">
+                  <Text className="font-corpo-bold text-base text-texto">
+                    {ativo.ticker}
+                  </Text>
+                  <Text className="font-corpo text-xs text-inativo">
+                    {ativo.quantidade +
+                      " un - PM " +
+                      formatarMoeda(ativo.precoMedio)}
+                  </Text>
+                </View>
+
+                <View className="mr-2 items-end">
+                  <Text className="font-corpo-bold text-base text-texto">
+                    {formatarMoeda(ativo.totalInvestido)}
+                  </Text>
+                  <VariacaoCustomer valor={ativo.variacao} />
+                </View>
+
+                <CaretRightIcon
+                  size={18}
+                  weight="bold"
+                  color={cores.primaria}
+                />
+              </Pressable>
+            ))}
         </CardCustomer>
 
         {/* Renda Fixa */}
@@ -124,50 +150,48 @@ export default function AtivoScreen() {
             )}
           </Pressable>
 
-          {fixaAberto && (
-            <View className="divide-y divide-texto/10 gap-5">
-              {ativosDados.rendaFixa.map((ativo) => {
-                const detalheFixa = `${ativo.taxa} - vence ${ativo.vencimento}`;
-
-                return (
-                  <Pressable
-                    key={ativo.id}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/ativos/[id]",
-                        params: { id: ativo.id },
-                      })
-                    }
-                    className="flex-row items-center pt-5"
-                  >
-                    <View className="flex-1">
-                      <Text className="font-corpo-bold text-base text-texto">
-                        {ativo.nome}
-                      </Text>
-                      <Text className="font-corpo text-xs text-inativo">
-                        {detalheFixa}
-                      </Text>
-                    </View>
-
-                    <View className="mr-2 items-end">
-                      <Text className="font-corpo-bold text-base text-texto">
-                        {ativo.valor}
-                      </Text>
-                      <Text className="font-corpo text-xs text-inativo">
-                        investido
-                      </Text>
-                    </View>
-
-                    <CaretRightIcon
-                      size={18}
-                      weight="bold"
-                      color={cores.primaria}
-                    />
-                  </Pressable>
-                );
-              })}
-            </View>
+          {fixaAberto && !carregando && fixos.length === 0 && (
+            <Text className="pt-3 font-corpo text-sm text-inativo">
+              Nenhum título de renda fixa.
+            </Text>
           )}
+          {fixaAberto &&
+            fixos.map((ativo) => (
+              <Pressable
+                key={ativo.id}
+                onPress={() =>
+                  router.push({
+                    pathname: "/ativos/[id]",
+                    params: { id: ativo.id },
+                  })
+                }
+                className="mt-3 flex-row items-center border-t border-texto/10 pt-3"
+              >
+                <View className="flex-1">
+                  <Text className="font-corpo-bold text-base text-texto">
+                    {ativo.nome}
+                  </Text>
+                  <Text className="font-corpo text-xs text-inativo">
+                    {ativo.taxa + " - vence " + ativo.vencimento}
+                  </Text>
+                </View>
+
+                <View className="mr-2 items-end">
+                  <Text className="font-corpo-bold text-base text-texto">
+                    {ativo.valor}
+                  </Text>
+                  <Text className="font-corpo text-xs text-inativo">
+                    investido
+                  </Text>
+                </View>
+
+                <CaretRightIcon
+                  size={18}
+                  weight="bold"
+                  color={cores.primaria}
+                />
+              </Pressable>
+            ))}
         </CardCustomer>
       </TelaCustomer>
 
