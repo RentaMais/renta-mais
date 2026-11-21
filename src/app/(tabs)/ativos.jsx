@@ -87,7 +87,7 @@ export default function AtivoScreen() {
 
                 <View className="mr-2 items-end">
                   <Text className="font-corpo-bold text-base text-texto">
-                    {formatarMoeda(ativo.totalInvestido)}
+                    {ativo.valor}
                   </Text>
                   <VariacaoCustomer valor={ativo.variacao} />
                 </View>
