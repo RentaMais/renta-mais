@@ -11,7 +11,11 @@ import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { SeletorRenda } from "@/components/SeletorRenda";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { formatarMoeda } from "@/utils/formatarMoeda";
-
+import {
+  buscarInfoTicker,
+  criarRendaFixa,
+  criarRendaVariavel,
+} from "@/services/ativosService";
 import { cores } from "@/cores";
 
 //Formulário de Renda Fixa
@@ -177,7 +181,7 @@ export default function AdicionarAtivoScreen() {
   const precoNumero = Number(precoMedio.replace(",", ".")) || 0;
   const valorInvestido = quantidadeNumero * precoNumero;
 
-  function salvar() {
+  async function salvar() {
     if (tipoRenda === "Renda fixa") {
       if (!nome.trim() || !valor.trim() || !taxa.trim() || !vencimento.trim()) {
         setErro("Preencha todos os campos");
@@ -185,6 +189,10 @@ export default function AdicionarAtivoScreen() {
       }
       if (valorNumero <= 0) {
         setErro("O valor deve ser maior que zero");
+        return;
+      }
+      if (vencimento.length !== 10) {
+        setErro("Use a data no formato dd/mm/aaaa");
         return;
       }
     } else {
@@ -201,11 +209,42 @@ export default function AdicionarAtivoScreen() {
         setErro("Quantidade e preço médio devem ser maiores que 0");
         return;
       }
+      if (dataCompra.length !== 10) {
+        setErro("Use a data no formato dd/mm/aaaa");
+        return;
+      }
     }
-    setErro("");
-    router.back();
+    try {
+      if (tipoRenda === "Renda fixa") {
+        await criarRendaFixa({
+          nome: nome,
+          valor: valorNumero,
+          indexador: indexador,
+          taxa: taxa,
+          vencimento: vencimento,
+        });
+      } else {
+        const tickerDigitado = ticker.trim().toUpperCase();
+        const info = await buscarInfoTicker(tickerDigitado);
+        if (!info) {
+          setErro("Ticker não encontrado");
+          return;
+        }
+        await criarRendaVariavel({
+          ticker: tickerDigitado,
+          quantidade: quantidadeNumero,
+          precoMedio: precoNumero,
+          dataCompra: dataCompra,
+          precoAtual: info.preco,
+          logoUrl: info.logo,
+        });
+      }
+      setErro("");
+      router.back();
+    } catch (e) {
+      setErro("Não foi possível salvar.");
+    }
   }
-
   return (
     <TelaCustomer className="justify-between">
       <View className="mt-[80]">
