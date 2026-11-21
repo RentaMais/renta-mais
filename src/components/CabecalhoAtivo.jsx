@@ -18,7 +18,7 @@ export function CabecalhoAtivo({ ativo }) {
           </Text>
           <View className="flex-row items-center gap-2">
             <Text className="font-corpo-bold text-xl text-texto">
-              {formatarMoeda(ativo.totalInvestido)}
+              {ativo.valor}
             </Text>
             <View className="flex-row items-center gap-0.5">
               <VariacaoCustomer valor={ativo.variacao} />
