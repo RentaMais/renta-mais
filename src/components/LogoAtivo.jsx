@@ -1,4 +1,4 @@
-import { View, Image } from "react-native";
+import { View, Image, Platform } from "react-native";
 import { SvgUri } from "react-native-svg";
 
 export function LogoAtivo({ url, tamanho = 42 }) {
@@ -13,13 +13,18 @@ export function LogoAtivo({ url, tamanho = 42 }) {
 
   const ehSvg = url.split("?")[0].toLowerCase().endsWith(".svg");
 
-  if (ehSvg) {
+  if (ehSvg && Platform.OS !== "web") {
     return (
       <View
         style={{ width: tamanho, height: tamanho }}
-        className="overflow-hidden rounded-md"
+        className="items-center justify-center overflow-hidden rounded-md"
       >
-        <SvgUri uri={url} width={tamanho} height={tamanho} />
+        <SvgUri
+          uri={url}
+          width="100%"
+          height="100%"
+          preserveAspectRatio="xMidYMid meet"
+        />
       </View>
     );
   }
@@ -29,6 +34,7 @@ export function LogoAtivo({ url, tamanho = 42 }) {
       source={{ uri: url }}
       style={{ width: tamanho, height: tamanho }}
       className="rounded-md"
+      resizeMode="contain"
     />
   );
 }
