@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { InfoIcon } from "phosphor-react-native";
@@ -9,7 +9,11 @@ import { CabecalhoAtivo } from "@/components/CabecalhoAtivo";
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 
-import { buscarAtivo } from "@/services/ativosService";
+import {
+  buscarAtivo,
+  venderAtivo,
+  resgatarAtivo,
+} from "@/services/ativosService";
 import { cores } from "@/cores";
 
 function reais(numero) {
@@ -135,7 +139,15 @@ function FormularioVenda({
 export default function OperacaoAtivoScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const ativo = buscarAtivo(id);
+  const [ativo, setAtivo] = useState(null);
+
+  useEffect(() => {
+    async function carregar() {
+      const dados = await buscarAtivo(id);
+      setAtivo(dados);
+    }
+    carregar();
+  }, [id]);
 
   const hoje = new Date().toLocaleDateString("pt-BR");
   const [erro, setErro] = useState("");
@@ -146,6 +158,14 @@ export default function OperacaoAtivoScreen() {
 
   const [valorResgate, setValorResgate] = useState("");
   const [dataResgate, setDataResgate] = useState(hoje);
+
+  if (!ativo) {
+    return (
+      <TelaCustomer>
+        <Text className="font-corpo text-base text-texto">Carrregando...</Text>
+      </TelaCustomer>
+    );
+  }
 
   const ehVariavel = ativo.tipo === "renda_variavel";
   const quantidadeNumero = Number(quantidadeVenda.replace(",", ".")) || 0;
@@ -164,7 +184,7 @@ export default function OperacaoAtivoScreen() {
     rendimento = valorResgateNumero - ativo.valorInicial;
   }
 
-  function confirmar() {
+  async function confirmar() {
     if (ehVariavel) {
       if (!quantidadeVenda.trim() || !precoVenda.trim() || !dataVenda.trim()) {
         setErro("Preencha todos os campos");
@@ -178,6 +198,10 @@ export default function OperacaoAtivoScreen() {
         setErro(`Você possui apenas ${ativo.quantidade} unidades deste ativo`);
         return;
       }
+      if (dataVenda.length !== 10) {
+        setErro("Use a data no formato dd/mm/aaaa");
+        return;
+      }
     } else {
       if (!valorResgate.trim() || !dataResgate.trim()) {
         setErro("Preencha todos os campos");
@@ -187,9 +211,22 @@ export default function OperacaoAtivoScreen() {
         setErro("O valor deve ser maior que zero");
         return;
       }
+      if (dataResgate.length !== 10) {
+        setErro("Use a data no formato dd/mm/aaaa");
+        return;
+      }
     }
-    setErro("");
-    router.replace("/(tabs)");
+    try {
+      if (ehVariavel) {
+        await venderAtivo(ativo.id, quantidadeNumero, precoNumero, dataVenda);
+      } else {
+        await resgatarAtivo(ativo.id);
+      }
+      setErro("");
+      router.replace("/(tabs)/ativos");
+    } catch (e) {
+      setErro("Não foi possivel concluir. Tente novamente. ");
+    }
   }
 
   return (

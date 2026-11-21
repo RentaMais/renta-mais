@@ -7,11 +7,43 @@ import { CardCustomer } from "@/components/CardCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { buscarAtivo } from "@/services/ativosService";
 import { formatarMoeda } from "@/utils/formatarMoeda";
+import { useState, useEffect } from "react";
 
 export default function DetalheAtivoScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const ativo = buscarAtivo(id);
+  const [ativo, setAtivo] = useState(null);
+  const [carregando, setCarregando] = useState(true);
+
+  useEffect(() => {
+    async function carregar() {
+      try {
+        const dados = await buscarAtivo(id);
+        setAtivo(dados);
+      } catch (e) {
+        setAtivo(null);
+      }
+      setCarregando(false);
+    }
+    carregar();
+  }, [id]);
+
+  if (carregando) {
+    return (
+      <TelaCustomer>
+        <Text className="font-corpo text-base text-texto">Carregando...</Text>
+      </TelaCustomer>
+    );
+  }
+  if (!ativo) {
+    return (
+      <TelaCustomer>
+        <Text className="font-corpo text-base text-texto">
+          Ativo não encontrado
+        </Text>
+      </TelaCustomer>
+    );
+  }
 
   const ehVariavel = ativo.tipo === "renda_variavel";
 

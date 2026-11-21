@@ -1,16 +1,7 @@
 import { View, Text, Image } from "react-native";
 import { VariacaoCustomer } from "./VariacaoCustomer";
-
-// Import das imagens
-import itauImg from "@/mocks/assets/itau.jpg";
-import petrobrasImg from "@/mocks/assets/petrobras.jpg";
-import valeImg from "@/mocks/assets/vale.jpg";
-
-const imagensAtivos = {
-  "itau.jpg": itauImg,
-  "petrobras.jpg": petrobrasImg,
-  "vale.jpg": valeImg,
-};
+import { LogoAtivo } from "./LogoAtivo";
+import { formatarMoeda } from "@/utils/formatarMoeda";
 
 export function CabecalhoAtivo({ ativo }) {
   if (!ativo) return null;
@@ -20,24 +11,14 @@ export function CabecalhoAtivo({ ativo }) {
   if (ehVariavel) {
     return (
       <View className="flex-row items-center gap-4">
-        {ativo.imagem && imagensAtivos[ativo.imagem] && (
-          <Image
-            source={imagensAtivos[ativo.imagem]}
-            style={{
-              width: 72,
-              height: 72,
-            }}
-            className="rounded-lg border border-texto/10 bg-card"
-            resizeMode="cover"
-          />
-        )}
+        <LogoAtivo url={ativo.imagem} tamanho={72} />
         <View className="flex-1 gap-0.5">
           <Text className="font-titulo text-3xl text-texto">
             {ativo.ticker}
           </Text>
           <View className="flex-row items-center gap-2">
             <Text className="font-corpo-bold text-xl text-texto">
-              {ativo.valor}
+              {formatarMoeda(ativo.totalInvestido)}
             </Text>
             <View className="flex-row items-center gap-0.5">
               <VariacaoCustomer valor={ativo.variacao} />
