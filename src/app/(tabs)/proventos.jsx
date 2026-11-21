@@ -39,27 +39,33 @@ const gerarUltimosMeses = (qtd) => {
   return mesesGerados;
 };
 
+
 function GraficoProventos({ valores }) {
   const [largura, setLargura] = useState(0);
 
   const dadosValores =
-    valores && valores.length === QTD_MESES ? valores : Array(12).fill(0);
-  const maxVal = Math.max(...dadosValores, 1);
+    Array.isArray(valores) && valores.length === QTD_MESES
+      ? valores.map((v) => Number((Number(v) || 0).toFixed(2)))
+      : Array(QTD_MESES).fill(0);
+
+  const maxVal = Math.max(...dadosValores, 0);
+  const escalaMax = maxVal > 0 ? maxVal : 1;
 
   const corDaBarra = (v) => {
-    const p = v / maxVal;
+    const p = v / escalaMax;
     return p >= 0.75
       ? cores.primaria
       : p >= 0.45
         ? `${cores.primaria}B3`
         : `${cores.primaria}66`;
   };
+
   const dados = {
     labels: gerarUltimosMeses(QTD_MESES),
     datasets: [
       {
-        data: valores,
-        colors: valores.map((v) => () => corDaBarra(v)),
+        data: dadosValores,
+        colors: dadosValores.map((v) => () => corDaBarra(v)),
       },
     ],
   };
@@ -74,20 +80,27 @@ function GraficoProventos({ valores }) {
           data={dados}
           width={largura}
           height={180}
-          segments={4}
+          segments={maxVal > 0 ? 4 : 1}
           fromZero
           showValuesOnTopOfBars={true}
           showBarTops={false}
           withCustomBarColorFromData
           flatColor
           yAxisLabel="R$ "
+          formatYLabel={(val) => {
+            const num = Number(val);
+            if (!Number.isFinite(num) || maxVal === 0) {
+              return num <= 0 ? "0" : "";
+            }
+            return `${Math.round(num)}`;
+          }}
           chartConfig={{
             backgroundGradientFrom: "transparent",
             backgroundGradientTo: "transparent",
             color: () => cores.primaria,
             labelColor: () => cores.subtexto,
             barPercentage: 0.5,
-            decimalPlaces: 0,
+            decimalPlaces: 2,
             propsForTopLabels: { fontSize: 9, dy: -6 },
             propsForLabels: { fontSize: 8.5 },
             propsForBackgroundLines: { stroke: "transparent" },
@@ -180,7 +193,7 @@ export default function ProventosScreen() {
 
       {/* Próximos Pagamentos */}
       <CardCustomer>
-        <TituloCardCustomer titulo="Próximos pagamentos" className="mb-4" />
+        <TituloCardCustomer titulo="Histórico de dividendos" className="mb-4" />
 
         <FlatList
           data={listaProventos}
