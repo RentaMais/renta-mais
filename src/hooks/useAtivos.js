@@ -14,9 +14,12 @@ import {
   calcularResumoVenda,
   formatarNumeroInput,
   validarDataBR,
+  validarDataNaoFutura,
+  validarDataNaoPassada,
   validarQuantidadeVenda,
   validarValorPositivo,
 } from "@/utils/validacoesAtivos";
+import { textoParaData } from "@/utils/formatarData";
 
 function resolverEstadoCampo(ativoValidacao, check) {
   return ativoValidacao && !check.valido ? "erro" : "padrao";
@@ -129,7 +132,10 @@ export function useNovoAtivo({ onSucesso }) {
   const mostrarErroValorFixa =
     (valor.length > 0 || tentouEnviar) && !checkValorFixa.valido;
 
-  const checkVencimento = validarDataBR(vencimento);
+  const checkVencimento = validarDataNaoPassada(
+    vencimento,
+    "Data de vencimento",
+  );
   const mostrarErroVencimento =
     (vencimento.length > 0 || tentouEnviar) && !checkVencimento.valido;
 
@@ -141,7 +147,7 @@ export function useNovoAtivo({ onSucesso }) {
   const mostrarErroPrecoMedio =
     (precoMedio.length > 0 || tentouEnviar) && !checkPrecoMedio.valido;
 
-  const checkDataCompra = validarDataBR(dataCompra);
+  const checkDataCompra = validarDataNaoFutura(dataCompra, "Data da compra");
   const mostrarErroDataCompra =
     (dataCompra.length > 0 || tentouEnviar) && !checkDataCompra.valido;
 
@@ -165,7 +171,6 @@ export function useNovoAtivo({ onSucesso }) {
         return;
       }
       if (!checkValorFixa.valido) {
-        setErro(checkValorFixa.erro);
         return;
       }
       if (!taxa.trim()) {
@@ -173,7 +178,6 @@ export function useNovoAtivo({ onSucesso }) {
         return;
       }
       if (!checkVencimento.valido) {
-        setErro(checkVencimento.erro);
         return;
       }
     } else {
@@ -182,15 +186,12 @@ export function useNovoAtivo({ onSucesso }) {
         return;
       }
       if (!checkQuantidade.valido) {
-        setErro(checkQuantidade.erro);
         return;
       }
       if (!checkPrecoMedio.valido) {
-        setErro(checkPrecoMedio.erro);
         return;
       }
       if (!checkDataCompra.valido) {
-        setErro(checkDataCompra.erro);
         return;
       }
     }
@@ -326,7 +327,7 @@ export function useOperacaoAtivo(id, { onSucesso }) {
   const mostrarErroPreco =
     (precoVenda.length > 0 || tentouEnviar) && !checkPreco.valido;
 
-  const checkDataVenda = validarDataBR(dataVenda);
+  const checkDataVenda = validarDataNaoFutura(dataVenda, "Data da venda");
   const mostrarErroDataVenda =
     (dataVenda.length > 0 || tentouEnviar) && !checkDataVenda.valido;
 
