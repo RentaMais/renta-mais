@@ -43,12 +43,12 @@ export function converterAtivo(id, dados) {
     id,
     tipo: "renda_fixa",
     nome: dados.name,
-    taxa: taxaTexto,
-    vencimento:
-      typeof dados.dueDate === "string" ? dataParaBR(dados.dueDate) : "",
-    valorInicial: Number(dados.totalInvested) || 0,
+    taxa: "100% do CDI",
+    vencimento: dataParaBR(dados.dueDate),
+    valorInicial: dados.totalInvested,
     valor: formatarMoeda(dados.totalInvested),
-    totalInvestido: Number(dados.totalInvested) || 0,
+    totalInvestido: dados.totalInvested,
+    rendimentoEstimado: dados.estimatedYield || 0,
   };
 }
 

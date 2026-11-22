@@ -58,6 +58,7 @@ export async function criarRendaFixa(dados) {
     category: dados.indexador,
     rate: dados.taxa.trim(),
     dueDate: dataParaBanco(dados.vencimento),
+    estimatedYield: dados.rendimentoEstimado || 0,
     totalInvested: valor,
     aportes: [{ purchaseDate: hoje, invested: valor }],
   });

@@ -1,6 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
 import {
-  calcularResumoResgate,
   calcularResumoVenda,
   formatarNumeroInput,
   parseNumeroBR,
@@ -76,11 +75,4 @@ describe("cálculos de operação", () => {
     expect(res).toEqual({ valorVenda: 400, lucro: 50 });
   });
 
-  test("calcula rendimento do resgate", () => {
-    const res = calcularResumoResgate({
-      valorResgate: 16500,
-      valorInicial: 15000,
-    });
-    expect(res).toEqual({ valorResgate: 16500, rendimento: 1500 });
-  });
 });

@@ -47,11 +47,9 @@ export async function buscarCotacoesAtuais(tickers = []) {
   const limpos = [
     ...new Set(tickers.filter(Boolean).map((t) => t.trim().toUpperCase())),
   ];
-
   if (limpos.length === 0) {
     return {};
   }
-
   const periodo = periodoDiario();
   const mapaCotacoes = {};
   const faltando = [];
@@ -74,8 +72,16 @@ export async function buscarCotacoesAtuais(tickers = []) {
         mapaCotacoes[t] = info.preco;
       }
     } catch (_e) {
-      // Ticker com falha mantém o último preço salvo no ativo
+      
     }
   }
   return mapaCotacoes;
+}
+
+export async function buscarCdiAnual() {
+  const url =
+    "https://api.bcb.gov.br/dados/serie/bcdata.sgs.4389/dados/ultimos/1?formato=json";
+  const resposta = await fetch(url);
+  const dados = await resposta.json();
+  return Number(dados[0].valor);
 }

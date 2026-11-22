@@ -107,6 +107,12 @@ function FormularioRendaFixa({ dados }) {
           </Text>
         ) : null}
       </View>
+      <AvisoCustomer
+        mensagem={
+          "Rendimento estimado até o vencimento: " +
+          formatarMoeda(dados.rendimentoEstimado)
+        }
+      />
     </View>
   );
 }

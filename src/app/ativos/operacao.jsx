@@ -10,28 +10,11 @@ import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { useOperacaoAtivo } from "@/hooks/useAtivos";
 import { formatarMoeda } from "@/utils/formatarMoeda";
 import { cores } from "@/cores";
+import { AvisoCustomer } from "@/components/AvisoCustomer";
 
 function FormularioResgate({ dados }) {
   return (
     <View className="gap-4">
-      <View>
-        <View className="w-1/2">
-          <InputCustomer
-            titulo="Valor a resgatar"
-            placeholder={dados.placeholderValor}
-            value={dados.valorResgate}
-            onChangeText={dados.setValorResgate}
-            keyboardType="decimal-pad"
-            estado={dados.estadoValor}
-          />
-        </View>
-        {dados.alertaValor ? (
-          <Text className="text-erro font-corpo text-xs mt-1.5">
-            {dados.alertaValor}
-          </Text>
-        ) : null}
-      </View>
-
       <View>
         <InputCustomer
           titulo="Data do resgate"
@@ -46,23 +29,29 @@ function FormularioResgate({ dados }) {
           </Text>
         ) : null}
       </View>
-
+      {dados.antecipado ? (
+        <AvisoCustomer
+          mensagem={
+            "Resgate antes do vencimento (" + dados.vencimento + "): o título não rende. "
+          }
+        />
+      ) : null}
       <View className="flex-row items-start gap-3 rounded-2xl border border-primaria/40 bg-primaria/20 p-4">
         <InfoIcon size={22} color={cores.primaria} />
         <View className="flex-1 gap-1">
           <Text className="font-corpo-medium text-sm text-primaria">
-            {"Valor do resgate: " + formatarMoeda(dados.valorResgateNumero)}
+            {"Valor do resgate: " + formatarMoeda(dados.valorResgate)}
           </Text>
           <Text
             className={
-              dados.rendimento >= 0
+              dados.rendimento > 0
                 ? "font-corpo-medium text-sm text-positivo"
-                : "font-corpo-medium text-sm text-negativo"
+                : "font-corpo-medium text-sm text-primaria"
             }
           >
             {"Rendimento: " +
-              (dados.rendimento >= 0 ? "+ " : "- ") +
-              formatarMoeda(Math.abs(dados.rendimento))}
+              (dados.rendimento > 0 ? "+ " : "") +
+              formatarMoeda(dados.rendimento)}
           </Text>
           <Text className="font-corpo-medium text-sm text-primaria">
             {"Valor inicial: " + formatarMoeda(dados.valorInicial)}

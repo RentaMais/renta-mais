@@ -137,11 +137,3 @@ export function calcularResumoVenda({ quantidade, precoVenda, precoMedio }) {
 
   return { valorVenda, lucro };
 }
-
-export function calcularResumoResgate({ valorResgate, valorInicial }) {
-  const resgateValido =
-    Number.isFinite(valorResgate) && valorResgate > 0 ? valorResgate : 0;
-  const rendimento = resgateValido > 0 ? resgateValido - valorInicial : 0;
-
-  return { valorResgate: resgateValido, rendimento };
-}

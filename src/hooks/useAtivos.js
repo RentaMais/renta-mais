@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useFocusEffect } from "expo-router";
 import {
   atualizarCotacoesCarteira,
@@ -8,9 +8,10 @@ import {
   listarAtivos,
   registrarOperacaoAtivo,
 } from "@/services/ativosService";
+import { buscarCdiAnual } from "@/services/cotacoesService";
+import { calcularRendimento, diasEntre } from "@/utils/rendaFixa";
 import { montarDetalhesAtivo, resumirCarteira } from "@/utils/converterAtivo";
 import {
-  calcularResumoResgate,
   calcularResumoVenda,
   formatarNumeroInput,
   validarDataBR,
@@ -113,6 +114,8 @@ export function useNovoAtivo({ onSucesso }) {
   const [tentouEnviar, setTentouEnviar] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
+  const [cdiAnual, setCdiAnual] = useState(0);
+
 
   // Renda Fixa
   const [nome, setNome] = useState("");
@@ -154,6 +157,32 @@ export function useNovoAtivo({ onSucesso }) {
   const valorInvestido =
     (checkQuantidade.valido ? checkQuantidade.valor : 0) *
     (checkPrecoMedio.valido ? checkPrecoMedio.valor : 0);
+
+  let rendimentoEstimado = 0;
+  const dataVencimentoCalculo = textoParaData(vencimento);
+  if (checkValorFixa.valido && dataVencimentoCalculo) {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const dias = diasEntre(hoje, dataVencimentoCalculo);
+    if (dias > 0) {
+      rendimentoEstimado = calcularRendimento(
+        checkValorFixa.valor,
+        cdiAnual,
+        dias,
+      );
+    }
+  }
+
+  useEffect(() => {
+    async function carregarCdi() {
+      try {
+        setCdiAnual(await buscarCdiAnual());
+      } catch (e) {
+        console.warn("Não foi possível obter o CDI: ", e);
+      }
+    }
+    carregarCdi();
+  }, []);
 
   function trocarTipoRenda(tipo) {
     setTipoRenda(tipo);
@@ -202,9 +231,8 @@ export function useNovoAtivo({ onSucesso }) {
         await criarRendaFixa({
           nome,
           valor: checkValorFixa.valor,
-          indexador,
-          taxa,
           vencimento,
+          rendimentoEstimado,
         });
       } else {
         await cadastrarRendaVariavel({
@@ -295,7 +323,6 @@ export function useOperacaoAtivo(id, { onSucesso }) {
   const [quantidadeVenda, setQuantidadeVenda] = useState("");
   const [precoVenda, setPrecoVenda] = useState("");
   const [dataVenda, setDataVenda] = useState(hoje);
-  const [valorResgate, setValorResgate] = useState("");
   const [dataResgate, setDataResgate] = useState(hoje);
 
   useFocusEffect(
@@ -331,28 +358,33 @@ export function useOperacaoAtivo(id, { onSucesso }) {
   const mostrarErroDataVenda =
     (dataVenda.length > 0 || tentouEnviar) && !checkDataVenda.valido;
 
-  const checkValorResgate = validarValorPositivo(
-    valorResgate,
-    "valor de resgate",
-  );
-  const mostrarErroValorResgate =
-    (valorResgate.length > 0 || tentouEnviar) && !checkValorResgate.valido;
-
   const checkDataResgate = validarDataBR(dataResgate);
   const mostrarErroDataResgate =
     (dataResgate.length > 0 || tentouEnviar) && !checkDataResgate.valido;
+
+  let antecipado = false;
+  let rendimento = 0;
+  let valorResgate = 0;
+
+  if (ativo && !ehVariavel) {
+    const dataFim = textoParaData(dataResgate);
+    const dataVencimento = textoParaData(ativo.vencimento);
+
+    if (dataFim && dataVencimento) {
+      if (dataFim < dataVencimento) {
+        antecipado = true;
+      } else {
+        rendimento = ativo.rendimentoEstimado;
+      }
+    }
+    valorResgate = ativo.valorInicial + rendimento;
+  }
 
   const { valorVenda, lucro } = calcularResumoVenda({
     quantidade: checkQuantidade.valor,
     precoVenda: checkPreco.valor,
     precoMedio: ativo?.precoMedio ?? 0,
   });
-
-  const { valorResgate: valorResgateNumero, rendimento } =
-    calcularResumoResgate({
-      valorResgate: checkValorResgate.valor,
-      valorInicial: ativo?.valorInicial ?? 0,
-    });
 
   async function confirmar() {
     if (!ativo) return;
@@ -373,10 +405,6 @@ export function useOperacaoAtivo(id, { onSucesso }) {
         return;
       }
     } else {
-      if (!checkValorResgate.valido) {
-        setErro(checkValorResgate.erro);
-        return;
-      }
       if (!checkDataResgate.valido) {
         setErro(checkDataResgate.erro);
         return;
@@ -433,14 +461,6 @@ export function useOperacaoAtivo(id, { onSucesso }) {
       lucro,
     },
     resgate: {
-      valorResgate,
-      setValorResgate,
-      placeholderValor: formatarNumeroInput(ativo?.valorInicial),
-      estadoValor: resolverEstadoCampo(
-        valorResgate.length > 0 || tentouEnviar,
-        checkValorResgate,
-      ),
-      alertaValor: mostrarErroValorResgate ? checkValorResgate.erro : "",
       dataResgate,
       setDataResgate,
       estadoData: resolverEstadoCampo(
@@ -448,9 +468,11 @@ export function useOperacaoAtivo(id, { onSucesso }) {
         checkDataResgate,
       ),
       alertaData: mostrarErroDataResgate ? checkDataResgate.erro : "",
-      valorResgateNumero,
-      rendimento,
-      valorInicial: ativo?.valorInicial ?? 0,
+      antecipado,
+      vencimento: ativo ? ativo.vencimento : "",
+      remdimento,
+      valorResgate,
+      valorInicial: ativo ? ativo.valorInicial:0,
     },
   };
 }
