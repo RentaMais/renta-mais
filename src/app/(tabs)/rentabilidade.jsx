@@ -82,7 +82,8 @@ function GraficoRentabilidade({ meses }) {
               endSpacing={0}
               yAxisLabelWidth={0}
               barBorderRadius={2}
-              maxValue={6}eueu
+              maxValue={6}
+              eueu
               mostNegativeValue={-12}
               noOfSections={3}
               noOfSectionsBelowXAxis={5}

@@ -100,7 +100,10 @@ async function buscarIbovespaYahoo() {
       if (i < urlsTentativa.length - 1) {
         await esperar(500);
       } else {
-        console.warn("Aviso: Não foi possível carregar o Ibovespa da API.", error);
+        console.warn(
+          "Aviso: Não foi possível carregar o Ibovespa da API.",
+          error,
+        );
       }
     }
   }
@@ -244,7 +247,10 @@ export async function buscarDadosRentabilidade() {
           const dataStr = aporte.purchaseDate || aporte.date;
           if (dataStr) {
             const dataAporte = parseDataLocal(dataStr);
-            if (!Number.isNaN(dataAporte.getTime()) && dataAporte <= dataFimDoMes) {
+            if (
+              !Number.isNaN(dataAporte.getTime()) &&
+              dataAporte <= dataFimDoMes
+            ) {
               const valorAporte = Number(
                 aporte.invested || aporte.quantity * aporte.unitPrice || 0,
               );
