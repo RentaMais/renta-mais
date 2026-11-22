@@ -1,7 +1,6 @@
 import { View, Text } from "react-native";
 import { VariacaoCustomer } from "./VariacaoCustomer";
 import { LogoAtivo } from "./LogoAtivo";
-import { formatarMoeda } from "@/utils/formatarMoeda";
 
 export function CabecalhoAtivo({ ativo }) {
   if (!ativo) return null;

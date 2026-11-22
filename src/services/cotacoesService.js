@@ -1,3 +1,9 @@
+import {
+  lerCache,
+  obterComCache,
+  periodoDiario,
+} from "@/services/cacheService";
+
 const TOKEN = process.env.EXPO_PUBLIC_BRAPI_TOKEN;
 const BASE_URL = "https://brapi.dev/api/quote";
 
@@ -12,20 +18,29 @@ export async function buscarInfoTicker(ticker) {
     .toUpperCase();
   if (!tickerLimpo) return null;
 
-  const resposta = await fetch(montarUrlQuote(tickerLimpo));
-  if (!resposta.ok) {
-    return null;
-  }
+  const info = await obterComCache(
+    `quote_${tickerLimpo}`,
+    periodoDiario(),
+    async () => {
+      const resposta = await fetch(montarUrlQuote(tickerLimpo));
+      if (!resposta.ok) {
+        return null;
+      }
 
-  const dados = await resposta.json();
-  const item = dados?.results?.[0];
-  if (!item) return null;
+      const dados = await resposta.json();
+      const item = dados?.results?.[0];
+      if (!item) return null;
 
-  return {
-    preco: item.regularMarketPrice,
-    logo: item.logourl || "",
-    nome: item.shortName || tickerLimpo,
-  };
+      return {
+        price: item.regularMarketPrice ?? null,
+        logoUrl: item.logourl || "",
+        name: item.shortName || tickerLimpo,
+      };
+    },
+  );
+
+  if (!info) return null;
+  return { preco: info.price, logo: info.logoUrl, nome: info.name };
 }
 
 export async function buscarCotacoesAtuais(tickers = []) {
@@ -37,18 +52,29 @@ export async function buscarCotacoesAtuais(tickers = []) {
     return {};
   }
 
-  const resposta = await fetch(montarUrlQuote(limpos.join(",")));
-  if (!resposta.ok) {
-    throw new Error(`Falha na brapi.dev (HTTP ${resposta.status})`);
-  }
-
-  const dados = await resposta.json();
-  const resultados = Array.isArray(dados?.results) ? dados.results : [];
-
+  const periodo = periodoDiario();
   const mapaCotacoes = {};
-  for (const item of resultados) {
-    if (item?.symbol && typeof item?.regularMarketPrice === "number") {
-      mapaCotacoes[item.symbol.toUpperCase()] = item.regularMarketPrice;
+  const faltando = [];
+
+  await Promise.all(
+    limpos.map(async (t) => {
+      const info = await lerCache(`quote_${t}`, periodo);
+      if (info && typeof info.price === "number") {
+        mapaCotacoes[t] = info.price;
+      } else {
+        faltando.push(t);
+      }
+    }),
+  );
+
+  for (const t of faltando) {
+    try {
+      const info = await buscarInfoTicker(t);
+      if (typeof info?.preco === "number") {
+        mapaCotacoes[t] = info.preco;
+      }
+    } catch (_e) {
+      // Ticker com falha mantém o último preço salvo no ativo
     }
   }
   return mapaCotacoes;
