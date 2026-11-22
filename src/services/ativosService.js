@@ -56,7 +56,7 @@ export async function criarRendaFixa(dados) {
     type: "fixed",
     name: dados.nome.trim(),
     category: "CDI",
-    rate: dados.taxa.trim(),
+    rate: 100,
     dueDate: dataParaBanco(dados.vencimento),
     totalInvested: valor,
     aportes: [{ purchaseDate: hoje, invested: valor }],

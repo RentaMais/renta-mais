@@ -117,7 +117,6 @@ export function useNovoAtivo({ onSucesso }) {
   // Renda Fixa
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
-  const [taxa, setTaxa] = useState("");
   const [vencimento, setVencimento] = useState("");
 
   // Renda Variável
@@ -154,7 +153,6 @@ export function useNovoAtivo({ onSucesso }) {
     (checkPrecoMedio.valido ? checkPrecoMedio.valor : 0);
 
   function trocarTipoRenda(tipo) {
-    const taxaNumero = parseFloat(taxa.replace(",", "."));
     setTipoRenda(tipo);
     setTentouEnviar(false);
     setErro("");
@@ -170,10 +168,6 @@ export function useNovoAtivo({ onSucesso }) {
         return;
       }
       if (!checkValorFixa.valido) {
-        return;
-      }
-      if (!(taxaNumero > 0)) {
-        setErro("Informe uma taxa maior que 0.");
         return;
       }
       if (!checkVencimento.valido) {
@@ -201,7 +195,6 @@ export function useNovoAtivo({ onSucesso }) {
         await criarRendaFixa({
           nome,
           valor: checkValorFixa.valor,
-          taxa: taxaNumero,
           vencimento,
         });
       } else {
@@ -237,12 +230,6 @@ export function useNovoAtivo({ onSucesso }) {
         checkValorFixa,
       ),
       alertaValor: mostrarErroValorFixa ? checkValorFixa.erro : "",
-      taxa,
-      setTaxa,
-      estadoTaxa:
-        tentouEnviar && !(parseFloat(taxa.replace(",", ".")) > 0)
-          ? "erro"
-          : "padrao",
       vencimento,
       setVencimento,
       estadoVencimento: resolverEstadoCampo(

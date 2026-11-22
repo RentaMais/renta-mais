@@ -3,90 +3,68 @@ import { dataParaBR } from "@/utils/formatarData";
 
 export function converterAtivo(id, dados) {
   if (dados.type === "variable") {
-    let quantidade = Number(dados.quantity || 0);
-    if (quantidade === 0 && Array.isArray(dados.aportes)) {
-      quantidade = dados.aportes.reduce(
-        (acc, ap) => acc + Number(ap.quantity || 0),
-        0,
-      );
-    }
-
-    const precoMedio = Number(dados.averagePrice || 0);
-    const precoAtual = Number(dados.currentPrice) || precoMedio;
-    const valorAtual = quantidade * precoAtual;
-    const totalInvestido =
-      Number(dados.totalInvested) || quantidade * precoMedio;
-
-    const variacaoPercentual =
-      precoMedio > 0 ? ((precoAtual - precoMedio) / precoMedio) * 100 : 0;
+    const precoAtual = dados.currentPrice || dados.averagePrice;
+    const valorAtual = dados.quantity * precoAtual;
+    const variacao =
+      ((precoAtual - dados.averagePrice) / dados.averagePrice) * 100;
 
     return {
-      id,
+      id: id,
       tipo: "renda_variavel",
       ticker: dados.ticker,
-      quantidade,
-      precoMedio,
-      precoAtual,
+      quantidade: dados.quantity,
+      precoMedio: dados.averagePrice,
+      precoAtual: precoAtual,
       valor: formatarMoeda(valorAtual),
-      valorAtual,
-      variacao: variacaoPercentual.toFixed(1).replace(".", ","),
-      imagem: dados.logoUrl || "",
-      totalInvestido,
+      valorAtual: valorAtual,
+      variacao: variacao.toFixed(1).replace(".", ","),
+      imagem: dados.logoUrl,
+      totalInvestido: dados.totalInvested,
     };
   }
-
-  const taxaTexto = dados.category
-    ? `${dados.rate} ${dados.category}`
-    : `${dados.rate}`;
-
   return {
-    id,
+    id: id,
     tipo: "renda_fixa",
     nome: dados.name,
-    vencimento:
-      typeof dados.dueDate === "string" ? dataParaBR(dados.dueDate) : "",
-    valorInicial: Number(dados.totalInvested) || 0,
+    taxa: "100% do CDI",
+    vencimento: dataParaBR(dados.dueDate),
+    dataAplicacao: dados.aportes[0].purchaseDate,
+    valorInicial: dados.totalInvested,
     valor: formatarMoeda(dados.totalInvested),
-    totalInvestido: Number(dados.totalInvested) || 0,
+    totalInvestido: dados.totalInvested,
   };
 }
 
-export function resumirCarteira(ativos = []) {
+export function resumirCarteira(ativos) {
   const variaveis = ativos.filter((ativo) => ativo.tipo === "renda_variavel");
   const fixos = ativos.filter((ativo) => ativo.tipo === "renda_fixa");
+  let totalInvestido = 0;
+  let totalAtual = 0;
 
-  const totalInvestido = ativos.reduce(
-    (acumulado, ativo) => acumulado + (Number(ativo.totalInvestido) || 0),
-    0,
-  );
-
-  const totalAtual = ativos.reduce(
-    (acumulado, ativo) =>
-      acumulado +
-      (ativo.tipo === "renda_variavel"
-        ? Number(ativo.valorAtual) || 0
-        : Number(ativo.valorInicial) || 0),
-    0,
-  );
-
+  for (let i = 0; i < ativos.length; i++) {
+    const ativo = ativos[i];
+    totalInvestido = totalInvestido + ativo.totalInvestido;
+    if (ativo.tipo === "renda_variavel") {
+      totalAtual = totalAtual + ativo.valorAtual;
+    } else {
+      totalAtual = totalAtual + ativo.valorInicial;
+    }
+  }
   return { variaveis, fixos, totalInvestido, totalAtual };
 }
 
 export function montarDetalhesAtivo(ativo) {
-  if (!ativo) return [];
-
+  if (!ativo) {
+    return [];
+  }
   if (ativo.tipo === "renda_variavel") {
     return [
-      { rotulo: "Quantidade", valor: `${ativo.quantidade} un` },
+      { rotulo: "Quantidade", valor: ativo.quantidade + " un" },
       { rotulo: "Preço médio", valor: formatarMoeda(ativo.precoMedio) },
-      {
-        rotulo: "Valor investido",
-        valor: formatarMoeda(ativo.totalInvestido),
-      },
+      { rotulo: "Valor investido", valor: formatarMoeda(ativo.totalInvestido) },
       { rotulo: "Valor atual", valor: ativo.valor },
     ];
   }
-
   return [
     { rotulo: "Taxa", valor: ativo.taxa },
     { rotulo: "Vencimento", valor: ativo.vencimento },
