@@ -165,10 +165,10 @@ export async function atualizarCotacoesCarteira(listaAtivos) {
 }
 
 export async function venderAtivo(id, quantidade, precoVenda, dataVenda) {
-  if (!Number.isFinite(quantidade) || quantidade <= 0) {
+  if (quantidade <= 0) {
     throw new Error("A quantidade deve ser maior que zero.");
   }
-  if (!Number.isFinite(precoVenda) || precoVenda <= 0) {
+  if (precoVenda <= 0) {
     throw new Error("O preço de venda deve ser maior que zero.");
   }
 

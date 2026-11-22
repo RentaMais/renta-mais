@@ -1,5 +1,35 @@
+import { textoParaData } from "./formatarData";
+
 const REGEX_NUMERO_BR = /^-?\d+([.,]\d*)?$/;
 const REGEX_DATA_BR = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+
+function hojeSemHora() {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  return hoje;
+}
+
+export function validarDataNaoPassada(texto, rotulo) {
+  const data = textoParaData(texto);
+  if (!data) {
+    return { valido: false, erro: rotulo + " inválida. Use dd/mm/aaaa" };
+  }
+  if (data < hojeSemHora()) {
+    return { valido: false, erro: rotulo + " não pode estar no passado" };
+  }
+  return { valido: true, erro: "" };
+}
+
+export function validarDataNaoFutura(texto, rotulo) {
+  const data = textoParaData(texto);
+  if (!data) {
+    return { valido: false, erro: rotulo + " inválida. Use dd/mm/aaaa" };
+  }
+  if (data > hojeSemHora()) {
+    return { valido: false, erro: rotulo + " não pode ser no futuro" };
+  }
+  return { valido: true, erro: "" };
+}
 
 export function parseNumeroBR(texto = "") {
   const limpo = String(texto ?? "").trim();
