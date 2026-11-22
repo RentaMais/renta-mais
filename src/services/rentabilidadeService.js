@@ -1,10 +1,7 @@
 import { db } from "@/services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { obterUsuarioAtual } from "@/services/authService";
-
-// Cache simples de 5 minutos para evitar requisições repetidas ao proxy
-const CACHE_IBOV_TTL_MS = 5 * 60 * 1000;
-let cacheIbov = { timestamp: 0, dados: [] };
+import { obterComCache, periodoMensal } from "@/services/cacheService";
 
 const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -25,27 +22,23 @@ function parseDataLocal(dataStr) {
   return new Date(texto);
 }
 
+// Retorna null em caso de falha para que o resultado não seja cacheado
 async function buscarCDIBancoCentral() {
   try {
     const url =
       "https://api.bcb.gov.br/dados/serie/bcdata.sgs.4391/dados/ultimos/8?formato=json";
     const response = await fetch(url);
     const data = await response.json();
-    return Array.isArray(data) ? data : [];
+    if (!Array.isArray(data) || data.length === 0) return null;
+    return data.map((c) => ({ date: c.data, value: c.valor }));
   } catch (error) {
     console.error("Erro ao buscar CDI do Banco Central:", error);
-    return [];
+    return null;
   }
 }
 
+// Retorna null em caso de falha para que o resultado não seja cacheado
 async function buscarIbovespaYahoo() {
-  if (
-    cacheIbov.dados.length > 0 &&
-    Date.now() - cacheIbov.timestamp < CACHE_IBOV_TTL_MS
-  ) {
-    return cacheIbov.dados;
-  }
-
   const urlYahoo =
     "https://query1.finance.yahoo.com/v8/finance/chart/%5EBVSP?interval=1mo&range=8mo";
 
@@ -85,24 +78,22 @@ async function buscarIbovespaYahoo() {
           const dataObj = new Date(timestamps[j] * 1000);
 
           historicoIbov.push({
-            ano: dataObj.getFullYear(),
-            mesIndex: dataObj.getMonth(),
-            variacao: Number(variacaoPercentual.toFixed(2)),
-            dataOriginal: dataObj,
+            year: dataObj.getFullYear(),
+            monthIndex: dataObj.getMonth(),
+            change: Number(variacaoPercentual.toFixed(2)),
           });
         }
       }
 
       const mapaPorMes = new Map();
       historicoIbov.forEach((item) => {
-        const chaveMes = `${item.ano}-${item.mesIndex}`;
+        const chaveMes = `${item.year}-${item.monthIndex}`;
         mapaPorMes.set(chaveMes, item);
       });
 
       const historicoUnicoPorMes = Array.from(mapaPorMes.values());
 
       if (historicoUnicoPorMes.length > 0) {
-        cacheIbov = { timestamp: Date.now(), dados: historicoUnicoPorMes };
         return historicoUnicoPorMes;
       }
     } catch (error) {
@@ -114,9 +105,30 @@ async function buscarIbovespaYahoo() {
     }
   }
 
-  return [];
+  return null;
 }
 
+async function obterCDI() {
+  const dados = await obterComCache(
+    "cdi",
+    periodoMensal(),
+    buscarCDIBancoCentral,
+  );
+  return (dados ?? []).map((c) => ({ data: c.date, valor: c.value }));
+}
+
+async function obterIbovespa() {
+  const dados = await obterComCache(
+    "ibovespa",
+    periodoMensal(),
+    buscarIbovespaYahoo,
+  );
+  return (dados ?? []).map((i) => ({
+    ano: i.year,
+    mesIndex: i.monthIndex,
+    variacao: i.change,
+  }));
+}
 
 export async function buscarDadosRentabilidade() {
   const user = obterUsuarioAtual();
@@ -128,8 +140,8 @@ export async function buscarDadosRentabilidade() {
 
   const [snapshotAtivos, dadosCDI, dadosIbov] = await Promise.all([
     getDocs(assetsRef),
-    buscarCDIBancoCentral(),
-    buscarIbovespaYahoo(),
+    obterCDI(),
+    obterIbovespa(),
   ]);
 
   if (snapshotAtivos.empty) {

@@ -1,9 +1,7 @@
+import { obterComCache, periodoDiario } from "@/services/cacheService";
 import { db } from "@/services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { obterUsuarioAtual } from "@/services/authService";
-
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
-const cacheProventos = new Map();
 
 const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -26,7 +24,6 @@ function extrairDataYYYYMMDD(valor) {
 
   return null;
 }
-
 
 function obterDataCompraMaisAntiga(dataAsset) {
   if (!dataAsset) return null;
@@ -68,54 +65,48 @@ function obterQuantidadeAtivo(assetDoc) {
   return qtd > 0 ? qtd : 1;
 }
 
-async function buscarProventosYahoo(ticker, tentativa = 1) {
-  const tickerLimpo = String(ticker || "").trim().toUpperCase();
-  if (!tickerLimpo) return [];
+async function baixarProventosYahoo(tickerSemSa) {
+  const urlYahoo = `https://query1.finance.yahoo.com/v8/finance/chart/${tickerSemSa}.SA?interval=1mo&range=2y&events=div`;
+  const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlYahoo)}`;
 
-  const tickerSemSa = tickerLimpo.replace(/\.SA$/i, "");
-  const cacheKey = tickerSemSa;
-  const cached = cacheProventos.get(cacheKey);
-
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-    return cached.dados;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Erro HTTP: ${response.status}`);
   }
 
+  const data = await response.json();
+  const dividendsObj = data.chart?.result?.[0]?.events?.dividends;
+  if (!dividendsObj) return [];
+
+  const agora = Date.now();
+  return Object.values(dividendsObj)
+    .filter((div) => Number(div.date) * 1000 <= agora)
+    .map((div) => ({
+      ticker: tickerSemSa,
+      date: new Date(Number(div.date) * 1000).toISOString().split("T")[0],
+      amount: Number(div.amount || 0),
+    }));
+}
+
+async function buscarProventosYahoo(ticker, tentativa = 1) {
+  const tickerSemSa = String(ticker || "")
+    .trim()
+    .toUpperCase()
+    .replace(/\.SA$/i, "");
+  if (!tickerSemSa) return [];
+
   try {
-    const tickerFormatado = `${tickerSemSa}.SA`;
-    const urlYahoo = `https://query1.finance.yahoo.com/v8/finance/chart/${tickerFormatado}?interval=1mo&range=2y&events=div`;
-    const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlYahoo)}`;
-
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const result = data.chart?.result?.[0];
-    const dividendsObj = result?.events?.dividends;
-
-    if (!dividendsObj) {
-      cacheProventos.set(cacheKey, { timestamp: Date.now(), dados: [] });
-      return [];
-    }
-
-    const agora = Date.now();
-    const proventos = Object.values(dividendsObj)
-      .filter((div) => Number(div.date) * 1000 <= agora)
-      .map((div) => {
-        const timestampMs = Number(div.date) * 1000;
-        const dataDividendo = new Date(timestampMs);
-
-        return {
-          ticker: tickerSemSa,
-          data: dataDividendo.toISOString().split("T")[0],
-          dividendo: Number(div.amount || 0),
-          status: "Pago",
-        };
-      });
-
-    cacheProventos.set(cacheKey, { timestamp: Date.now(), dados: proventos });
-    return proventos;
+    const dividendos = await obterComCache(
+      `dividends_${tickerSemSa}`,
+      periodoDiario(),
+      () => baixarProventosYahoo(tickerSemSa),
+    );
+    return dividendos.map((d) => ({
+      ticker: d.ticker,
+      data: d.date,
+      dividendo: d.amount,
+      status: "Pago",
+    }));
   } catch (error) {
     if (tentativa < 2) {
       await esperar(600);
@@ -226,7 +217,7 @@ export async function buscarDadosProventos() {
       const quantidade = obterQuantidadeAtivo(assetDoc);
       const valorTotalProvento = item.dividendo * quantidade;
 
-      
+
       totalRecebido += valorTotalProvento;
 
       return {
