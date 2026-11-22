@@ -113,12 +113,14 @@ export default function HomeScreen() {
               : formatarReais(Number(dadosInicio.patrimonioTotal))}
           </Text>
 
-          <View className="flex-row items-center gap-2">
-            <VariacaoCustomer valor={dadosInicio.variacao} />
-            <Text className="font-corpo text-sm text-fundo">
-              nos últimos 30 dias
-            </Text>
-          </View>
+          {dadosInicio.temHistorico && (
+            <View className="flex-row items-center gap-2">
+              <VariacaoCustomer valor={dadosInicio.variacao} />
+              <Text className="font-corpo text-sm text-fundo">
+                nos últimos 30 dias
+              </Text>
+            </View>
+          )}
         </View>
 
         <Pressable onPress={() => setEsconder(!esconder)}>
@@ -178,6 +180,7 @@ export default function HomeScreen() {
           withOuterLines={true}
           withDots={false}
           formatYLabel={(valor) => formatarMil(valor)}
+          fromZero={!dadosInicio.temHistorico}
           chartConfig={{
             backgroundGradientFrom: "transparent",
             backgroundGradientTo: "transparent",

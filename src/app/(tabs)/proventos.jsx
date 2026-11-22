@@ -39,7 +39,6 @@ const gerarUltimosMeses = (qtd) => {
   return mesesGerados;
 };
 
-
 function GraficoProventos({ valores }) {
   const [largura, setLargura] = useState(0);
 

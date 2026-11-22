@@ -69,9 +69,15 @@ export async function buscarDadosInicio() {
     dataGrafico = valoresReconstruidos;
   }
 
+  if (dataGrafico.length === 1) {
+    labelsGrafico = ["", "", "", "", "", "Atual"];
+    dataGrafico = Array(6).fill(dataGrafico[0]);
+  }
+
   return {
     patrimonioTotal,
     variacao: variacaoDinamica,
+    temHistorico: meses.length > 0,
     divisao: [
       { name: "Renda variável", valor: percentualVariavel },
       { name: "Renda fixa", valor: percentualFixa },

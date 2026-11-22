@@ -217,7 +217,6 @@ export async function buscarDadosProventos() {
       const quantidade = obterQuantidadeAtivo(assetDoc);
       const valorTotalProvento = item.dividendo * quantidade;
 
-
       totalRecebido += valorTotalProvento;
 
       return {
