@@ -2,36 +2,127 @@ import { db } from "@/services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { obterUsuarioAtual } from "@/services/authService";
 
-async function buscarProventosYahoo(ticker) {
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
+const cacheProventos = new Map();
+
+const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function extrairDataYYYYMMDD(valor) {
+  if (!valor) return null;
+
+  if (typeof valor?.toDate === "function") {
+    return valor.toDate().toISOString().split("T")[0];
+  }
+
+  if (valor instanceof Date && !Number.isNaN(valor.getTime())) {
+    return valor.toISOString().split("T")[0];
+  }
+
+  const texto = String(valor).trim();
+  const matchISO = texto.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (matchISO) {
+    return matchISO[1];
+  }
+
+  return null;
+}
+
+
+function obterDataCompraMaisAntiga(dataAsset) {
+  if (!dataAsset) return null;
+
+  const datas = [];
+
+  if (Array.isArray(dataAsset.aportes)) {
+    dataAsset.aportes.forEach((ap) => {
+      const dataAp = extrairDataYYYYMMDD(ap?.purchaseDate);
+      if (dataAp) {
+        datas.push(dataAp);
+      }
+    });
+  }
+
+  const dataDoc = extrairDataYYYYMMDD(dataAsset.purchaseDate);
+  if (dataDoc) {
+    datas.push(dataDoc);
+  }
+
+  if (datas.length === 0) return null;
+
+  datas.sort();
+  return datas[0]; // Data mais antiga
+}
+
+function obterQuantidadeAtivo(assetDoc) {
+  if (!assetDoc) return 1;
+  const dataAsset = assetDoc.data();
+  let qtd = Number(dataAsset.quantity || 0);
+
+  if (qtd === 0 && Array.isArray(dataAsset.aportes)) {
+    qtd = dataAsset.aportes.reduce(
+      (acc, ap) => acc + Number(ap.quantity || 0),
+      0,
+    );
+  }
+
+  return qtd > 0 ? qtd : 1;
+}
+
+async function buscarProventosYahoo(ticker, tentativa = 1) {
+  const tickerLimpo = String(ticker || "").trim().toUpperCase();
+  if (!tickerLimpo) return [];
+
+  const tickerSemSa = tickerLimpo.replace(/\.SA$/i, "");
+  const cacheKey = tickerSemSa;
+  const cached = cacheProventos.get(cacheKey);
+
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.dados;
+  }
+
   try {
-    const tickerFormatado = ticker.endsWith(".SA") ? ticker : `${ticker}.SA`;
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${tickerFormatado}?interval=1mo&range=1y&events=div`;
+    const tickerFormatado = `${tickerSemSa}.SA`;
+    const urlYahoo = `https://query1.finance.yahoo.com/v8/finance/chart/${tickerFormatado}?interval=1mo&range=2y&events=div`;
+    const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlYahoo)}`;
 
     const response = await fetch(url);
-    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(`Erro HTTP: ${response.status}`);
+    }
 
+    const data = await response.json();
     const result = data.chart?.result?.[0];
-    if (!result || !result.events || !result.events.dividends) {
+    const dividendsObj = result?.events?.dividends;
+
+    if (!dividendsObj) {
+      cacheProventos.set(cacheKey, { timestamp: Date.now(), dados: [] });
       return [];
     }
 
-    const dividendsObj = result.events.dividends;
+    const agora = Date.now();
+    const proventos = Object.values(dividendsObj)
+      .filter((div) => Number(div.date) * 1000 <= agora)
+      .map((div) => {
+        const timestampMs = Number(div.date) * 1000;
+        const dataDividendo = new Date(timestampMs);
 
-    return Object.values(dividendsObj).map((div) => {
-      const dataDividendo = new Date(div.date * 1000);
-      const hoje = new Date();
+        return {
+          ticker: tickerSemSa,
+          data: dataDividendo.toISOString().split("T")[0],
+          dividendo: Number(div.amount || 0),
+          status: "Pago",
+        };
+      });
 
-      const statusAtual = dataDividendo > hoje ? "Provisionado" : "Pago";
-
-      return {
-        ticker: ticker.toUpperCase(),
-        data: dataDividendo.toISOString().split("T")[0],
-        dividendo: div.amount,
-        status: statusAtual,
-      };
-    });
+    cacheProventos.set(cacheKey, { timestamp: Date.now(), dados: proventos });
+    return proventos;
   } catch (error) {
-    console.error(`Erro ao buscar proventos para ${ticker}:`, error);
+    if (tentativa < 2) {
+      await esperar(600);
+      return buscarProventosYahoo(tickerSemSa, tentativa + 1);
+    }
+
+    console.error(`Erro ao buscar proventos para ${tickerSemSa}:`, error);
     return [];
   }
 }
@@ -65,16 +156,16 @@ export async function buscarDadosProventos() {
       (tipoAtivo === "variable" || tipoAtivo === "renda_variavel") &&
       asset.ticker
     ) {
-      tickersVariaveis.push(asset.ticker);
+      const tickerNormalizado = String(asset.ticker)
+        .trim()
+        .toUpperCase()
+        .replace(/\.SA$/i, "");
 
-      let qtdAtual = Number(asset.quantity || 0);
-      if (qtdAtual === 0 && asset.aportes && Array.isArray(asset.aportes)) {
-        qtdAtual = asset.aportes.reduce(
-          (acc, ap) => acc + Number(ap.quantity || 0),
-          0,
-        );
+      if (!tickersVariaveis.includes(tickerNormalizado)) {
+        tickersVariaveis.push(tickerNormalizado);
       }
 
+      const qtdAtual = obterQuantidadeAtivo(doc);
       const precoMedio = Number(asset.averagePrice || 0);
 
       const valorAtivo = Number(
@@ -87,48 +178,67 @@ export async function buscarDadosProventos() {
     }
   });
 
-  const promessasProventos = tickersVariaveis.map((ticker) =>
-    buscarProventosYahoo(ticker),
-  );
-  const resultadosPorAtivo = await Promise.all(promessasProventos);
+  const resultadosPorAtivo = [];
+  for (let i = 0; i < tickersVariaveis.length; i++) {
+    const dadosAtivo = await buscarProventosYahoo(tickersVariaveis[i]);
+    resultadosPorAtivo.push(dadosAtivo);
 
-  const proventosDocs = resultadosPorAtivo.flat();
+    if (i < tickersVariaveis.length - 1) {
+      await esperar(350);
+    }
+  }
 
-  let totalRecebido = 0;
-  const listaProventosFormatada = proventosDocs.map((item) => {
-    const assetDoc = assetsSnapshot.docs.find(
-      (doc) => doc.data().ticker?.toUpperCase() === item.ticker,
+  const encontrarAssetDoc = (tickerAlvo) =>
+    assetsSnapshot.docs.find(
+      (doc) =>
+        String(doc.data().ticker || "")
+          .trim()
+          .toUpperCase()
+          .replace(/\.SA$/i, "") === tickerAlvo,
     );
 
-    let quantidade = 1;
-    if (assetDoc) {
-      const dataAsset = assetDoc.data();
-      quantidade = Number(dataAsset.quantity || 0);
-      if (
-        quantidade === 0 &&
-        dataAsset.aportes &&
-        Array.isArray(dataAsset.aportes)
-      ) {
-        quantidade = dataAsset.aportes.reduce(
-          (acc, ap) => acc + Number(ap.quantity || 0),
-          0,
-        );
-      }
-      if (quantidade <= 0) quantidade = 1;
-    }
+  const hoje = new Date();
+  const doisAnosAtras = new Date(
+    hoje.getFullYear() - 2,
+    hoje.getMonth(),
+    hoje.getDate(),
+  );
+  const dataLimite2Anos = doisAnosAtras.toISOString().split("T")[0];
 
-    const valorTotalProvento = item.dividendo * quantidade;
-    totalRecebido += valorTotalProvento;
+  const proventosDocs = resultadosPorAtivo.flat().filter((item) => {
+    if (!item.data) return false;
 
-    return {
-      id: `${item.ticker}-${item.data}`,
-      ticker: item.ticker,
-      data: item.data,
-      dividendo: `R$ ${valorTotalProvento.toFixed(2).replace(".", ",")}`,
-      status: item.status,
-      rawValor: valorTotalProvento,
-    };
+    const assetDoc = encontrarAssetDoc(item.ticker);
+    const dataMaisAntiga = obterDataCompraMaisAntiga(assetDoc?.data());
+
+    const dataMinima =
+      dataMaisAntiga && dataMaisAntiga > dataLimite2Anos
+        ? dataMaisAntiga
+        : dataLimite2Anos;
+
+    return item.data >= dataMinima;
   });
+
+  let totalRecebido = 0;
+  const listaProventosFormatada = proventosDocs
+    .map((item) => {
+      const assetDoc = encontrarAssetDoc(item.ticker);
+      const quantidade = obterQuantidadeAtivo(assetDoc);
+      const valorTotalProvento = item.dividendo * quantidade;
+
+      
+      totalRecebido += valorTotalProvento;
+
+      return {
+        id: `${item.ticker}-${item.data}`,
+        ticker: item.ticker,
+        data: item.data,
+        dividendo: `R$ ${valorTotalProvento.toFixed(2).replace(".", ",")}`,
+        status: "Pago",
+        rawValor: valorTotalProvento,
+      };
+    })
+    .sort((a, b) => b.data.localeCompare(a.data));
 
   let dyMedio = 0;
   if (patrimonioVariavel > 0) {
@@ -136,7 +246,6 @@ export async function buscarDadosProventos() {
   }
 
   const ultimos12MesesChaves = [];
-  const hoje = new Date();
 
   for (let i = 11; i >= 0; i--) {
     const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
@@ -149,27 +258,8 @@ export async function buscarDadosProventos() {
     return proventosDocs
       .filter((item) => item.data && item.data.substring(0, 7) === mesChave)
       .reduce((soma, item) => {
-        const assetDoc = assetsSnapshot.docs.find(
-          (doc) => doc.data().ticker?.toUpperCase() === item.ticker,
-        );
-
-        let qtd = 1;
-        if (assetDoc) {
-          const dataAsset = assetDoc.data();
-          qtd = Number(dataAsset.quantity || 0);
-          if (
-            qtd === 0 &&
-            dataAsset.aportes &&
-            Array.isArray(dataAsset.aportes)
-          ) {
-            qtd = dataAsset.aportes.reduce(
-              (acc, ap) => acc + Number(ap.quantity || 0),
-              0,
-            );
-          }
-          if (qtd <= 0) qtd = 1;
-        }
-
+        const assetDoc = encontrarAssetDoc(item.ticker);
+        const qtd = obterQuantidadeAtivo(assetDoc);
         return soma + item.dividendo * qtd;
       }, 0);
   });

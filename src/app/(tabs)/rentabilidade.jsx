@@ -76,16 +76,16 @@ function GraficoRentabilidade({ meses }) {
             <BarChart
               data={dadosBarras}
               width={largura}
-              height={110}
+              height={100}
               barWidth={8}
               initialSpacing={folga / 4}
               endSpacing={0}
               yAxisLabelWidth={0}
               barBorderRadius={2}
-              maxValue={3}
-              mostNegativeValue={-2}
+              maxValue={6}eueu
+              mostNegativeValue={-12}
               noOfSections={3}
-              noOfSectionsBelowXAxis={2}
+              noOfSectionsBelowXAxis={5}
               hideRules
               hideYAxisText
               yAxisThickness={0}
