@@ -71,9 +71,7 @@ export async function buscarCotacoesAtuais(tickers = []) {
       if (typeof info?.preco === "number") {
         mapaCotacoes[t] = info.preco;
       }
-    } catch (_e) {
-      
-    }
+    } catch (_e) {}
   }
   return mapaCotacoes;
 }

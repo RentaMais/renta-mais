@@ -19,6 +19,7 @@ import {
   validarDataNaoPassada,
   validarQuantidadeVenda,
   validarValorPositivo,
+  validarValorLimitado,
 } from "@/utils/validacoesAtivos";
 import { textoParaData } from "@/utils/formatarData";
 
@@ -116,13 +117,9 @@ export function useNovoAtivo({ onSucesso }) {
   const [erro, setErro] = useState("");
   const [cdiAnual, setCdiAnual] = useState(0);
 
-
   // Renda Fixa
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
-  const [indexador, setIndexador] = useState("Selic");
-  const [indexadorAberto, setIndexadorAberto] = useState(false);
-  const [taxa, setTaxa] = useState("");
   const [vencimento, setVencimento] = useState("");
 
   // Renda Variável
@@ -202,10 +199,6 @@ export function useNovoAtivo({ onSucesso }) {
       if (!checkValorFixa.valido) {
         return;
       }
-      if (!taxa.trim()) {
-        setErro("Informe a taxa de rentabilidade.");
-        return;
-      }
       if (!checkVencimento.valido) {
         return;
       }
@@ -267,13 +260,6 @@ export function useNovoAtivo({ onSucesso }) {
         checkValorFixa,
       ),
       alertaValor: mostrarErroValorFixa ? checkValorFixa.erro : "",
-      indexador,
-      setIndexador,
-      indexadorAberto,
-      setIndexadorAberto,
-      taxa,
-      setTaxa,
-      estadoTaxa: tentouEnviar && !taxa.trim() ? "erro" : "padrao",
       vencimento,
       setVencimento,
       estadoVencimento: resolverEstadoCampo(
@@ -281,6 +267,7 @@ export function useNovoAtivo({ onSucesso }) {
         checkVencimento,
       ),
       alertaVencimento: mostrarErroVencimento ? checkVencimento.erro : "",
+      rendimentoEstimado,
     },
     rendaVariavel: {
       ticker,
@@ -470,9 +457,9 @@ export function useOperacaoAtivo(id, { onSucesso }) {
       alertaData: mostrarErroDataResgate ? checkDataResgate.erro : "",
       antecipado,
       vencimento: ativo ? ativo.vencimento : "",
-      remdimento,
+      rendimento,
       valorResgate,
-      valorInicial: ativo ? ativo.valorInicial:0,
+      valorInicial: ativo ? ativo.valorInicial : 0,
     },
   };
 }

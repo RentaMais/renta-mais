@@ -96,7 +96,6 @@ export function validarValorPositivo(valorTexto = "", rotulo = "valor") {
       valor: valor,
     };
   }
-
   return { valido: true, erro: "", valor };
 }
 
@@ -120,7 +119,6 @@ export function validarDataBR(dataTexto = "") {
   if (!dataValida) {
     return { valido: false, erro: "Informe uma data válida." };
   }
-
   return { valido: true, erro: "" };
 }
 

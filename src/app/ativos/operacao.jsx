@@ -24,18 +24,12 @@ function FormularioResgate({ dados }) {
           estado={dados.estadoData}
         />
         {dados.alertaData ? (
-          <Text className="text-erro font-corpo text-xs mt-1.5">
+          <Text className="mt-1.5 font-corpo text-xs text-erro">
             {dados.alertaData}
           </Text>
         ) : null}
       </View>
-      {dados.antecipado ? (
-        <AvisoCustomer
-          mensagem={
-            "Resgate antes do vencimento (" + dados.vencimento + "): o título não rende. "
-          }
-        />
-      ) : null}
+
       <View className="flex-row items-start gap-3 rounded-2xl border border-primaria/40 bg-primaria/20 p-4">
         <InfoIcon size={22} color={cores.primaria} />
         <View className="flex-1 gap-1">
@@ -56,6 +50,14 @@ function FormularioResgate({ dados }) {
           <Text className="font-corpo-medium text-sm text-primaria">
             {"Valor inicial: " + formatarMoeda(dados.valorInicial)}
           </Text>
+
+          {dados.antecipado ? (
+            <Text className="mt-1 font-corpo-bold text-xs text-negativo">
+              {"Resgate antes do vencimento (" +
+                dados.vencimento +
+                "): o título não rende."}
+            </Text>
+          ) : null}
         </View>
       </View>
     </View>

@@ -74,5 +74,4 @@ describe("cálculos de operação", () => {
     });
     expect(res).toEqual({ valorVenda: 400, lucro: 50 });
   });
-
 });

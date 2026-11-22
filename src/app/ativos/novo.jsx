@@ -1,7 +1,5 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text } from "react-native";
 import { useRouter } from "expo-router";
-import { CaretDownIcon, CaretUpIcon } from "phosphor-react-native";
-
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { InputCustomer } from "@/components/InputCustomer";
@@ -11,9 +9,6 @@ import { SeletorRenda } from "@/components/SeletorRenda";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { useNovoAtivo } from "@/hooks/useAtivos";
 import { formatarMoeda } from "@/utils/formatarMoeda";
-import { cores } from "@/cores";
-
-const OPCOES_INDEXADOR = ["Selic", "CDI", "IPCA", "Prefixado"];
 
 function FormularioRendaFixa({ dados }) {
   return (
@@ -34,6 +29,7 @@ function FormularioRendaFixa({ dados }) {
           onChangeText={dados.setValor}
           keyboardType="decimal-pad"
           estado={dados.estadoValor}
+          maxLength={12}
         />
         {dados.alertaValor ? (
           <Text className="text-erro font-corpo text-xs mt-1.5">
@@ -42,54 +38,20 @@ function FormularioRendaFixa({ dados }) {
         ) : null}
       </View>
 
-      <View className="flex-row items-start gap-3">
-        <View className="flex-1 gap-1">
+      <View className="flex-row gap-3">
+        <View className="flex-1 gap-2">
           <Text className="font-corpo-bold text-base text-texto">
             Indexador
           </Text>
-          <Pressable
-            onPress={() => dados.setIndexadorAberto(!dados.indexadorAberto)}
-            className="h-12 flex-row items-center justify-between rounded-2xl border border-texto/20 bg-white px-4"
-          >
-            <Text className="font-corpo text-base text-texto">
-              {dados.indexador}
-            </Text>
-            {dados.indexadorAberto ? (
-              <CaretUpIcon size={18} color={cores.texto} />
-            ) : (
-              <CaretDownIcon size={18} color={cores.texto} />
-            )}
-          </Pressable>
-          {dados.indexadorAberto &&
-            OPCOES_INDEXADOR.map((opcao) => (
-              <Pressable
-                key={opcao}
-                onPress={() => {
-                  dados.setIndexador(opcao);
-                  dados.setIndexadorAberto(false);
-                }}
-                className="rounded-2xl border-texto/10 bg-container px-4 py-3"
-              >
-                <Text
-                  className={
-                    opcao === dados.indexador
-                      ? "font-corpo-bold text-base text-texto"
-                      : "font-corpo text-base text-texto"
-                  }
-                >
-                  {opcao}
-                </Text>
-              </Pressable>
-            ))}
+          <View className="h-12 justify-center rounded-2xl border border-texto/20 bg-texto/5 px-4">
+            <Text className="font-corpo text-base text-texto">CDI</Text>
+          </View>
         </View>
-        <View className="flex-1">
-          <InputCustomer
-            titulo="Taxa"
-            placeholder="100 %"
-            value={dados.taxa}
-            onChangeText={dados.setTaxa}
-            estado={dados.estadoTaxa}
-          />
+        <View className="flex-1 gap-2">
+          <Text className="font-corpo-bold text-base text-texto">Taxa</Text>
+          <View className="h-12 justify-center rounded-2xl border border-texto/20 bg-texto/5 px-4">
+            <Text className="font-corpo text-base text-texto">100 %</Text>
+          </View>
         </View>
       </View>
 
@@ -139,6 +101,7 @@ function FormularioRendaVariavel({ dados }) {
               onChangeText={dados.setQuantidade}
               keyboardType="decimal-pad"
               estado={dados.estadoQuantidade}
+              maxLength={10}
             />
           </View>
           <View className="flex-1">
@@ -149,6 +112,7 @@ function FormularioRendaVariavel({ dados }) {
               onChangeText={dados.setPrecoMedio}
               keyboardType="decimal-pad"
               estado={dados.estadoPreco}
+              maxLength={12}
             />
           </View>
         </View>
