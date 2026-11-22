@@ -117,8 +117,6 @@ export function useNovoAtivo({ onSucesso }) {
   // Renda Fixa
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
-  const [indexador, setIndexador] = useState("Selic");
-  const [indexadorAberto, setIndexadorAberto] = useState(false);
   const [taxa, setTaxa] = useState("");
   const [vencimento, setVencimento] = useState("");
 
@@ -156,6 +154,7 @@ export function useNovoAtivo({ onSucesso }) {
     (checkPrecoMedio.valido ? checkPrecoMedio.valor : 0);
 
   function trocarTipoRenda(tipo) {
+    const taxaNumero = parseFloat(taxa.replace(",", "."));
     setTipoRenda(tipo);
     setTentouEnviar(false);
     setErro("");
@@ -173,8 +172,8 @@ export function useNovoAtivo({ onSucesso }) {
       if (!checkValorFixa.valido) {
         return;
       }
-      if (!taxa.trim()) {
-        setErro("Informe a taxa de rentabilidade.");
+      if (!(taxaNumero > 0)) {
+        setErro("Informe uma taxa maior que 0.");
         return;
       }
       if (!checkVencimento.valido) {
@@ -202,8 +201,7 @@ export function useNovoAtivo({ onSucesso }) {
         await criarRendaFixa({
           nome,
           valor: checkValorFixa.valor,
-          indexador,
-          taxa,
+          taxa: taxaNumero,
           vencimento,
         });
       } else {
@@ -239,13 +237,12 @@ export function useNovoAtivo({ onSucesso }) {
         checkValorFixa,
       ),
       alertaValor: mostrarErroValorFixa ? checkValorFixa.erro : "",
-      indexador,
-      setIndexador,
-      indexadorAberto,
-      setIndexadorAberto,
       taxa,
       setTaxa,
-      estadoTaxa: tentouEnviar && !taxa.trim() ? "erro" : "padrao",
+      estadoTaxa:
+        tentouEnviar && !(parseFloat(taxa.replace(",", ".")) > 0)
+          ? "erro"
+          : "padrao",
       vencimento,
       setVencimento,
       estadoVencimento: resolverEstadoCampo(

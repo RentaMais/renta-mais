@@ -55,7 +55,7 @@ export async function criarRendaFixa(dados) {
   await addDoc(colecaoAtivos(), {
     type: "fixed",
     name: dados.nome.trim(),
-    category: dados.indexador,
+    category: "CDI",
     rate: dados.taxa.trim(),
     dueDate: dataParaBanco(dados.vencimento),
     totalInvested: valor,
