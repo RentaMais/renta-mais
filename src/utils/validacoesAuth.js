@@ -26,6 +26,7 @@ export const REQUISITOS_SENHA = [
   },
 ];
 
+// Verifica quais critérios a senha atende e classifica sua força
 export function avaliarRequisitosSenha(senha = "") {
   const itens = REQUISITOS_SENHA.map((req) => ({
     id: req.id,
@@ -36,18 +37,19 @@ export function avaliarRequisitosSenha(senha = "") {
   const atendidos = itens.filter((item) => item.atendido).length;
   const total = itens.length;
   const tamanhoMaximoOk = senha.length <= 64;
-  const valida = atendidos === total && tamanhoMaximoOk;
+  const ehSenhaValida = atendidos === total && tamanhoMaximoOk;
 
   let forca = "fraca";
-  if (valida) {
+  if (ehSenhaValida) {
     forca = "forte";
   } else if (atendidos >= 3 && senha.length >= 8) {
     forca = "media";
   }
 
-  return { itens, atendidos, total, valida, forca };
+  return { itens, atendidos, total, ehSenhaValida, forca };
 }
 
+// Valida se a senha respeita o limite de 64 caracteres e todos os requisitos
 export function validarSenhaForte(senha = "") {
   if (senha.length > 64) {
     return {
@@ -68,6 +70,7 @@ export function validarSenhaForte(senha = "") {
   return { valida: true, erro: "" };
 }
 
+// Verifica se a confirmação foi preenchida e bate com a senha digitada
 export function validarConfirmacaoSenha(senha = "", confirmarSenha = "") {
   if (!confirmarSenha) {
     return { valida: false, erro: "Confirme sua senha." };
@@ -80,6 +83,7 @@ export function validarConfirmacaoSenha(senha = "", confirmarSenha = "") {
 
 const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+// Valida se o e-mail foi informado e possui formato válido
 export function validarEmail(email = "") {
   const emailLimpo = email.trim();
   if (!emailLimpo) {

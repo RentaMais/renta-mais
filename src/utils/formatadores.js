@@ -1,4 +1,4 @@
-// Recebe valor e formata para moeda em Reais
+// Formata um número como moeda brasileira (ex: R$ 1.250,00)
 export function formatarMoeda(valor) {
   const numero = Number(valor) || 0;
 
@@ -8,8 +8,7 @@ export function formatarMoeda(valor) {
   }).format(numero);
 }
 
-// Recebe valor e formata em Milhares
-// ex.: 18.500 => 18.5K
+// Abrevia valores a partir de mil usando o sufixo "K" (ex: 1,5K)
 export function formatarMil(valor) {
   const numero = Number(valor) || 0;
   if (Math.abs(numero) >= 1000) {
@@ -19,14 +18,10 @@ export function formatarMil(valor) {
   return String(Math.round(numero));
 }
 
-export function formatarPercentual(
-  valor,
-  casas = 1,
-  { comSinal = false } = {},
-) {
+// Formata um número como percentual em pt-BR
+export function formatarPercentual(valor, casas = 1) {
   const numero = Number(valor) || 0;
-  const prefixo = comSinal && numero > 0 ? "+" : "";
-  return `${prefixo}${numero.toFixed(casas).replace(".", ",")}%`;
+  return `${numero.toFixed(casas).replace(".", ",")}%`;
 }
 
 // Recebe data no formato brasileiro (DD/MM/YYYY)
@@ -43,7 +38,8 @@ export function dataParaBR(dataBanco) {
   return partes[2] + "/" + partes[1] + "/" + partes[0];
 }
 
-// Verifica se a data é valida
+// Converte uma string "dd/mm/aaaa"
+// em objeto Date ou retorna null se inválida
 export function textoParaData(texto) {
   if (typeof texto !== "string" || texto.length !== 10) {
     return null;
@@ -64,7 +60,8 @@ export function textoParaData(texto) {
   return data;
 }
 
-// Evita deslocamento de 1 dia por UTC ao ler datas "YYYY-MM-DD" (tratar valores da API)
+// Evita deslocamento de 1 dia por UTC ao ler
+// datas "YYYY-MM-DD" (tratar valores da API)
 export function parseDataLocal(dataStr) {
   const texto = String(dataStr || "").trim();
   const matchISO = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);

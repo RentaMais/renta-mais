@@ -3,12 +3,14 @@ import { textoParaData } from "@/utils/formatadores";
 const REGEX_NUMERO_BR = /^-?\d+([.,]\d*)?$/;
 const REGEX_DATA_BR = /^(\d{2})\/(\d{2})\/(\d{4})$/;
 
+// Retorna a data atual com horário zerado para comparações apenas por dia
 function hojeSemHora() {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
   return hoje;
 }
 
+// Valida se a data está no formato dd/mm/aaaa e não é anterior a hoje
 export function validarDataNaoPassada(texto, rotulo) {
   const data = textoParaData(texto);
   if (!data) {
@@ -20,6 +22,7 @@ export function validarDataNaoPassada(texto, rotulo) {
   return { valido: true, erro: "" };
 }
 
+// Valida se a data está no formato dd/mm/aaaa e não é posterior a hoje
 export function validarDataNaoFutura(texto, rotulo) {
   const data = textoParaData(texto);
   if (!data) {
@@ -31,6 +34,7 @@ export function validarDataNaoFutura(texto, rotulo) {
   return { valido: true, erro: "" };
 }
 
+// Converte texto numérico com vírgula ou ponto decimal em Number (ou NaN)
 export function parseNumeroBR(texto = "") {
   const limpo = String(texto ?? "").trim();
   if (!limpo) return NaN;
@@ -44,11 +48,14 @@ export function parseNumeroBR(texto = "") {
   return Number(normalizado);
 }
 
+// Formata um número para exibir nos inputs com vírgula decimal
 export function formatarNumeroInput(numero, casasDecimais = 2) {
   if (typeof numero !== "number" || !Number.isFinite(numero)) return "";
   return numero.toFixed(casasDecimais).replace(".", ",");
 }
 
+// Valida se a quantidade informada para venda
+// é positiva e não é maior que a quantidade total
 export function validarQuantidadeVenda(
   valorTexto = "",
   quantidadeDisponivel = 0,
@@ -82,6 +89,7 @@ export function validarQuantidadeVenda(
   return { valido: true, erro: "", valor: quantidade };
 }
 
+// Valida se o texto representa é um número maior que 0
 export function validarValorPositivo(valorTexto = "", rotulo = "valor") {
   const texto = String(valorTexto ?? "").trim();
   if (!texto) {
@@ -99,6 +107,7 @@ export function validarValorPositivo(valorTexto = "", rotulo = "valor") {
   return { valido: true, erro: "", valor };
 }
 
+// Verifica se o texto é uma data existente no formato dd/mm/aaaa
 export function validarDataBR(dataTexto = "") {
   const texto = String(dataTexto ?? "").trim();
   const match = REGEX_DATA_BR.exec(texto);
@@ -122,6 +131,7 @@ export function validarDataBR(dataTexto = "") {
   return { valido: true, erro: "" };
 }
 
+// Calcula o valor total e o lucro ou prejuízo estimado de uma operação de venda
 export function calcularResumoVenda({ quantidade, precoVenda, precoMedio }) {
   const qtdValida =
     Number.isFinite(quantidade) && quantidade > 0 ? quantidade : 0;

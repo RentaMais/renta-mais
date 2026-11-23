@@ -1,5 +1,6 @@
 import { formatarMoeda, dataParaBR } from "@/utils/formatadores";
 
+// Converte o dado bruto do banco para o formato usado nas telas de ativos
 export function converterAtivo(id, dados) {
   if (dados.type === "variable") {
     let quantidade = Number(dados.quantity || 0);
@@ -47,6 +48,7 @@ export function converterAtivo(id, dados) {
   };
 }
 
+// Separa os ativos por tipo e calcula o total investido e o saldo atual
 export function resumirCarteira(ativos = []) {
   const variaveis = ativos.filter((ativo) => ativo.tipo === "renda_variavel");
   const fixos = ativos.filter((ativo) => ativo.tipo === "renda_fixa");
@@ -68,6 +70,7 @@ export function resumirCarteira(ativos = []) {
   return { variaveis, fixos, totalInvestido, totalAtual };
 }
 
+// Monta a lista de rótulos e valores exibidos na tela de detalhes do ativo
 export function montarDetalhesAtivo(ativo) {
   if (!ativo) return [];
 
