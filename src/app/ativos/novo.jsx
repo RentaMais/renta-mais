@@ -8,7 +8,7 @@ import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { SeletorRenda } from "@/components/SeletorRenda";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { useNovoAtivo } from "@/hooks/useAtivos";
-import { formatarMoeda } from "@/utils/formatarMoeda";
+import { formatarMoeda } from "@/utils/formatadores";
 
 function FormularioRendaFixa({ dados }) {
   return (

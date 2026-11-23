@@ -50,7 +50,7 @@ export function useCadastro({ onSucesso }) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [confirmarSenha, setConfirmaSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
   const [tentouEnviar, setTentouEnviar] = useState(false);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
@@ -122,7 +122,7 @@ export function useCadastro({ onSucesso }) {
     senha,
     setSenha,
     confirmarSenha,
-    setConfirmaSenha,
+    setConfirmarSenha,
     estadoEmail,
     estadoSenha,
     estadoConfirmar,

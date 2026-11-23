@@ -2,14 +2,17 @@ import { useState, useCallback } from "react";
 import { Text, View, FlatList, ActivityIndicator } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { BarChart } from "react-native-chart-kit";
-
 import { TelaCustomer } from "@/components/TelaCustomer";
-import { CardCustomer } from "@/components/CardCustomer";
 import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
+import { CardCustomer } from "@/components/CardCustomer";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
-
-import { cores } from "@/cores";
 import { buscarDadosProventos } from "@/services/proventosService";
+import {
+  dataParaBR,
+  formatarMoeda,
+  formatarPercentual,
+} from "@/utils/formatadores";
+import { cores } from "@/cores";
 
 const QTD_MESES = 12;
 const MESES = [
@@ -134,7 +137,7 @@ export default function ProventosScreen() {
             setListaProventos(dados.listaProventos);
           }
         } catch (error) {
-          console.error("Erro ao carregar dados de proventos:", error);
+          console.warn("Erro ao carregar dados de proventos:", error);
         } finally {
           if (isMounted) setLoading(false);
         }
@@ -163,9 +166,7 @@ export default function ProventosScreen() {
             Total recebido
           </Text>
           <Text className="font-titulo text-xl text-container">
-            {loading
-              ? "..."
-              : `R$ ${totalRecebido.toFixed(2).replace(".", ",")}`}
+            {loading ? "..." : formatarMoeda(totalRecebido)}
           </Text>
         </View>
         <View className="flex-1 items-center">
@@ -173,7 +174,7 @@ export default function ProventosScreen() {
             DY médio
           </Text>
           <Text className="font-titulo text-xl text-container">
-            {loading ? "..." : `${dyMedio.toFixed(1).replace(".", ",")}%`}
+            {loading ? "..." : formatarPercentual(dyMedio)}
           </Text>
         </View>
       </View>
@@ -219,7 +220,7 @@ export default function ProventosScreen() {
                   {item.ticker}
                 </Text>
                 <Text className="font-corpo text-sm text-subtexto">
-                  {item.data}
+                  {dataParaBR(item.data)}
                 </Text>
               </View>
               <View className="items-end gap-1">

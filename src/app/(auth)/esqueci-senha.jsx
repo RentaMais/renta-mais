@@ -1,6 +1,5 @@
 import { Text, View } from "react-native";
 import { LockSimpleIcon } from "phosphor-react-native";
-
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";

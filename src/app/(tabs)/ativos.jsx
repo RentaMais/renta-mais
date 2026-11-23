@@ -15,7 +15,7 @@ import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { LogoAtivo } from "@/components/LogoAtivo";
 import { VariacaoCustomer } from "@/components/VariacaoCustomer";
 import { useCarteiraAtivos } from "@/hooks/useAtivos";
-import { formatarMoeda } from "@/utils/formatarMoeda";
+import { formatarMoeda } from "@/utils/formatadores";
 import { cores } from "@/cores";
 
 export default function AtivoScreen() {

@@ -2,9 +2,9 @@ import { Text, View, Pressable } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { WarningIcon, Eye, EyeSlash } from "phosphor-react-native";
-
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
+import { TelaCustomer } from "@/components/TelaCustomer";
 import { InputCustomer } from "@/components/InputCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
@@ -33,7 +33,7 @@ export default function ExcluirContaScreen() {
   });
 
   return (
-    <View className="flex-1 items-center justify-center bg-fundo">
+    <TelaCustomer>
       <View className="w-[85vw]">
         <VoltarCustomer />
         <IconeCustomer icone={WarningIcon} tipo="bold" className="mb-4" />
@@ -111,6 +111,6 @@ export default function ExcluirContaScreen() {
           disabled={carregando}
         />
       </View>
-    </View>
+    </TelaCustomer>
   );
 }

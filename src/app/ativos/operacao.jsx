@@ -1,16 +1,14 @@
 import { View, Text } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { InfoIcon } from "phosphor-react-native";
-
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CabecalhoAtivo } from "@/components/CabecalhoAtivo";
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { useOperacaoAtivo } from "@/hooks/useAtivos";
-import { formatarMoeda } from "@/utils/formatarMoeda";
+import { formatarMoeda } from "@/utils/formatadores";
 import { cores } from "@/cores";
-import { AvisoCustomer } from "@/components/AvisoCustomer";
 
 function FormularioResgate({ dados }) {
   return (

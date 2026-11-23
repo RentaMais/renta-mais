@@ -5,9 +5,8 @@ import { BarChart } from "react-native-gifted-charts";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CardCustomer } from "@/components/CardCustomer";
 import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
-import { formatarPercentual } from "@/utils/formatarPercentual";
 import { buscarDadosRentabilidade } from "@/services/rentabilidadeService";
-
+import { formatarPercentual } from "@/utils/formatadores";
 import { cores } from "@/cores";
 
 const series = [
@@ -83,7 +82,6 @@ function GraficoRentabilidade({ meses }) {
               yAxisLabelWidth={0}
               barBorderRadius={2}
               maxValue={6}
-              eueu
               mostNegativeValue={-12}
               noOfSections={3}
               noOfSectionsBelowXAxis={5}
@@ -143,7 +141,7 @@ export default function RentabilidadeScreen() {
           const resultado = await buscarDadosRentabilidade();
           setDadosRentabilidade(resultado);
         } catch (erro) {
-          console.error("Erro ao carregar dados de rentabilidade:", erro);
+          console.warn("Erro ao carregar dados de rentabilidade:", erro);
         }
       }
       carregarDados();

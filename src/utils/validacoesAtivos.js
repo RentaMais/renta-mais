@@ -1,4 +1,4 @@
-import { textoParaData } from "./formatarData";
+import { textoParaData } from "@/utils/formatadores";
 
 const REGEX_NUMERO_BR = /^-?\d+([.,]\d*)?$/;
 const REGEX_DATA_BR = /^(\d{2})\/(\d{2})\/(\d{4})$/;

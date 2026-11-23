@@ -13,7 +13,7 @@ import {
   buscarCotacoesAtuais,
   buscarInfoTicker,
 } from "@/services/cotacoesService";
-import { dataParaBanco } from "@/utils/formatarData";
+import { dataParaBanco } from "@/utils/formatadores";
 import { converterAtivo } from "@/utils/converterAtivo";
 
 function colecaoAtivos() {
@@ -69,7 +69,12 @@ export async function criarRendaVariavel(dados) {
   const quantidadeNova = Number(dados.quantidade);
   const precoNovo = Number(dados.precoMedio);
 
-  if (quantidadeNova <= 0 || precoNovo <= 0) {
+  if (
+    !Number.isFinite(quantidadeNova) ||
+    quantidadeNova <= 0 ||
+    !Number.isFinite(precoNovo) ||
+    precoNovo <= 0
+  ) {
     throw new Error("Quantidade e preço médio devem ser maiores que zero.");
   }
 
@@ -166,10 +171,10 @@ export async function atualizarCotacoesCarteira(listaAtivos) {
 }
 
 export async function venderAtivo(id, quantidade, precoVenda, dataVenda) {
-  if (quantidade <= 0) {
+  if (!Number.isFinite(quantidade) || quantidade <= 0) {
     throw new Error("A quantidade deve ser maior que zero.");
   }
-  if (precoVenda <= 0) {
+  if (!Number.isFinite(precoVenda) || precoVenda <= 0) {
     throw new Error("O preço de venda deve ser maior que zero.");
   }
 

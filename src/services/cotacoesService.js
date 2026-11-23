@@ -2,6 +2,7 @@ import {
   lerCache,
   obterComCache,
   periodoDiario,
+  salvarCache,
 } from "@/services/cacheService";
 
 const TOKEN = process.env.EXPO_PUBLIC_BRAPI_TOKEN;
@@ -65,11 +66,24 @@ export async function buscarCotacoesAtuais(tickers = []) {
     }),
   );
 
-  for (const t of faltando) {
+  if (faltando.length > 0) {
     try {
-      const info = await buscarInfoTicker(t);
-      if (typeof info?.preco === "number") {
-        mapaCotacoes[t] = info.preco;
+      const resposta = await fetch(montarUrlQuote(faltando.join(",")));
+      if (resposta.ok) {
+        const dados = await resposta.json();
+        for (const item of dados?.results ?? []) {
+          const symbol = String(item?.symbol ?? "")
+            .trim()
+            .toUpperCase();
+          if (symbol && typeof item.regularMarketPrice === "number") {
+            mapaCotacoes[symbol] = item.regularMarketPrice;
+            await salvarCache(`quote_${symbol}`, periodo, {
+              price: item.regularMarketPrice,
+              logoUrl: item.logourl || "",
+              name: item.shortName || symbol,
+            });
+          }
+        }
       }
     } catch (_e) {}
   }
@@ -77,9 +91,14 @@ export async function buscarCotacoesAtuais(tickers = []) {
 }
 
 export async function buscarCdiAnual() {
-  const url =
-    "https://api.bcb.gov.br/dados/serie/bcdata.sgs.4389/dados/ultimos/1?formato=json";
-  const resposta = await fetch(url);
-  const dados = await resposta.json();
-  return Number(dados[0].valor);
+  const valor = await obterComCache("cdi_anual", periodoDiario(), async () => {
+    const url =
+      "https://api.bcb.gov.br/dados/serie/bcdata.sgs.4389/dados/ultimos/1?formato=json";
+    const resposta = await fetch(url);
+    if (!resposta.ok) return null;
+    const dados = await resposta.json();
+    const numero = Number(dados?.[0]?.valor);
+    return Number.isFinite(numero) ? numero : null;
+  });
+  return valor ?? 0;
 }

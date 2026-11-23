@@ -34,7 +34,7 @@ describe("converterAtivo", () => {
     });
 
     expect(ativo.tipo).toBe("renda_fixa");
-    expect(ativo.taxa).toBe("100% Selic");
+    expect(ativo.taxa).toBe("100% do CDI");
     expect(ativo.vencimento).toBe("01/03/2029");
     expect(ativo.totalInvestido).toBe(5000);
   });

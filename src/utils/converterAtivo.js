@@ -1,5 +1,4 @@
-import { formatarMoeda } from "@/utils/formatarMoeda";
-import { dataParaBR } from "@/utils/formatarData";
+import { formatarMoeda, dataParaBR } from "@/utils/formatadores";
 
 export function converterAtivo(id, dados) {
   if (dados.type === "variable") {
@@ -34,10 +33,6 @@ export function converterAtivo(id, dados) {
       totalInvestido,
     };
   }
-
-  const taxaTexto = dados.category
-    ? `${dados.rate} ${dados.category}`
-    : `${dados.rate}`;
 
   return {
     id,

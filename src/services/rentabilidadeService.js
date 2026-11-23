@@ -2,6 +2,7 @@ import { db } from "@/services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { obterUsuarioAtual } from "@/services/authService";
 import { obterComCache, periodoMensal } from "@/services/cacheService";
+import { formatarPercentual } from "@/utils/formatadores";
 
 const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -32,7 +33,7 @@ async function buscarCDIBancoCentral() {
     if (!Array.isArray(data) || data.length === 0) return null;
     return data.map((c) => ({ date: c.data, value: c.valor }));
   } catch (error) {
-    console.error("Erro ao buscar CDI do Banco Central:", error);
+    console.warn("Erro ao buscar CDI do Banco Central:", error);
     return null;
   }
 }
@@ -136,7 +137,7 @@ async function obterIbovespa() {
 export async function buscarDadosRentabilidade() {
   const user = obterUsuarioAtual();
   if (!user) {
-    throw new Error("Utilizador não autenticado.");
+    throw new Error("Usuário não autenticado.");
   }
 
   const assetsRef = collection(db, "users", user.uid, "assets");
@@ -149,7 +150,7 @@ export async function buscarDadosRentabilidade() {
 
   if (snapshotAtivos.empty) {
     return {
-      textoDescritivo: "Sem ativos registados",
+      textoDescritivo: "Sem ativos registrados",
       meses: [],
     };
   }
@@ -313,12 +314,13 @@ export async function buscarDadosRentabilidade() {
   const mesesComPosicao = periodoAvaliado.filter((m) => m.comPosicao).length;
 
   let textoDescritivo = "";
+  const rendimentoPercentual = formatarPercentual(rendimentoAcumulado, 2);
   if (mesesComPosicao === 0 || mesesComPosicao === periodoAvaliado.length) {
-    textoDescritivo = `Rendeu ${rendimentoAcumulado.toFixed(2).replace(".", ",")}% no período`;
+    textoDescritivo = `Rendeu ${rendimentoPercentual} no período`;
   } else if (mesesComPosicao === 1) {
-    textoDescritivo = `Rendeu ${rendimentoAcumulado.toFixed(2).replace(".", ",")}% em 1 mês`;
+    textoDescritivo = `Rendeu ${rendimentoPercentual} em 1 mês`;
   } else {
-    textoDescritivo = `Rendeu ${rendimentoAcumulado.toFixed(2).replace(".", ",")}% em ${mesesComPosicao} meses`;
+    textoDescritivo = `Rendeu ${rendimentoPercentual} em ${mesesComPosicao} meses`;
   }
 
   return {

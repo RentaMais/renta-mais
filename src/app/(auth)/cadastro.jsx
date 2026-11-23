@@ -2,7 +2,6 @@ import { Text, View, Pressable } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { Eye, EyeSlash } from "phosphor-react-native";
-
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
@@ -24,7 +23,7 @@ export default function CadastroScreen() {
     senha,
     setSenha,
     confirmarSenha,
-    setConfirmaSenha,
+    setConfirmarSenha,
     estadoEmail,
     estadoSenha,
     estadoConfirmar,
@@ -86,7 +85,7 @@ export default function CadastroScreen() {
             titulo="Confirmar senha"
             placeholder="Digite novamente"
             value={confirmarSenha}
-            onChangeText={setConfirmaSenha}
+            onChangeText={setConfirmarSenha}
             className="mt-4"
             secureTextEntry={mostrarConfirmarSenha}
             estado={estadoConfirmar}

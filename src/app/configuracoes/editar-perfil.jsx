@@ -2,7 +2,6 @@ import { Text, View, Pressable } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { User, Eye, EyeSlash } from "phosphor-react-native";
-
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";

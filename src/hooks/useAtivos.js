@@ -9,7 +9,7 @@ import {
   registrarOperacaoAtivo,
 } from "@/services/ativosService";
 import { buscarCdiAnual } from "@/services/cotacoesService";
-import { calcularRendimento, diasEntre } from "@/utils/rendaFixa";
+import { calcularRendimento, diasEntre } from "@/utils/calculosRendaFixa";
 import { montarDetalhesAtivo, resumirCarteira } from "@/utils/converterAtivo";
 import {
   calcularResumoVenda,
@@ -19,9 +19,8 @@ import {
   validarDataNaoPassada,
   validarQuantidadeVenda,
   validarValorPositivo,
-  validarValorLimitado,
 } from "@/utils/validacoesAtivos";
-import { textoParaData } from "@/utils/formatarData";
+import { textoParaData } from "@/utils/formatadores";
 
 function resolverEstadoCampo(ativoValidacao, check) {
   return ativoValidacao && !check.valido ? "erro" : "padrao";

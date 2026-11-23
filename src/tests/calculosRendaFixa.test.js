@@ -1,4 +1,5 @@
-import { calcularRendimento, diasEntre } from "@/utils/rendaFixa";
+import { describe, expect, test } from "@jest/globals";
+import { calcularRendimento, diasEntre } from "@/utils/calculosRendaFixa";
 
 describe("calcularRendimento", () => {
   test("sem dias, não rende", () => {

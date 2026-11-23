@@ -49,7 +49,9 @@ describe("buscarDadosInicio", () => {
       { name: "Renda variável", valor: 49 },
       { name: "Renda fixa", valor: 51 },
     ]);
-    expect(resultado.evolucao.labels).toEqual(["Nov"]);
-    expect(resultado.evolucao.datasets[0].data).toEqual([300]);
+    expect(resultado.evolucao.labels).toEqual(["", "", "", "", "", "Atual"]);
+    expect(resultado.evolucao.datasets[0].data).toEqual([
+      300, 300, 300, 300, 300, 300,
+    ]);
   });
 });

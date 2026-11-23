@@ -1,7 +1,6 @@
 import { View, Text, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { User, CaretRight } from "phosphor-react-native";
-
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
@@ -85,14 +84,10 @@ export default function ConfiguracoesScreen() {
       </View>
 
       <View className="gap-3 mt-[120]">
-        <BotaoCustomer
-          titulo="Sair da conta"
-          className="bg-negativo"
-          onPress={handleSairDaConta}
-        />
+        <BotaoCustomer titulo="Sair da conta" onPress={handleSairDaConta} />
         <BotaoCustomer
           titulo="Excluir conta"
-          className="bg-negativo"
+          className="!bg-vermelho"
           onPress={() => router.push("/configuracoes/excluir-conta")}
         />
       </View>

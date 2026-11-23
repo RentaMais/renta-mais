@@ -3,17 +3,14 @@ import { useState } from "react";
 import { Eye, EyeSlash } from "phosphor-react-native";
 import { LineChart } from "react-native-chart-kit";
 import Svg, { Circle } from "react-native-svg";
-import { cores } from "@/cores";
-
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CardCustomer } from "@/components/CardCustomer";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
 import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { VariacaoCustomer } from "@/components/VariacaoCustomer";
 import { useInicio } from "@/hooks/useInicio";
-
-import { formatarMil } from "@/utils/formatarMil";
-import { formatarReais } from "@/utils/formatarReais";
+import { formatarMil, formatarMoeda } from "@/utils/formatadores";
+import { cores } from "@/cores";
 
 const larguraTela = Dimensions.get("window").width;
 const larguraGrafico = larguraTela * 0.85;
@@ -110,7 +107,7 @@ export default function HomeScreen() {
           <Text className="font-titulo text-4xl text-container">
             {esconder
               ? "R$ ••••••••"
-              : formatarReais(Number(dadosInicio.patrimonioTotal))}
+              : formatarMoeda(Number(dadosInicio.patrimonioTotal))}
           </Text>
 
           {dadosInicio.temHistorico && (

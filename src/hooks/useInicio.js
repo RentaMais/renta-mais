@@ -6,6 +6,7 @@ import { buscarDadosInicio } from "@/services/inicioService";
 const DADOS_INICIAIS = {
   patrimonioTotal: 0,
   variacao: 0,
+  temHistorico: false,
   divisao: [],
   evolucao: { labels: [], datasets: [{ data: [] }] },
 };
@@ -20,22 +21,36 @@ export function useInicio() {
 
   useFocusEffect(
     useCallback(() => {
+      let ativo = true;
+
       async function carregarDadosTela() {
         try {
           const usuario = obterUsuarioAtual();
-          setNomeUsuario(usuario?.displayName || "");
+          if (ativo) {
+            setNomeUsuario(usuario?.displayName || "");
+          }
 
           const dadosDoBanco = await buscarDadosInicio();
-          setDadosInicio(dadosDoBanco);
-          setErro("");
+          if (ativo) {
+            setDadosInicio(dadosDoBanco);
+            setErro("");
+          }
         } catch (_e) {
-          setErro("Não foi possível carregar os dados da carteira.");
+          if (ativo) {
+            setErro("Não foi possível carregar os dados da carteira.");
+          }
         } finally {
-          setCarregando(false);
+          if (ativo) {
+            setCarregando(false);
+          }
         }
       }
 
       carregarDadosTela();
+
+      return () => {
+        ativo = false;
+      };
     }, []),
   );
 

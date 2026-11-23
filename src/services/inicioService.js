@@ -18,7 +18,6 @@ export async function buscarDadosInicio() {
     try {
       cotacoes = await buscarCotacoesAtuais(variaveis.map((a) => a.ticker));
     } catch (_e) {
-      console.log("[cotacoes]", _e);
       // Mantém precoAtual salvo no ativo caso a consulta falhe
     }
   }

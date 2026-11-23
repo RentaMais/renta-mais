@@ -2,6 +2,7 @@ import { obterComCache, periodoDiario } from "@/services/cacheService";
 import { db } from "@/services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { obterUsuarioAtual } from "@/services/authService";
+import { formatarMoeda } from "@/utils/formatadores";
 
 const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -113,7 +114,7 @@ async function buscarProventosYahoo(ticker, tentativa = 1) {
       return buscarProventosYahoo(tickerSemSa, tentativa + 1);
     }
 
-    console.error(`Erro ao buscar proventos para ${tickerSemSa}:`, error);
+    console.warn(`Erro ao buscar proventos para ${tickerSemSa}:`, error);
     return [];
   }
 }
@@ -121,7 +122,7 @@ async function buscarProventosYahoo(ticker, tentativa = 1) {
 export async function buscarDadosProventos() {
   const user = obterUsuarioAtual();
   if (!user) {
-    throw new Error("Utilizador não autenticado.");
+    throw new Error("Usuário não autenticado.");
   }
 
   const assetsRef = collection(db, "users", user.uid, "assets");
@@ -223,7 +224,7 @@ export async function buscarDadosProventos() {
         id: `${item.ticker}-${item.data}`,
         ticker: item.ticker,
         data: item.data,
-        dividendo: `R$ ${valorTotalProvento.toFixed(2).replace(".", ",")}`,
+        dividendo: formatarMoeda(valorTotalProvento),
         status: "Pago",
         rawValor: valorTotalProvento,
       };

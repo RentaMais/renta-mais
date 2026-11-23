@@ -1,17 +1,15 @@
 import { useState } from "react";
 import { Text, View, Pressable, TextInput, Dimensions } from "react-native";
 import { Dot } from "phosphor-react-native";
-
-import { cores } from "@/cores";
 import { LineChart } from "react-native-chart-kit";
 import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CardCustomer } from "@/components/CardCustomer";
 import { SwitchCustomer } from "@/components/SwitchCustomer";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
-import { formatarReais } from "@/utils/formatarReais";
-
+import { formatarMoeda, formatarPercentual } from "@/utils/formatadores";
 import simuladorDados from "@/mocks/simulador.json";
+import { cores } from "@/cores";
 
 export default function SimuladorScreen() {
   const [aporteInicial, setAporteInicial] = useState("");
@@ -108,12 +106,17 @@ export default function SimuladorScreen() {
   const taxaModerado = 0.5 * taxaIbovespa + 0.5 * taxaRfNum;
   const taxaConservador = taxaRfNum;
 
+  const pctIbovespa = formatarPercentual(taxaIbovespa);
+  const pctArrojado = formatarPercentual(taxaArrojado);
+  const pctModerado = formatarPercentual(taxaModerado);
+  const pctConservador = formatarPercentual(taxaConservador);
+
   const perfisInvestimento = [
     {
       id: "arrojado",
       nome: "Arrojado",
       cor: cores.texto,
-      descricao: `70% Ibovespa (${taxaIbovespa.toFixed(1)}%) + 30% Renda Fixa (${taxaConservador.toFixed(1)}%), resultante: (${taxaArrojado.toFixed(1)}%)`,
+      descricao: `70% Ibovespa (${pctIbovespa}) + 30% Renda Fixa (${pctConservador}), resultante: (${pctArrojado})`,
       valor: calcularPatrimonio(
         aporteInicial,
         aporteMensal,
@@ -126,7 +129,7 @@ export default function SimuladorScreen() {
       id: "moderado",
       nome: "Moderado",
       cor: cores.primaria,
-      descricao: `50% Ibovespa (${taxaIbovespa.toFixed(1)}%) + 50% Renda Fixa (${taxaConservador.toFixed(1)}%), resultante: (${taxaModerado.toFixed(1)}%)`,
+      descricao: `50% Ibovespa (${pctIbovespa}) + 50% Renda Fixa (${pctConservador}), resultante: (${pctModerado})`,
       valor: calcularPatrimonio(
         aporteInicial,
         aporteMensal,
@@ -139,7 +142,7 @@ export default function SimuladorScreen() {
       id: "conservador",
       nome: "Conservador",
       cor: cores.positivo,
-      descricao: `100% de renda fixa (${taxaConservador.toFixed(1)}%)`,
+      descricao: `100% de renda fixa (${pctConservador})`,
       valor: calcularPatrimonio(
         aporteInicial,
         aporteMensal,
@@ -328,7 +331,7 @@ export default function SimuladorScreen() {
                   </Text>
                 </View>
                 <Text className="font-corpo-bold text-sm text-texto">
-                  {formatarReais(perfil.valor)}
+                  {formatarMoeda(perfil.valor)}
                 </Text>
               </View>
               <Text className="font-corpo text-xs text-subtexto pl-8">
