@@ -1,13 +1,15 @@
-const FORMATADOR_MOEDA = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-});
-
+// Recebe valor e formata para moeda em Reais
 export function formatarMoeda(valor) {
   const numero = Number(valor) || 0;
-  return FORMATADOR_MOEDA.format(numero);
+
+  return Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(numero);
 }
 
+// Recebe valor e formata em Milhares
+// ex.: 18.500 => 18.5K
 export function formatarMil(valor) {
   const numero = Number(valor) || 0;
   if (Math.abs(numero) >= 1000) {
@@ -27,17 +29,21 @@ export function formatarPercentual(
   return `${prefixo}${numero.toFixed(casas).replace(".", ",")}%`;
 }
 
+// Recebe data no formato brasileiro (DD/MM/YYYY)
+// e reotrna no formato YYYY-MM-DD para o Firebase
 export function dataParaBanco(texto) {
   const partes = texto.split("/");
   return partes[2] + "-" + partes[1] + "-" + partes[0];
 }
 
+// Recebe o campo data do Firebase (YYYY-MM-DD)
+// e retorna no formato DD/MM/YYYY
 export function dataParaBR(dataBanco) {
   const partes = dataBanco.split("-");
   return partes[2] + "/" + partes[1] + "/" + partes[0];
 }
 
-//verificar se a data é valida
+// Verifica se a data é valida
 export function textoParaData(texto) {
   if (typeof texto !== "string" || texto.length !== 10) {
     return null;
@@ -75,15 +81,15 @@ export function parseDataLocal(dataStr) {
   return new Date(texto);
 }
 
-//buscar formatacao em YYYY-MM-DD
+// Busca formatacao em YYYY-MM-DD
 export function extrairDataYYYYMMDD(valor) {
   if (!valor) return null;
 
-  //retorna formato funcao do banco timestamp do firestore
+  // Retorna formato funcao do banco timestamp do firestore
   if (typeof valor?.toDate === "function") {
     return valor.toDate().toISOString().split("T")[0];
   }
- //valor ja do tipo date
+  // Valor do tipo Date
   if (valor instanceof Date && !Number.isNaN(valor.getTime())) {
     return valor.toISOString().split("T")[0];
   }

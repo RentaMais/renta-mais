@@ -6,7 +6,6 @@ import { formatarMoeda, extrairDataYYYYMMDD } from "@/utils/formatadores";
 
 const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-
 function obterDataCompraMaisAntiga(dataAsset) {
   if (!dataAsset) return null;
 
