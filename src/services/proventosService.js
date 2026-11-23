@@ -2,29 +2,10 @@ import { obterComCache, periodoDiario } from "@/services/cacheService";
 import { db } from "@/services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { obterUsuarioAtual } from "@/services/authService";
-import { formatarMoeda } from "@/utils/formatadores";
+import { formatarMoeda, extrairDataYYYYMMDD } from "@/utils/formatadores";
 
 const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-function extrairDataYYYYMMDD(valor) {
-  if (!valor) return null;
-
-  if (typeof valor?.toDate === "function") {
-    return valor.toDate().toISOString().split("T")[0];
-  }
-
-  if (valor instanceof Date && !Number.isNaN(valor.getTime())) {
-    return valor.toISOString().split("T")[0];
-  }
-
-  const texto = String(valor).trim();
-  const matchISO = texto.match(/^(\d{4}-\d{2}-\d{2})/);
-  if (matchISO) {
-    return matchISO[1];
-  }
-
-  return null;
-}
 
 function obterDataCompraMaisAntiga(dataAsset) {
   if (!dataAsset) return null;

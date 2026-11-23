@@ -1,4 +1,4 @@
-import { View, Text, Dimensions, Pressable } from "react-native";
+import { View, Text, Dimensions, Pressable, ActivityIndicator } from "react-native";
 import { useState } from "react";
 import { Eye, EyeSlash } from "phosphor-react-native";
 import { LineChart } from "react-native-chart-kit";
@@ -74,7 +74,7 @@ function obterSaudacao(nomeCompleto) {
 
 export default function HomeScreen() {
   const [esconder, setEsconder] = useState(false);
-  const { nomeUsuario, dadosInicio, erro } = useInicio();
+  const { nomeUsuario, dadosInicio,carregando,erro } = useInicio();
 
   const saudacao = obterSaudacao(nomeUsuario);
   const coresDivisao = [cores.texto, cores.primaria];
@@ -96,7 +96,12 @@ export default function HomeScreen() {
       {erro !== "" && (
         <Text className="font-corpo-medium text-sm text-erro">{erro}</Text>
       )}
-
+      {carregando ? (
+        <View className="py-12 items-center justify-center">
+          <ActivityIndicator size="large" color={cores.primaria} />
+        </View>
+      ) : (
+        <>
       {/* Patrimônio total */}
       <View className="bg-texto rounded-2xl p-6 flex-row items-center justify-between">
         <View className="flex-1 gap-2">
@@ -193,6 +198,8 @@ export default function HomeScreen() {
           style={{ paddingRight: 50, marginRight: 12, overflow: "hidden" }}
         />
       </CardCustomer>
+    </>
+  )}
     </TelaCustomer>
   );
 }
