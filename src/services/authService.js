@@ -22,7 +22,7 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "@/services/firebase";
 
-const SUBCOLECOES_USUARIO = ["assets", "proventos", "performanceHistory"];
+const SUBCOLECOES_USUARIO = ["assets"];
 
 function traduzirErroAuth(erro, { reautenticando = false } = {}) {
   switch (erro?.code) {
@@ -70,10 +70,11 @@ export function obterUsuarioAtual() {
 }
 
 export async function cadastrarUsuario({ name, email, password }) {
+  const emailLimpo = email.trim().toLowerCase();
   try {
     const credencial = await createUserWithEmailAndPassword(
       auth,
-      email.trim(),
+      emailLimpo,
       password,
     );
     const { user } = credencial;
@@ -82,7 +83,7 @@ export async function cadastrarUsuario({ name, email, password }) {
 
     await setDoc(doc(db, "users", user.uid), {
       name: name.trim(),
-      email: email.trim().toLowerCase(),
+      email: emailLimpo,
       createdAt: serverTimestamp(),
     });
 

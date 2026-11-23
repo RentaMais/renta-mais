@@ -28,25 +28,25 @@ export const REQUISITOS_SENHA = [
 
 // Verifica quais critérios a senha atende e classifica sua força
 export function avaliarRequisitosSenha(senha = "") {
-  const itens = REQUISITOS_SENHA.map((req) => ({
+  const requisitos = REQUISITOS_SENHA.map((req) => ({
     id: req.id,
     texto: req.texto,
-    atendido: req.testar(senha),
+    foiAtendido: req.testar(senha),
   }));
 
-  const atendidos = itens.filter((item) => item.atendido).length;
-  const total = itens.length;
+  const qtdAtendidos = requisitos.filter((item) => item.foiAtendido).length;
+  const total = requisitos.length;
   const tamanhoMaximoOk = senha.length <= 64;
-  const ehSenhaValida = atendidos === total && tamanhoMaximoOk;
+  const valida = qtdAtendidos === total && tamanhoMaximoOk;
 
   let forca = "fraca";
-  if (ehSenhaValida) {
+  if (valida) {
     forca = "forte";
-  } else if (atendidos >= 3 && senha.length >= 8) {
+  } else if (qtdAtendidos >= 3 && senha.length >= 8) {
     forca = "media";
   }
 
-  return { itens, atendidos, total, ehSenhaValida, forca };
+  return { requisitos, qtdAtendidos, total, valida, forca };
 }
 
 // Valida se a senha respeita o limite de 64 caracteres e todos os requisitos
@@ -58,12 +58,16 @@ export function validarSenhaForte(senha = "") {
     };
   }
 
-  const avaliacao = avaliarRequisitosSenha(senha);
-  if (!avaliacao.valida) {
-    const pendente = avaliacao.itens.find((item) => !item.atendido);
+  const resultado = avaliarRequisitosSenha(senha);
+  if (!resultado.valida) {
+    const requisitoPendente = resultado.requisitos.find(
+      (item) => !item.foiAtendido,
+    );
     return {
       valida: false,
-      erro: `A senha deve conter: ${pendente.texto.toLowerCase()}.`,
+      erro: requisitoPendente
+        ? `A senha deve conter: ${requisitoPendente.texto.toLowerCase()}.`
+        : "A senha não atende aos requisitos de segurança.",
     };
   }
 

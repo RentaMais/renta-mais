@@ -10,21 +10,21 @@ describe("avaliarRequisitosSenha", () => {
   test("retorna força fraca e nenhum requisito atendido para senha vazia", () => {
     const resultado = avaliarRequisitosSenha("");
     expect(resultado.valida).toBe(false);
-    expect(resultado.atendidos).toBe(0);
+    expect(resultado.qtdAtendidos).toBe(0);
     expect(resultado.forca).toBe("fraca");
   });
 
   test("identifica força média quando parte dos requisitos é atendida", () => {
     const resultado = avaliarRequisitosSenha("Senha123");
     expect(resultado.valida).toBe(false);
-    expect(resultado.atendidos).toBe(4);
+    expect(resultado.qtdAtendidos).toBe(4);
     expect(resultado.forca).toBe("media");
   });
 
   test("identifica força forte quando todos os requisitos OWASP são atendidos", () => {
     const resultado = avaliarRequisitosSenha("Senha@123");
     expect(resultado.valida).toBe(true);
-    expect(resultado.atendidos).toBe(5);
+    expect(resultado.qtdAtendidos).toBe(5);
     expect(resultado.forca).toBe("forte");
   });
 });

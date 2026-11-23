@@ -14,6 +14,21 @@ import {
   validarSenhaForte,
 } from "@/utils/validacoesAuth";
 
+// Define o estado visual do input ("erro", "sucesso" ou "padrao").
+function resolverEstadoCampo({ erro = false, sucesso = false }) {
+  if (erro) return "erro";
+  if (sucesso) return "sucesso";
+  return "padrao";
+}
+
+// Avalia campos validados em tempo real conforme o usuário digita ou envia.
+function estadoCampoValidado(valor, valido, tentouEnviar) {
+  return resolverEstadoCampo({
+    erro: (valor.length > 0 || tentouEnviar) && !valido,
+    sucesso: valido,
+  });
+}
+
 export function useConfiguracoes({ onSair }) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -54,16 +69,14 @@ export function useEditarPerfil({ onSucesso }) {
   const emailAlterado = email.trim().toLowerCase() !== emailOriginal;
 
   const checkEmail = validarEmail(email);
-  const estadoEmail = !checkEmail.valido
-    ? "erro"
-    : emailAlterado
-      ? "sucesso"
-      : "padrao";
+  const estadoEmail = resolverEstadoCampo({
+    erro: !checkEmail.valido,
+    sucesso: emailAlterado,
+  });
 
-  const estadoSenhaAtual =
-    (tentouEnviar && emailAlterado && !senhaAtual) || senhaAtualIncorreta
-      ? "erro"
-      : "padrao";
+  const estadoSenhaAtual = resolverEstadoCampo({
+    erro: (emailAlterado && tentouEnviar && !senhaAtual) || senhaAtualIncorreta,
+  });
 
   function alterarCampoEmail(texto) {
     setEmail(texto);
@@ -149,24 +162,26 @@ export function useAlterarSenha({ onSucesso }) {
   const [carregando, setCarregando] = useState(false);
 
   const checkNovaSenha = validarSenhaForte(novaSenha);
-  const checkConfirmar = validarConfirmacaoSenha(novaSenha, confirmarNovaSenha);
+  const checkConfirmarSenha = validarConfirmacaoSenha(
+    novaSenha,
+    confirmarNovaSenha,
+  );
 
-  const estadoSenhaAtual =
-    (tentouEnviar && !senhaAtual) || senhaAtualIncorreta ? "erro" : "padrao";
+  const estadoSenhaAtual = resolverEstadoCampo({
+    erro: (tentouEnviar && !senhaAtual) || senhaAtualIncorreta,
+  });
 
-  const estadoNovaSenha =
-    (novaSenha.length > 0 || tentouEnviar) && !checkNovaSenha.valida
-      ? "erro"
-      : checkNovaSenha.valida
-        ? "sucesso"
-        : "padrao";
+  const estadoNovaSenha = estadoCampoValidado(
+    novaSenha,
+    checkNovaSenha.valida,
+    tentouEnviar,
+  );
 
-  const estadoConfirmarSenha =
-    (confirmarNovaSenha.length > 0 || tentouEnviar) && !checkConfirmar.valida
-      ? "erro"
-      : checkConfirmar.valida
-        ? "sucesso"
-        : "padrao";
+  const estadoConfirmarSenha = estadoCampoValidado(
+    confirmarNovaSenha,
+    checkConfirmarSenha.valida,
+    tentouEnviar,
+  );
 
   const senhasDiferentes =
     confirmarNovaSenha.length > 0 && novaSenha !== confirmarNovaSenha;
@@ -190,7 +205,7 @@ export function useAlterarSenha({ onSucesso }) {
       setErro(checkNovaSenha.erro);
       return;
     }
-    if (!checkConfirmar.valida) {
+    if (!checkConfirmarSenha.valida) {
       setErro("As novas senhas não coincidem.");
       return;
     }
@@ -240,17 +255,17 @@ export function useExcluirConta({ onSucesso }) {
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
-  const checkConfirmar = validarConfirmacaoSenha(senha, confirmarSenha);
+  const checkConfirmarSenha = validarConfirmacaoSenha(senha, confirmarSenha);
 
-  const estadoSenha =
-    (tentouEnviar && !senha) || senhaIncorreta ? "erro" : "padrao";
+  const estadoSenha = resolverEstadoCampo({
+    erro: (tentouEnviar && !senha) || senhaIncorreta,
+  });
 
-  const estadoConfirmar =
-    (confirmarSenha.length > 0 || tentouEnviar) && !checkConfirmar.valida
-      ? "erro"
-      : checkConfirmar.valida
-        ? "sucesso"
-        : "padrao";
+  const estadoConfirmar = estadoCampoValidado(
+    confirmarSenha,
+    checkConfirmarSenha.valida,
+    tentouEnviar,
+  );
 
   const senhasDiferentes =
     confirmarSenha.length > 0 && senha !== confirmarSenha;
@@ -269,7 +284,7 @@ export function useExcluirConta({ onSucesso }) {
       setErro("Digite e confirme sua senha.");
       return;
     }
-    if (!checkConfirmar.valida) {
+    if (!checkConfirmarSenha.valida) {
       setErro("As senhas não coincidem.");
       return;
     }

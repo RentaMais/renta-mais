@@ -89,7 +89,7 @@ export default function ExcluirContaScreen() {
 
         {senhasDiferentes ? (
           <Text className="text-erro font-corpo text-xs mt-1.5">
-            As senhas ainda não coincidem.
+            As senhas não coincidem.
           </Text>
         ) : null}
 

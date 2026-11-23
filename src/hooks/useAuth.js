@@ -71,11 +71,11 @@ export function useCadastro({ onSucesso }) {
         ? "sucesso"
         : "padrao";
 
-  const checkConfirmar = validarConfirmacaoSenha(senha, confirmarSenha);
+  const checkConfirmarSenha = validarConfirmacaoSenha(senha, confirmarSenha);
   const estadoConfirmar =
-    (confirmarSenha.length > 0 || tentouEnviar) && !checkConfirmar.valida
+    (confirmarSenha.length > 0 || tentouEnviar) && !checkConfirmarSenha.valida
       ? "erro"
-      : checkConfirmar.valida
+      : checkConfirmarSenha.valida
         ? "sucesso"
         : "padrao";
 
@@ -98,7 +98,7 @@ export function useCadastro({ onSucesso }) {
       setErro(checkSenha.erro);
       return;
     }
-    if (!checkConfirmar.valida) {
+    if (!checkConfirmarSenha.valida) {
       setErro("As senhas não coincidem.");
       return;
     }

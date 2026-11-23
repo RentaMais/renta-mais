@@ -114,7 +114,7 @@ export default function AlterarSenhaScreen() {
 
         {senhasDiferentes ? (
           <Text className="text-erro font-corpo text-xs mt-1.5">
-            As novas senhas ainda não coincidem.
+            As novas senhas não coincidem.
           </Text>
         ) : null}
 
