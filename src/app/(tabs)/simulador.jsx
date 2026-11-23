@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Text, View, Pressable, TextInput, Dimensions } from "react-native";
 import { Dot } from "phosphor-react-native";
 import { LineChart } from "react-native-chart-kit";
@@ -7,260 +6,115 @@ import { TelaCustomer } from "@/components/TelaCustomer";
 import { CardCustomer } from "@/components/CardCustomer";
 import { SwitchCustomer } from "@/components/SwitchCustomer";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
-import { formatarMoeda, formatarPercentual } from "@/utils/formatadores";
-import simuladorDados from "@/mocks/simulador.json";
+import { useSimulador } from "@/hooks/useSimulador";
+import { formatarEixoSimulador } from "@/utils/calculosSimulador";
+import { formatarMoeda } from "@/utils/formatadores";
 import { cores } from "@/cores";
 
+const CORES_PERFIL = {
+  arrojado: cores.texto,
+  moderado: cores.primaria,
+  conservador: cores.positivo,
+};
+
+const larguraTela = Dimensions.get("window").width * 0.85 - 32;
+
 export default function SimuladorScreen() {
-  const [aporteInicial, setAporteInicial] = useState("");
-  const [aporteMensal, setAporteMensal] = useState("");
-  const [rentabilidade, setRentabilidade] = useState("");
+  const {
+    aporteInicial,
+    alterarAporteInicial,
+    aporteMensal,
+    alterarAporteMensal,
+    rentabilidade,
+    alterarRentabilidade,
+    opcoesAnos,
+    tempoSelecionado,
+    setTempoSelecionado,
+    descontarInflacao,
+    setDescontarInflacao,
+    perfis,
+    grafico,
+  } = useSimulador();
 
-  const [tempoSelecionado, setTempoSelecionado] = useState(10);
-  const [descontarInflacao, setDescontarInflacao] = useState(true);
-
-  const tratarAporte = (texto, setValor, limite) => {
-    const apenasNums = texto.replace(/\D/g, "");
-    const valor = Number(apenasNums) || 0;
-    if (valor > limite) {
-      setValor(String(limite));
-      return;
-    }
-    setValor(apenasNums);
-  };
-
-  const tratarRentabilidade = (texto) => {
-    const formatado = texto.replace(",", ".");
-    const valor = Number(formatado) || 0;
-    if (valor < 0) {
-      setRentabilidade("0");
-      return;
-    }
-    if (valor > simuladorDados.limiteRentabilidade) {
-      setRentabilidade(String(simuladorDados.limiteRentabilidade));
-      return;
-    }
-    setRentabilidade(formatado);
-  };
-
-  const acoesCampos = {
-    "aporte-inicial": {
+  const campos = [
+    {
+      id: "aporte-inicial",
+      titulo: "Aporte inicial",
+      placeholder: "R$ 10.000",
       value: aporteInicial,
-      onChangeText: (t) =>
-        tratarAporte(t, setAporteInicial, simuladorDados.limiteAporteInicial),
+      onChangeText: alterarAporteInicial,
     },
-    "aporte-mensal": {
+    {
+      id: "aporte-mensal",
+      titulo: "Aporte mensal",
+      placeholder: "R$ 1.000",
       value: aporteMensal,
-      onChangeText: (t) =>
-        tratarAporte(t, setAporteMensal, simuladorDados.limiteAporteMensal),
+      onChangeText: alterarAporteMensal,
     },
-    rentabilidade: {
+    {
+      id: "rentabilidade",
+      titulo: "Rentabilidade da renda fixa (a.a.)",
+      placeholder: "11,5%",
       value: rentabilidade,
-      onChangeText: tratarRentabilidade,
-    },
-  };
-
-  function calcularPatrimonio(vi, vm, taxaAnualPct, anos, inflacaoAtiva) {
-    const viNum = Number(vi) || 0;
-    const vmNum = Number(vm) || 0;
-
-    let taxa = taxaAnualPct / 100;
-
-    if (inflacaoAtiva) {
-      taxa = (1 + taxa) / (1 + simuladorDados.taxaInflacao) - 1;
-    }
-
-    const iMensal = Math.pow(1 + taxa, 1 / 12) - 1;
-    const tMeses = anos * 12;
-
-    if (iMensal === 0) return viNum + vmNum * tMeses;
-
-    const parteVi = viNum * Math.pow(1 + iMensal, tMeses);
-    const parteVm = vmNum * ((Math.pow(1 + iMensal, tMeses) - 1) / iMensal);
-
-    return parteVi + parteVm;
-  }
-
-  function formatarValor(valor, comPrefixo = false) {
-    const n = Number(valor) || 0;
-    const prefixo = comPrefixo ? "R$ " : "";
-
-    if (n >= 1e12) {
-      return `${prefixo}${(n / 1e12).toFixed(1).replace(".", ",").replace(/,0$/, "")} tri`;
-    }
-    if (n >= 1e9) {
-      return `${prefixo}${(n / 1e9).toFixed(1).replace(".", ",").replace(/,0$/, "")} bi`;
-    }
-    if (n >= 1e6) {
-      return `${prefixo}${(n / 1e6).toFixed(1).replace(".", ",").replace(/,0$/, "")} mi`;
-    }
-    if (n >= 1e3) {
-      return `${prefixo}${(n / 1e3).toFixed(1).replace(".", ",")} mil`;
-    }
-    return `${prefixo}${Math.round(n)}`;
-  }
-
-  const taxaRfNum = Number(rentabilidade.replace(",", ".")) || 0;
-  const taxaIbovespa = simuladorDados.taxaIbovespa;
-  const taxaArrojado = 0.7 * taxaIbovespa + 0.3 * taxaRfNum;
-  const taxaModerado = 0.5 * taxaIbovespa + 0.5 * taxaRfNum;
-  const taxaConservador = taxaRfNum;
-
-  const pctIbovespa = formatarPercentual(taxaIbovespa);
-  const pctArrojado = formatarPercentual(taxaArrojado);
-  const pctModerado = formatarPercentual(taxaModerado);
-  const pctConservador = formatarPercentual(taxaConservador);
-
-  const perfisInvestimento = [
-    {
-      id: "arrojado",
-      nome: "Arrojado",
-      cor: cores.texto,
-      descricao: `70% Ibovespa (${pctIbovespa}) + 30% Renda Fixa (${pctConservador}), resultante: (${pctArrojado})`,
-      valor: calcularPatrimonio(
-        aporteInicial,
-        aporteMensal,
-        taxaArrojado,
-        tempoSelecionado,
-        descontarInflacao,
-      ),
-    },
-    {
-      id: "moderado",
-      nome: "Moderado",
-      cor: cores.primaria,
-      descricao: `50% Ibovespa (${pctIbovespa}) + 50% Renda Fixa (${pctConservador}), resultante: (${pctModerado})`,
-      valor: calcularPatrimonio(
-        aporteInicial,
-        aporteMensal,
-        taxaModerado,
-        tempoSelecionado,
-        descontarInflacao,
-      ),
-    },
-    {
-      id: "conservador",
-      nome: "Conservador",
-      cor: cores.positivo,
-      descricao: `100% de renda fixa (${pctConservador})`,
-      valor: calcularPatrimonio(
-        aporteInicial,
-        aporteMensal,
-        taxaConservador,
-        tempoSelecionado,
-        descontarInflacao,
-      ),
+      onChangeText: alterarRentabilidade,
     },
   ];
 
-  const gerarDadosGrafico = () => {
-    const passos = 5;
-    const labels = [];
-    const dadosArrojado = [];
-    const dadosModerado = [];
-    const dadosConservador = [];
-
-    for (let i = 0; i <= passos; i++) {
-      const anoAtual = Math.round((tempoSelecionado / passos) * i);
-      labels.push(anoAtual === 0 ? "0" : `${anoAtual}a`);
-
-      if (anoAtual === 0) {
-        const viNum = Number(aporteInicial) || 0;
-        dadosArrojado.push(viNum);
-        dadosModerado.push(viNum);
-        dadosConservador.push(viNum);
-      } else {
-        dadosArrojado.push(
-          calcularPatrimonio(
-            aporteInicial,
-            aporteMensal,
-            taxaArrojado,
-            anoAtual,
-            descontarInflacao,
-          ),
-        );
-        dadosModerado.push(
-          calcularPatrimonio(
-            aporteInicial,
-            aporteMensal,
-            taxaModerado,
-            anoAtual,
-            descontarInflacao,
-          ),
-        );
-        dadosConservador.push(
-          calcularPatrimonio(
-            aporteInicial,
-            aporteMensal,
-            taxaConservador,
-            anoAtual,
-            descontarInflacao,
-          ),
-        );
-      }
-    }
-
-    return {
-      labels,
-      datasets: [
-        {
-          data: dadosArrojado.length > 0 ? dadosArrojado : [0],
-          color: () => cores.texto,
-          strokeWidth: 3,
-        },
-        {
-          data: dadosModerado.length > 0 ? dadosModerado : [0],
-          color: () => cores.primaria,
-          strokeWidth: 3,
-        },
-        {
-          data: dadosConservador.length > 0 ? dadosConservador : [0],
-          color: () => cores.positivo,
-          strokeWidth: 3,
-        },
-      ],
-    };
+  const dadosGrafico = {
+    labels: grafico.labels,
+    datasets: [
+      {
+        data: grafico.series.arrojado,
+        color: () => CORES_PERFIL.arrojado,
+        strokeWidth: 3,
+      },
+      {
+        data: grafico.series.moderado,
+        color: () => CORES_PERFIL.moderado,
+        strokeWidth: 3,
+      },
+      {
+        data: grafico.series.conservador,
+        color: () => CORES_PERFIL.conservador,
+        strokeWidth: 3,
+      },
+    ],
   };
-
-  const larguraTela = Dimensions.get("window").width * 0.85 - 32;
 
   return (
     <TelaCustomer>
       <CabecalhoPrincipal
-        subtitulo={simuladorDados.subtitulo}
-        titulo={simuladorDados.titulo}
-        descricao={simuladorDados.descricao}
+        subtitulo="Planejamento futuro"
+        titulo="Simule décadas"
+        descricao="Projeção de patrimônio em até 40 anos"
       />
 
       <CardCustomer className="gap-5">
-        {simuladorDados.campos.map((campo) => {
-          const acao = acoesCampos[campo.id];
-          return (
-            <View key={campo.id} className="w-full gap-1">
-              <Text className="font-corpo-bold text-base text-texto">
-                {campo.titulo}
-              </Text>
-              <View className="border-b border-dashed border-primaria/50 pb-1">
-                <TextInput
-                  placeholder={campo.placeholder}
-                  placeholderTextColor={cores.placeholder}
-                  value={acao?.value}
-                  onChangeText={acao?.onChangeText}
-                  keyboardType="numeric"
-                  style={{ outlineStyle: "none" }}
-                  className="font-corpo text-lg text-primaria"
-                />
-              </View>
+        {campos.map((campo) => (
+          <View key={campo.id} className="w-full gap-1">
+            <Text className="font-corpo-bold text-base text-texto">
+              {campo.titulo}
+            </Text>
+            <View className="border-b border-dashed border-primaria/50 pb-1">
+              <TextInput
+                placeholder={campo.placeholder}
+                placeholderTextColor={cores.placeholder}
+                value={campo.value}
+                onChangeText={campo.onChangeText}
+                keyboardType="numeric"
+                style={{ outlineStyle: "none" }}
+                className="font-corpo text-lg text-primaria"
+              />
             </View>
-          );
-        })}
+          </View>
+        ))}
 
         <View className="w-full gap-2">
           <Text className="font-corpo-bold text-base text-texto">
             Tempo de investimento
           </Text>
           <View className="flex-row justify-between gap-2">
-            {simuladorDados.anosOpcoes.map((anos) => (
+            {opcoesAnos.map((anos) => (
               <Pressable
                 key={anos}
                 onPress={() => setTempoSelecionado(anos)}
@@ -303,10 +157,10 @@ export default function SimuladorScreen() {
 
         <View className="items-center -ml-4">
           <LineChart
-            data={gerarDadosGrafico()}
+            data={dadosGrafico}
             width={larguraTela + 20}
             height={180}
-            formatYLabel={(v) => formatarValor(v)}
+            formatYLabel={(v) => formatarEixoSimulador(v)}
             chartConfig={{
               backgroundColor: "transparent",
               backgroundGradientFrom: "transparent",
@@ -321,11 +175,15 @@ export default function SimuladorScreen() {
         </View>
 
         <View className="divide-y divide-texto/10">
-          {perfisInvestimento.map((perfil) => (
+          {perfis.map((perfil) => (
             <View key={perfil.id} className="py-3 gap-1">
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-2">
-                  <Dot size={24} color={perfil.cor} weight="fill" />
+                  <Dot
+                    size={24}
+                    color={CORES_PERFIL[perfil.id]}
+                    weight="fill"
+                  />
                   <Text className="font-corpo-bold text-base text-texto">
                     {perfil.nome}
                   </Text>
