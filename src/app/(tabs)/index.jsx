@@ -188,7 +188,7 @@ export default function HomeScreen() {
               withOuterLines={true}
               withDots={false}
               formatYLabel={(valor) => formatarMil(valor)}
-              fromZero={!dadosInicio.temHistorico}
+              fromZero={true}
               chartConfig={{
                 backgroundGradientFrom: "transparent",
                 backgroundGradientTo: "transparent",

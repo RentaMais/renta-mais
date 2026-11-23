@@ -57,10 +57,12 @@ export async function buscarDadosInicio() {
     labelsGrafico = meses.map((m) => m.mes);
 
     const valoresReconstruidos = [];
-    let valorCorrente = patrimonioTotal;
+    let valorCorrente = totalRendaVariavel;
 
     for (let i = meses.length - 1; i >= 0; i--) {
-      valoresReconstruidos.unshift(Number(valorCorrente.toFixed(2)));
+      valoresReconstruidos.unshift(
+        Number((valorCorrente + totalRendaFixa).toFixed(2)),
+      );
       const fator = 1 + (Number(meses[i].carteira) || 0) / 100;
       valorCorrente = fator > 0 ? valorCorrente / fator : 0;
     }
