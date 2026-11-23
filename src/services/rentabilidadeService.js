@@ -2,26 +2,9 @@ import { db } from "@/services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { obterUsuarioAtual } from "@/services/authService";
 import { obterComCache, periodoMensal } from "@/services/cacheService";
-import { formatarPercentual } from "@/utils/formatadores";
+import { formatarPercentual, parseDataLocal } from "@/utils/formatadores";
 
 const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// Evita deslocamento de 1 dia por UTC ao ler datas "YYYY-MM-DD"
-function parseDataLocal(dataStr) {
-  const texto = String(dataStr || "").trim();
-  const matchISO = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (matchISO) {
-    return new Date(
-      Number(matchISO[1]),
-      Number(matchISO[2]) - 1,
-      Number(matchISO[3]),
-      12,
-      0,
-      0,
-    );
-  }
-  return new Date(texto);
-}
 
 // Retorna null em caso de falha para que o resultado não seja cacheado
 async function buscarCDIBancoCentral() {

@@ -1,4 +1,10 @@
-import { View, Text, Dimensions, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  Dimensions,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import { useState } from "react";
 import { Eye, EyeSlash } from "phosphor-react-native";
 import { LineChart } from "react-native-chart-kit";
@@ -74,7 +80,7 @@ function obterSaudacao(nomeCompleto) {
 
 export default function HomeScreen() {
   const [esconder, setEsconder] = useState(false);
-  const { nomeUsuario, dadosInicio, erro } = useInicio();
+  const { nomeUsuario, dadosInicio, carregando, erro } = useInicio();
 
   const saudacao = obterSaudacao(nomeUsuario);
   const coresDivisao = [cores.texto, cores.primaria];
@@ -96,103 +102,113 @@ export default function HomeScreen() {
       {erro !== "" && (
         <Text className="font-corpo-medium text-sm text-erro">{erro}</Text>
       )}
-
-      {/* Patrimônio total */}
-      <View className="bg-texto rounded-2xl p-6 flex-row items-center justify-between">
-        <View className="flex-1 gap-2">
-          <Text className="font-titulo text-base text-fundo">
-            Patrimônio total
-          </Text>
-
-          <Text className="font-titulo text-4xl text-container">
-            {esconder
-              ? "R$ ••••••••"
-              : formatarMoeda(Number(dadosInicio.patrimonioTotal))}
-          </Text>
-
-          {dadosInicio.temHistorico && (
-            <View className="flex-row items-center gap-2">
-              <VariacaoCustomer valor={dadosInicio.variacao} />
-              <Text className="font-corpo text-sm text-fundo">
-                nos últimos 30 dias
-              </Text>
-            </View>
-          )}
+      {carregando ? (
+        <View className="py-12 items-center justify-center">
+          <ActivityIndicator size="large" color={cores.primaria} />
         </View>
+      ) : (
+        <>
+          {/* Patrimônio total */}
+          <View className="bg-texto rounded-2xl p-6 flex-row items-center justify-between">
+            <View className="flex-1 gap-2">
+              <Text className="font-titulo text-base text-fundo">
+                Patrimônio total
+              </Text>
 
-        <Pressable onPress={() => setEsconder(!esconder)}>
-          {esconder ? (
-            <Eye size={28} color={cores.container} />
-          ) : (
-            <EyeSlash size={28} color={cores.container} />
-          )}
-        </Pressable>
-      </View>
+              <Text className="font-titulo text-4xl text-container">
+                {esconder
+                  ? "R$ ••••••••"
+                  : formatarMoeda(Number(dadosInicio.patrimonioTotal))}
+              </Text>
 
-      {/* Divisão da Carteira */}
-      <CardCustomer>
-        <TituloCardCustomer titulo="Divisão da carteira" className="mb-4" />
-
-        <View className="flex-row items-center justify-between">
-          <Rosca dados={dadosDivisaoFormatados} />
-
-          <View className="flex-1 pl-4 gap-3">
-            {dadosDivisaoFormatados.map((item) => (
-              <View
-                key={item.name}
-                className="flex-row items-center justify-between"
-              >
+              {dadosInicio.temHistorico && (
                 <View className="flex-row items-center gap-2">
-                  <View
-                    style={{ backgroundColor: item.color }}
-                    className="w-3 h-3 rounded-full"
-                  />
-                  <Text className="font-corpo text-sm text-texto">
-                    {item.name}
+                  <VariacaoCustomer valor={dadosInicio.variacao} />
+                  <Text className="font-corpo text-sm text-fundo">
+                    nos últimos 30 dias
                   </Text>
                 </View>
+              )}
+            </View>
 
-                <Text className="font-corpo text-sm text-texto">
-                  {item.valor}%
-                </Text>
-              </View>
-            ))}
+            <Pressable onPress={() => setEsconder(!esconder)}>
+              {esconder ? (
+                <Eye size={28} color={cores.container} />
+              ) : (
+                <EyeSlash size={28} color={cores.container} />
+              )}
+            </Pressable>
           </View>
-        </View>
-      </CardCustomer>
 
-      {/* Evolução Patrimonial */}
-      <CardCustomer className="px-0 py-5">
-        <TituloCardCustomer
-          titulo="Evolução Patrimonial"
-          className="px-5 mb-4"
-        />
+          {/* Divisão da Carteira */}
+          <CardCustomer>
+            <TituloCardCustomer titulo="Divisão da carteira" className="mb-4" />
 
-        <LineChart
-          data={dadosInicio.evolucao}
-          width={larguraGrafico}
-          height={180}
-          segments={3}
-          withInnerLines={true}
-          withOuterLines={true}
-          withDots={false}
-          formatYLabel={(valor) => formatarMil(valor)}
-          fromZero={!dadosInicio.temHistorico}
-          chartConfig={{
-            backgroundGradientFrom: "transparent",
-            backgroundGradientTo: "transparent",
-            decimalPlaces: 0,
-            color: () => cores.primaria,
-            labelColor: () => cores.primaria,
-            fillShadowGradientFrom: cores.primaria,
-            fillShadowGradientFromOpacity: 0.35,
-            fillShadowGradientTo: cores.primaria,
-            fillShadowGradientToOpacity: 0.02,
-            propsForLabels: { fontFamily: "Manrope_400Regular", fontSize: 10 },
-          }}
-          style={{ paddingRight: 50, marginRight: 12, overflow: "hidden" }}
-        />
-      </CardCustomer>
+            <View className="flex-row items-center justify-between">
+              <Rosca dados={dadosDivisaoFormatados} />
+
+              <View className="flex-1 pl-4 gap-3">
+                {dadosDivisaoFormatados.map((item) => (
+                  <View
+                    key={item.name}
+                    className="flex-row items-center justify-between"
+                  >
+                    <View className="flex-row items-center gap-2">
+                      <View
+                        style={{ backgroundColor: item.color }}
+                        className="w-3 h-3 rounded-full"
+                      />
+                      <Text className="font-corpo text-sm text-texto">
+                        {item.name}
+                      </Text>
+                    </View>
+
+                    <Text className="font-corpo text-sm text-texto">
+                      {item.valor}%
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </CardCustomer>
+
+          {/* Evolução Patrimonial */}
+          <CardCustomer className="px-0 py-5">
+            <TituloCardCustomer
+              titulo="Evolução Patrimonial"
+              className="px-5 mb-4"
+            />
+
+            <LineChart
+              data={dadosInicio.evolucao}
+              width={larguraGrafico}
+              height={180}
+              segments={3}
+              withInnerLines={true}
+              withOuterLines={true}
+              withDots={false}
+              formatYLabel={(valor) => formatarMil(valor)}
+              fromZero={!dadosInicio.temHistorico}
+              chartConfig={{
+                backgroundGradientFrom: "transparent",
+                backgroundGradientTo: "transparent",
+                decimalPlaces: 0,
+                color: () => cores.primaria,
+                labelColor: () => cores.primaria,
+                fillShadowGradientFrom: cores.primaria,
+                fillShadowGradientFromOpacity: 0.35,
+                fillShadowGradientTo: cores.primaria,
+                fillShadowGradientToOpacity: 0.02,
+                propsForLabels: {
+                  fontFamily: "Manrope_400Regular",
+                  fontSize: 10,
+                },
+              }}
+              style={{ paddingRight: 50, marginRight: 12, overflow: "hidden" }}
+            />
+          </CardCustomer>
+        </>
+      )}
     </TelaCustomer>
   );
 }
