@@ -188,6 +188,7 @@ export default function HomeScreen() {
               withOuterLines={true}
               withDots={false}
               formatYLabel={(valor) => formatarValorAbreviado(valor)}
+              yLabelsOffset={5}
               fromZero={true}
               chartConfig={{
                 backgroundGradientFrom: "transparent",
