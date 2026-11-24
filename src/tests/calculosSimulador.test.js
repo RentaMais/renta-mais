@@ -1,9 +1,9 @@
 import { describe, expect, test } from "@jest/globals";
 import {
   calcularPatrimonio,
-  formatarEixoSimulador,
   gerarProjecaoSimulador,
 } from "@/utils/calculosSimulador";
+import { formatarValorAbreviado } from "@/utils/formatadores";
 
 describe("calcularPatrimonio", () => {
   test("com taxa zero, apenas soma aporte inicial e aportes mensais", () => {
@@ -23,17 +23,17 @@ describe("calcularPatrimonio", () => {
   });
 });
 
-describe("formatarEixoSimulador", () => {
+describe("formatarValorAbreviado", () => {
   test("mantém valores abaixo de mil arredondados", () => {
-    expect(formatarEixoSimulador(500)).toBe("500");
-    expect(formatarEixoSimulador(500, true)).toBe("R$ 500");
+    expect(formatarValorAbreviado(500)).toBe("500");
+    expect(formatarValorAbreviado(500, true)).toBe("R$ 500");
   });
 
   test("abrevia valores em mil, milhões, bilhões e trilhões", () => {
-    expect(formatarEixoSimulador(1500)).toBe("1,5 mil");
-    expect(formatarEixoSimulador(2000000)).toBe("2 mi");
-    expect(formatarEixoSimulador(3000000000)).toBe("3 bi");
-    expect(formatarEixoSimulador(1500000000000)).toBe("1,5 tri");
+    expect(formatarValorAbreviado(1500)).toBe("1,5 mil");
+    expect(formatarValorAbreviado(2000000)).toBe("2 mi");
+    expect(formatarValorAbreviado(3000000000)).toBe("3 bi");
+    expect(formatarValorAbreviado(1500000000000)).toBe("1,5 tri");
   });
 });
 

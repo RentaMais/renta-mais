@@ -15,7 +15,7 @@ import { TituloCardCustomer } from "@/components/TituloCardCustomer";
 import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
 import { VariacaoCustomer } from "@/components/VariacaoCustomer";
 import { useInicio } from "@/hooks/useInicio";
-import { formatarMil, formatarMoeda } from "@/utils/formatadores";
+import { formatarMoeda, formatarValorAbreviado } from "@/utils/formatadores";
 import { cores } from "@/cores";
 
 const larguraTela = Dimensions.get("window").width;
@@ -187,7 +187,7 @@ export default function HomeScreen() {
               withInnerLines={true}
               withOuterLines={true}
               withDots={false}
-              formatYLabel={(valor) => formatarMil(valor)}
+              formatYLabel={(valor) => formatarValorAbreviado(valor)}
               fromZero={true}
               chartConfig={{
                 backgroundGradientFrom: "transparent",

@@ -7,8 +7,7 @@ import { CardCustomer } from "@/components/CardCustomer";
 import { SwitchCustomer } from "@/components/SwitchCustomer";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
 import { useSimulador } from "@/hooks/useSimulador";
-import { formatarEixoSimulador } from "@/utils/calculosSimulador";
-import { formatarMoeda } from "@/utils/formatadores";
+import { formatarMoeda, formatarValorAbreviado } from "@/utils/formatadores";
 import { cores } from "@/cores";
 
 const CORES_PERFIL = {
@@ -160,7 +159,7 @@ export default function SimuladorScreen() {
             data={dadosGrafico}
             width={larguraTela + 20}
             height={180}
-            formatYLabel={(v) => formatarEixoSimulador(v)}
+            formatYLabel={(v) => formatarValorAbreviado(v)}
             chartConfig={{
               backgroundColor: "transparent",
               backgroundGradientFrom: "transparent",

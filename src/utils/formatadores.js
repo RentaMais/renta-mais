@@ -18,6 +18,31 @@ export function formatarMil(valor) {
   return String(Math.round(numero));
 }
 
+const ESCALAS_ABREVIACAO = [
+  { limite: 1e12, sufixo: "tri" },
+  { limite: 1e9, sufixo: "bi" },
+  { limite: 1e6, sufixo: "mi" },
+  { limite: 1e3, sufixo: "mil" },
+];
+
+// Abrevia valores grandes em mil, mi, bi e tri, com prefixo "R$ " opcional
+export function formatarValorAbreviado(valor, comPrefixo = false) {
+  const numero = Number(valor) || 0;
+  const prefixo = comPrefixo ? "R$ " : "";
+
+  for (const escala of ESCALAS_ABREVIACAO) {
+    if (Math.abs(numero) >= escala.limite) {
+      const abreviado = (numero / escala.limite)
+        .toFixed(1)
+        .replace(".", ",")
+        .replace(/,0$/, "");
+      return `${prefixo}${abreviado} ${escala.sufixo}`;
+    }
+  }
+
+  return `${prefixo}${Math.round(numero)}`;
+}
+
 // Formata um número como percentual em pt-BR
 export function formatarPercentual(valor, casas = 1) {
   const numero = Number(valor) || 0;

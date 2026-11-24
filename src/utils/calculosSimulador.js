@@ -31,26 +31,6 @@ export function calcularPatrimonio(
   return parteVi + parteVm;
 }
 
-// Abrevia valores grandes (mil, mi, bi, tri) para exibição no eixo Y do gráfico
-export function formatarEixoSimulador(valor, comPrefixo = false) {
-  const n = Number(valor) || 0;
-  const prefixo = comPrefixo ? "R$ " : "";
-
-  if (n >= 1e12) {
-    return `${prefixo}${(n / 1e12).toFixed(1).replace(".", ",").replace(/,0$/, "")} tri`;
-  }
-  if (n >= 1e9) {
-    return `${prefixo}${(n / 1e9).toFixed(1).replace(".", ",").replace(/,0$/, "")} bi`;
-  }
-  if (n >= 1e6) {
-    return `${prefixo}${(n / 1e6).toFixed(1).replace(".", ",").replace(/,0$/, "")} mi`;
-  }
-  if (n >= 1e3) {
-    return `${prefixo}${(n / 1e3).toFixed(1).replace(".", ",")} mil`;
-  }
-  return `${prefixo}${Math.round(n)}`;
-}
-
 // Gera os resultados finais por perfil e os pontos da curva de evolução patrimonial
 export function gerarProjecaoSimulador({
   aporteInicial,

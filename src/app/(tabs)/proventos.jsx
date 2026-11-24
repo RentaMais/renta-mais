@@ -11,6 +11,7 @@ import {
   dataParaBR,
   formatarMoeda,
   formatarPercentual,
+  formatarValorAbreviado,
 } from "@/utils/formatadores";
 import { cores } from "@/cores";
 
@@ -74,7 +75,7 @@ function GraficoProventos({ valores }) {
 
   return (
     <View
-      className="w-full"
+      className="w-full overflow-visible"
       onLayout={(e) => setLargura(e.nativeEvent.layout.width)}
     >
       {largura > 0 && (
@@ -88,21 +89,22 @@ function GraficoProventos({ valores }) {
           showBarTops={false}
           withCustomBarColorFromData
           flatColor
-          yAxisLabel="R$ "
-          formatYLabel={(val) => {
-            const num = Number(val);
-            if (!Number.isFinite(num) || maxVal === 0) {
-              return num <= 0 ? "0" : "";
-            }
-            return `${Math.round(num)}`;
-          }}
+          yLabelsOffset={3}
           chartConfig={{
             backgroundGradientFrom: "transparent",
             backgroundGradientTo: "transparent",
             color: () => cores.primaria,
             labelColor: () => cores.subtexto,
-            barPercentage: 0.5,
+            barPercentage: 0.45,
             decimalPlaces: 2,
+            formatYLabel: (val) => {
+              const num = Number(val);
+              if (!Number.isFinite(num) || maxVal === 0) {
+                return num <= 0 ? "R$ 0" : "";
+              }
+              return formatarValorAbreviado(num, true);
+            },
+            formatTopBarValue: (val) => formatarValorAbreviado(val),
             propsForTopLabels: { fontSize: 9, dy: -6 },
             propsForLabels: { fontSize: 8.5 },
             propsForBackgroundLines: { stroke: "transparent" },
