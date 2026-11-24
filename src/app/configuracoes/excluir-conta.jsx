@@ -1,25 +1,39 @@
-import { View, Pressable } from "react-native";
+import { Text, View, Pressable } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { WarningIcon, Eye, EyeSlash } from "phosphor-react-native";
-
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
+import { TelaCustomer } from "@/components/TelaCustomer";
 import { InputCustomer } from "@/components/InputCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { IconeCustomer } from "@/components/IconeCustomer";
+import { useExcluirConta } from "@/hooks/useConfiguracoes";
 import { cores } from "@/cores";
 
 export default function ExcluirContaScreen() {
   const router = useRouter();
-  const [senha, setSenha] = useState("");
-  const [confirmarSenha, setConfirmarSenha] = useState("");
   const [esconderSenha, setEsconderSenha] = useState(true);
   const [esconderConfirmarSenha, setEsconderConfirmarSenha] = useState(true);
 
+  const {
+    senha,
+    alterarCampoSenha,
+    estadoSenha,
+    confirmarSenha,
+    setConfirmarSenha,
+    estadoConfirmar,
+    senhasDiferentes,
+    erro,
+    carregando,
+    handleExcluirConta,
+  } = useExcluirConta({
+    onSucesso: () => router.replace("/(auth)/login"),
+  });
+
   return (
-    <View className="flex-1 items-center justify-center bg-fundo">
+    <TelaCustomer>
       <View className="w-[85vw]">
         <VoltarCustomer />
         <IconeCustomer icone={WarningIcon} tipo="bold" className="mb-4" />
@@ -34,8 +48,9 @@ export default function ExcluirContaScreen() {
             titulo="Senha"
             placeholder="Digite sua senha"
             value={senha}
-            onChangeText={setSenha}
+            onChangeText={alterarCampoSenha}
             secureTextEntry={esconderSenha}
+            estado={estadoSenha}
             className="mt-6"
           />
           <Pressable
@@ -57,6 +72,7 @@ export default function ExcluirContaScreen() {
             value={confirmarSenha}
             onChangeText={setConfirmarSenha}
             secureTextEntry={esconderConfirmarSenha}
+            estado={estadoConfirmar}
             className="mt-4"
           />
           <Pressable
@@ -71,20 +87,30 @@ export default function ExcluirContaScreen() {
           </Pressable>
         </View>
 
+        {senhasDiferentes ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            As senhas não coincidem.
+          </Text>
+        ) : null}
+
+        {erro ? (
+          <Text className="text-erro font-corpo-medium text-sm mt-3">
+            {erro}
+          </Text>
+        ) : null}
+
         <AvisoCustomer
-          mensagem="Ao excluir sua conta, todos os seus dados serão apagados permanentemente. Você tem até 30 dias para entrar em contato e recuperar sua conta. Após esse prazo, não será possível reverter a exclusão"
+          mensagem="Ao excluir sua conta, todos os seus dados serão apagados permanentemente e não será possível reverter a exclusão."
           className="mt-6"
         />
 
         <BotaoCustomer
-          titulo="Excluir conta"
-          className="mt-[48] bg-vermelho"
-          onPress={() =>
-            // Lógica para exclusão da conta
-            router.push("/(auth)/login")
-          }
+          titulo={carregando ? "Excluindo conta..." : "Excluir conta"}
+          className="mt-[48] bg-negativo"
+          onPress={handleExcluirConta}
+          disabled={carregando}
         />
       </View>
-    </View>
+    </TelaCustomer>
   );
 }

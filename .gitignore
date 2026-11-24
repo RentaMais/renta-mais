@@ -16,9 +16,10 @@ expo-env.d.ts
 .env.*
 !.env.example
 
-# Supabase CLI (arquivos locais)
-supabase/.temp/
-supabase/.branches/
+# Firebase (cache local e chaves de conta de serviço)
+.firebase/
+*-debug.log
+*firebase-adminsdk*.json
 
 # Testes
 coverage/

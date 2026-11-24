@@ -1,15 +1,13 @@
 import { View, Text, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { User, CaretRight } from "phosphor-react-native";
-
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
-
+import { useConfiguracoes } from "@/hooks/useConfiguracoes";
 import { cores } from "@/cores";
 
-// Componente local para os títulos de seção
 function TituloSecao({ titulo }) {
   return (
     <Text className="font-corpo-bold text-primaria text-sm pl-1 mb-2 mt-6">
@@ -18,7 +16,6 @@ function TituloSecao({ titulo }) {
   );
 }
 
-// Componente local para cada linha do menu
 function ItemMenu({ titulo, valor, onPress, temSeta = true }) {
   return (
     <Pressable
@@ -40,6 +37,9 @@ function ItemMenu({ titulo, valor, onPress, temSeta = true }) {
 
 export default function ConfiguracoesScreen() {
   const router = useRouter();
+  const { nome, email, handleSairDaConta } = useConfiguracoes({
+    onSair: () => router.replace("/(auth)/login"),
+  });
 
   return (
     <TelaCustomer>
@@ -56,14 +56,11 @@ export default function ConfiguracoesScreen() {
             <User size={32} color={cores.container} weight="bold" />
           </View>
           <View>
-            <Text className="font-titulo text-xl text-texto">João Pedro</Text>
-            <Text className="font-corpo text-xs text-subtexto">
-              joao.pedro10@gmail.com
-            </Text>
+            <Text className="font-titulo text-xl text-texto">{nome}</Text>
+            <Text className="font-corpo text-xs text-subtexto">{email}</Text>
           </View>
         </View>
 
-        {/* Seção Conta */}
         <TituloSecao titulo="Conta" />
         <View className="bg-container px-4 rounded-xl border border-texto/10 divide-y divide-texto/10">
           <ItemMenu
@@ -76,7 +73,6 @@ export default function ConfiguracoesScreen() {
           />
         </View>
 
-        {/* Seção Sobre */}
         <TituloSecao titulo="Sobre" />
         <View className="bg-container px-4 rounded-xl border border-texto/10 divide-y divide-texto/10">
           <ItemMenu
@@ -88,14 +84,10 @@ export default function ConfiguracoesScreen() {
       </View>
 
       <View className="gap-3 mt-[120]">
-        <BotaoCustomer
-          titulo="Sair da conta"
-          className="bg-vermelho"
-          onPress={() => router.push("/(auth)/login")}
-        />
+        <BotaoCustomer titulo="Sair da conta" onPress={handleSairDaConta} />
         <BotaoCustomer
           titulo="Excluir conta"
-          className="bg-vermelho"
+          className="!bg-vermelho"
           onPress={() => router.push("/configuracoes/excluir-conta")}
         />
       </View>

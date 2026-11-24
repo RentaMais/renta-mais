@@ -1,8 +1,5 @@
-import { useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text } from "react-native";
 import { useRouter } from "expo-router";
-import { CaretDownIcon, CaretUpIcon } from "phosphor-react-native";
-
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { InputCustomer } from "@/components/InputCustomer";
@@ -10,143 +7,146 @@ import { TelaCustomer } from "@/components/TelaCustomer";
 import { AvisoCustomer } from "@/components/AvisoCustomer";
 import { SeletorRenda } from "@/components/SeletorRenda";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
-import { formatarMoeda } from "@/utils/formatarMoeda";
+import { useNovoAtivo } from "@/hooks/useAtivos";
+import { formatarMoeda } from "@/utils/formatadores";
 
-import { cores } from "@/cores";
-
-//Formulário de Renda Fixa
-function FormularioRendaFixa({
-  nome,
-  setNome,
-  valor,
-  setValor,
-  indexador,
-  setIndexador,
-  indexadorAberto,
-  setIndexadorAberto,
-  opcoesIndexador,
-  taxa,
-  setTaxa,
-  vencimento,
-  setVencimento,
-}) {
+function FormularioRendaFixa({ dados }) {
   return (
     <View className="gap-4">
       <InputCustomer
         titulo="Nome do título"
         placeholder="Ex: Tesouro Selic 2029"
-        value={nome}
-        onChangeText={setNome}
+        value={dados.nome}
+        onChangeText={dados.setNome}
+        estado={dados.estadoNome}
       />
-      <InputCustomer
-        titulo="Valor"
-        placeholder="R$ 15.000,00"
-        value={valor}
-        onChangeText={setValor}
-      />
-      <View className="flex-row items-start gap-3">
-        <View className="flex-1 gap-1">
+
+      <View>
+        <InputCustomer
+          titulo="Valor"
+          placeholder="15000,00"
+          value={dados.valor}
+          onChangeText={dados.setValor}
+          keyboardType="decimal-pad"
+          estado={dados.estadoValor}
+          maxLength={12}
+        />
+        {dados.alertaValor ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            {dados.alertaValor}
+          </Text>
+        ) : null}
+      </View>
+
+      <View className="flex-row gap-3">
+        <View className="flex-1 gap-2">
           <Text className="font-corpo-bold text-base text-texto">
             Indexador
           </Text>
-          <Pressable
-            onPress={() => setIndexadorAberto(!indexadorAberto)}
-            className="h-12 flex-row items-center justify-between rounded-2xl border border-texto/20 bg-white px-4"
-          >
-            <Text className="font-corpo text-base text-texto">{indexador}</Text>
-            {indexadorAberto ? (
-              <CaretUpIcon size={18} color={cores.texto} />
-            ) : (
-              <CaretDownIcon size={18} color={cores.texto} />
-            )}
-          </Pressable>
-          {indexadorAberto &&
-            opcoesIndexador.map((opcao) => (
-              <Pressable
-                key={opcao}
-                onPress={() => {
-                  setIndexador(opcao);
-                  setIndexadorAberto(false);
-                }}
-                className="rounded-2xl border-texto/10 bg-container px-4 py-3"
-              >
-                <Text
-                  className={
-                    opcao === indexador
-                      ? "font-corpo-bold text-base text-texto"
-                      : "font-corpo text-base text-texto"
-                  }
-                >
-                  {opcao}
-                </Text>
-              </Pressable>
-            ))}
+          <View className="h-12 justify-center rounded-2xl border border-texto/20 bg-texto/5 px-4">
+            <Text className="font-corpo text-base text-texto">CDI</Text>
+          </View>
         </View>
-        <View className="flex-1">
-          <InputCustomer
-            titulo="Taxa"
-            placeholder="100 %"
-            value={taxa}
-            onChangeText={setTaxa}
-          />
+        <View className="flex-1 gap-2">
+          <Text className="font-corpo-bold text-base text-texto">Taxa</Text>
+          <View className="h-12 justify-center rounded-2xl border border-texto/20 bg-texto/5 px-4">
+            <Text className="font-corpo text-base text-texto">100 %</Text>
+          </View>
         </View>
       </View>
-      <InputCustomer
-        titulo="Data de vencimento"
-        placeholder="dd/mm/aaaa"
-        value={vencimento}
-        onChangeText={setVencimento}
+
+      <View>
+        <InputCustomer
+          titulo="Data de vencimento"
+          placeholder="dd/mm/aaaa"
+          value={dados.vencimento}
+          onChangeText={dados.setVencimento}
+          estado={dados.estadoVencimento}
+        />
+        {dados.alertaVencimento ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            {dados.alertaVencimento}
+          </Text>
+        ) : null}
+      </View>
+      <AvisoCustomer
+        mensagem={
+          "Rendimento estimado até o vencimento: " +
+          formatarMoeda(dados.rendimentoEstimado)
+        }
       />
     </View>
   );
 }
 
-//Formulário de Renda Variável
-function FormularioRendaVariavel({
-  ticker,
-  setTicker,
-  quantidade,
-  setQuantidade,
-  precoMedio,
-  setPrecoMedio,
-  dataCompra,
-  setDataCompra,
-  valorInvestido,
-}) {
+function FormularioRendaVariavel({ dados }) {
   return (
     <View className="gap-4">
       <InputCustomer
         titulo="Ticker"
         placeholder="Ex: PETR4"
-        value={ticker}
-        onChangeText={setTicker}
+        value={dados.ticker}
+        onChangeText={dados.setTicker}
+        autoCapitalize="characters"
+        estado={dados.estadoTicker}
       />
-      <View className="flex-row gap-3">
-        <View className="flex-1">
-          <InputCustomer
-            titulo="Quantidade"
-            placeholder="120"
-            value={quantidade}
-            onChangeText={setQuantidade}
-          />
+
+      <View>
+        <View className="flex-row gap-3">
+          <View className="flex-1">
+            <InputCustomer
+              titulo="Quantidade"
+              placeholder="120"
+              value={dados.quantidade}
+              onChangeText={dados.setQuantidade}
+              keyboardType="decimal-pad"
+              estado={dados.estadoQuantidade}
+              maxLength={10}
+            />
+          </View>
+          <View className="flex-1">
+            <InputCustomer
+              titulo="Preço médio"
+              placeholder="34,80"
+              value={dados.precoMedio}
+              onChangeText={dados.setPrecoMedio}
+              keyboardType="decimal-pad"
+              estado={dados.estadoPreco}
+              maxLength={12}
+            />
+          </View>
         </View>
-        <View className="flex-1">
-          <InputCustomer
-            titulo="Preço médio"
-            placeholder="34,80"
-            value={precoMedio}
-            onChangeText={setPrecoMedio}
-          />
-        </View>
+
+        {dados.alertaQuantidade ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            {dados.alertaQuantidade}
+          </Text>
+        ) : null}
+
+        {dados.alertaPreco ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            {dados.alertaPreco}
+          </Text>
+        ) : null}
       </View>
-      <InputCustomer
-        titulo="Data da compra"
-        placeholder="dd/mm/aaaa"
-        value={dataCompra}
-        onChangeText={setDataCompra}
-      />
+
+      <View>
+        <InputCustomer
+          titulo="Data da compra"
+          placeholder="dd/mm/aaaa"
+          value={dados.dataCompra}
+          onChangeText={dados.setDataCompra}
+          estado={dados.estadoData}
+        />
+        {dados.alertaData ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            {dados.alertaData}
+          </Text>
+        ) : null}
+      </View>
+
       <AvisoCustomer
-        mensagem={`Valor investido estimado: ${formatarMoeda(valorInvestido)}`}
+        mensagem={`Valor investido estimado: ${formatarMoeda(dados.valorInvestido)}`}
       />
     </View>
   );
@@ -154,57 +154,17 @@ function FormularioRendaVariavel({
 
 export default function AdicionarAtivoScreen() {
   const router = useRouter();
-  const [tipoRenda, setTipoRenda] = useState("Renda fixa");
-  const [erro, setErro] = useState("");
-
-  // Renda Fixa
-  const [nome, setNome] = useState("");
-  const [valor, setValor] = useState("");
-  const [indexador, setIndexador] = useState("Selic");
-  const [indexadorAberto, setIndexadorAberto] = useState(false);
-  const [taxa, setTaxa] = useState("");
-  const [vencimento, setVencimento] = useState("");
-
-  // Renda Variável
-  const [ticker, setTicker] = useState("");
-  const [quantidade, setQuantidade] = useState("");
-  const [precoMedio, setPrecoMedio] = useState("");
-  const [dataCompra, setDataCompra] = useState("");
-
-  const opcoesIndexador = ["Selic", "CDI", "IPCA", "Prefixado"];
-  const valorNumero = Number(valor.replace(",", ".")) || 0;
-  const quantidadeNumero = Number(quantidade.replace(",", ".")) || 0;
-  const precoNumero = Number(precoMedio.replace(",", ".")) || 0;
-  const valorInvestido = quantidadeNumero * precoNumero;
-
-  function salvar() {
-    if (tipoRenda === "Renda fixa") {
-      if (!nome.trim() || !valor.trim() || !taxa.trim() || !vencimento.trim()) {
-        setErro("Preencha todos os campos");
-        return;
-      }
-      if (valorNumero <= 0) {
-        setErro("O valor deve ser maior que zero");
-        return;
-      }
-    } else {
-      if (
-        !ticker.trim() ||
-        !quantidade.trim() ||
-        !precoMedio.trim() ||
-        !dataCompra.trim()
-      ) {
-        setErro("Preencha todos os campos");
-        return;
-      }
-      if (quantidadeNumero <= 0 || precoNumero <= 0) {
-        setErro("Quantidade e preço médio devem ser maiores que 0");
-        return;
-      }
-    }
-    setErro("");
-    router.back();
-  }
+  const {
+    tipoRenda,
+    trocarTipoRenda,
+    salvando,
+    erro,
+    salvar,
+    rendaFixa,
+    rendaVariavel,
+  } = useNovoAtivo({
+    onSucesso: () => router.back(),
+  });
 
   return (
     <TelaCustomer className="justify-between">
@@ -216,43 +176,13 @@ export default function AdicionarAtivoScreen() {
         </View>
 
         <View className="mb-6">
-          <SeletorRenda
-            value={tipoRenda}
-            onChange={(tipo) => {
-              setTipoRenda(tipo);
-              setErro("");
-            }}
-          />
+          <SeletorRenda value={tipoRenda} onChange={trocarTipoRenda} />
         </View>
 
         {tipoRenda === "Renda fixa" ? (
-          <FormularioRendaFixa
-            nome={nome}
-            setNome={setNome}
-            valor={valor}
-            setValor={setValor}
-            indexador={indexador}
-            setIndexador={setIndexador}
-            indexadorAberto={indexadorAberto}
-            setIndexadorAberto={setIndexadorAberto}
-            opcoesIndexador={opcoesIndexador}
-            taxa={taxa}
-            setTaxa={setTaxa}
-            vencimento={vencimento}
-            setVencimento={setVencimento}
-          />
+          <FormularioRendaFixa dados={rendaFixa} />
         ) : (
-          <FormularioRendaVariavel
-            ticker={ticker}
-            setTicker={setTicker}
-            quantidade={quantidade}
-            setQuantidade={setQuantidade}
-            precoMedio={precoMedio}
-            setPrecoMedio={setPrecoMedio}
-            dataCompra={dataCompra}
-            setDataCompra={setDataCompra}
-            valorInvestido={valorInvestido}
-          />
+          <FormularioRendaVariavel dados={rendaVariavel} />
         )}
 
         {erro !== "" && (
@@ -263,7 +193,11 @@ export default function AdicionarAtivoScreen() {
       </View>
 
       <View className="mt-6">
-        <BotaoCustomer titulo="Salvar ativo" onPress={salvar} />
+        <BotaoCustomer
+          titulo={salvando ? "Salvando..." : "Salvar ativo"}
+          onPress={salvar}
+          disabled={salvando}
+        />
       </View>
     </TelaCustomer>
   );

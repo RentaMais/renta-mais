@@ -1,15 +1,19 @@
-import { useState } from "react";
-import { Text, View, FlatList } from "react-native";
+import { useState, useCallback } from "react";
+import { Text, View, FlatList, ActivityIndicator } from "react-native";
+import { useFocusEffect } from "expo-router";
 import { BarChart } from "react-native-chart-kit";
-
 import { TelaCustomer } from "@/components/TelaCustomer";
-import { CardCustomer } from "@/components/CardCustomer";
 import { CabecalhoPrincipal } from "@/components/CabecalhoPrincipal";
+import { CardCustomer } from "@/components/CardCustomer";
 import { TituloCardCustomer } from "@/components/TituloCardCustomer";
-
+import { buscarDadosProventos } from "@/services/proventosService";
+import {
+  dataParaBR,
+  formatarMoeda,
+  formatarPercentual,
+  formatarValorAbreviado,
+} from "@/utils/formatadores";
 import { cores } from "@/cores";
-import proventosMock from "@/mocks/proventos.json";
-import valores from "@/mocks/historicoProventos.json";
 
 const QTD_MESES = 12;
 const MESES = [
@@ -27,17 +31,6 @@ const MESES = [
   "Dez",
 ];
 
-const MAX = Math.max(...valores);
-
-const corDaBarra = (v) => {
-  const p = v / MAX;
-  return p >= 0.75
-    ? cores.primaria
-    : p >= 0.45
-      ? `${cores.primaria}B3`
-      : `${cores.primaria}66`;
-};
-
 const gerarUltimosMeses = (qtd) => {
   const hoje = new Date();
   const mesesGerados = [];
@@ -50,22 +43,39 @@ const gerarUltimosMeses = (qtd) => {
   return mesesGerados;
 };
 
-function GraficoProventos() {
+function GraficoProventos({ valores }) {
   const [largura, setLargura] = useState(0);
+
+  const dadosValores =
+    Array.isArray(valores) && valores.length === QTD_MESES
+      ? valores.map((v) => Number((Number(v) || 0).toFixed(2)))
+      : Array(QTD_MESES).fill(0);
+
+  const maxVal = Math.max(...dadosValores, 0);
+  const escalaMax = maxVal > 0 ? maxVal : 1;
+
+  const corDaBarra = (v) => {
+    const p = v / escalaMax;
+    return p >= 0.75
+      ? cores.primaria
+      : p >= 0.45
+        ? `${cores.primaria}B3`
+        : `${cores.primaria}66`;
+  };
 
   const dados = {
     labels: gerarUltimosMeses(QTD_MESES),
     datasets: [
       {
-        data: valores,
-        colors: valores.map((v) => () => corDaBarra(v)),
+        data: dadosValores,
+        colors: dadosValores.map((v) => () => corDaBarra(v)),
       },
     ],
   };
 
   return (
     <View
-      className="w-full"
+      className="w-full overflow-visible"
       onLayout={(e) => setLargura(e.nativeEvent.layout.width)}
     >
       {largura > 0 && (
@@ -73,20 +83,28 @@ function GraficoProventos() {
           data={dados}
           width={largura}
           height={180}
-          segments={4}
+          segments={maxVal > 0 ? 4 : 1}
           fromZero
           showValuesOnTopOfBars={true}
           showBarTops={false}
           withCustomBarColorFromData
           flatColor
-          yAxisLabel="R$ "
+          yLabelsOffset={3}
           chartConfig={{
             backgroundGradientFrom: "transparent",
             backgroundGradientTo: "transparent",
             color: () => cores.primaria,
             labelColor: () => cores.subtexto,
-            barPercentage: 0.5,
-            decimalPlaces: 0,
+            barPercentage: 0.45,
+            decimalPlaces: 2,
+            formatYLabel: (val) => {
+              const num = Number(val);
+              if (!Number.isFinite(num) || maxVal === 0) {
+                return num <= 0 ? "R$ 0" : "";
+              }
+              return formatarValorAbreviado(num, true);
+            },
+            formatTopBarValue: (val) => formatarValorAbreviado(val),
             propsForTopLabels: { fontSize: 9, dy: -6 },
             propsForLabels: { fontSize: 8.5 },
             propsForBackgroundLines: { stroke: "transparent" },
@@ -99,6 +117,42 @@ function GraficoProventos() {
 }
 
 export default function ProventosScreen() {
+  const [loading, setLoading] = useState(true);
+  const [totalRecebido, setTotalRecebido] = useState(0);
+  const [dyMedio, setDyMedio] = useState(0);
+  const [valoresMensais, setValoresMensais] = useState(Array(12).fill(0));
+  const [listaProventos, setListaProventos] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true;
+
+      async function carregarDados() {
+        try {
+          setLoading(true);
+          const dados = await buscarDadosProventos();
+
+          if (isMounted) {
+            setTotalRecebido(dados.totalRecebido);
+            setDyMedio(dados.dyMedio);
+            setValoresMensais(dados.valoresMensais);
+            setListaProventos(dados.listaProventos);
+          }
+        } catch (error) {
+          console.warn("Erro ao carregar dados de proventos:", error);
+        } finally {
+          if (isMounted) setLoading(false);
+        }
+      }
+
+      carregarDados();
+
+      return () => {
+        isMounted = false;
+      };
+    }, []),
+  );
+
   return (
     <TelaCustomer>
       <CabecalhoPrincipal
@@ -113,28 +167,38 @@ export default function ProventosScreen() {
           <Text className="mb-1 font-corpo-bold text-xs text-container/60">
             Total recebido
           </Text>
-          <Text className="font-titulo text-xl text-container">R$ 7.460</Text>
+          <Text className="font-titulo text-xl text-container">
+            {loading ? "..." : formatarMoeda(totalRecebido)}
+          </Text>
         </View>
         <View className="flex-1 items-center">
           <Text className="mb-1 font-corpo-bold text-xs text-container/60">
             DY médio
           </Text>
-          <Text className="font-titulo text-xl text-container">7,4%</Text>
+          <Text className="font-titulo text-xl text-container">
+            {loading ? "..." : formatarPercentual(dyMedio)}
+          </Text>
         </View>
       </View>
 
       {/* Gráfico */}
       <CardCustomer className="gap-4">
         <TituloCardCustomer titulo={`Últimos ${QTD_MESES} meses`} />
-        <GraficoProventos />
+        {loading ? (
+          <View className="py-12 items-center justify-center">
+            <ActivityIndicator size="small" color={cores.primaria} />
+          </View>
+        ) : (
+          <GraficoProventos valores={valoresMensais} />
+        )}
       </CardCustomer>
 
       {/* Próximos Pagamentos */}
       <CardCustomer>
-        <TituloCardCustomer titulo="Próximos pagamentos" className="mb-4" />
+        <TituloCardCustomer titulo="Histórico de dividendos" className="mb-4" />
 
         <FlatList
-          data={proventosMock}
+          data={listaProventos}
           keyExtractor={(item) => item.id}
           scrollEnabled={false}
           ItemSeparatorComponent={() => (
@@ -142,9 +206,13 @@ export default function ProventosScreen() {
           )}
           ListEmptyComponent={() => (
             <View className="items-center justify-center py-8">
-              <Text className="text-center font-corpo text-sm text-texto/40">
-                Nenhum provento disponível no momento.
-              </Text>
+              {loading ? (
+                <ActivityIndicator size="small" color={cores.primaria} />
+              ) : (
+                <Text className="text-center font-corpo text-sm text-texto/40">
+                  Nenhum provento disponível no momento.
+                </Text>
+              )}
             </View>
           )}
           renderItem={({ item }) => (
@@ -154,7 +222,7 @@ export default function ProventosScreen() {
                   {item.ticker}
                 </Text>
                 <Text className="font-corpo text-sm text-subtexto">
-                  {item.data}
+                  {dataParaBR(item.data)}
                 </Text>
               </View>
               <View className="items-end gap-1">

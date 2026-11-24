@@ -2,18 +2,20 @@ import { Text, Image, View, Pressable } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { Eye, EyeSlash } from "phosphor-react-native";
-
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
-import { cores } from "@/cores";
 import { TelaCustomer } from "@/components/TelaCustomer";
+import { useLogin } from "@/hooks/useAuth";
+import { cores } from "@/cores";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState();
-  const [senha, setSenha] = useState();
   const [esconderSenha, setEsconderSenha] = useState(true);
   const router = useRouter();
+  const { email, setEmail, senha, setSenha, erro, carregando, handleLogin } =
+    useLogin({
+      onSucesso: () => router.replace("/(tabs)"),
+    });
 
   return (
     <TelaCustomer className="justify-between">
@@ -38,6 +40,8 @@ export default function LoginScreen() {
           placeholder="Digite seu email"
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
           className="mt-[48]"
         />
         <View className="relative w-full">
@@ -60,6 +64,13 @@ export default function LoginScreen() {
             )}
           </Pressable>
         </View>
+
+        {erro ? (
+          <Text className="text-erro font-corpo-medium text-sm mt-3">
+            {erro}
+          </Text>
+        ) : null}
+
         <Text
           className="text-right text-sm underline text-primaria font-corpo-bold mt-2"
           onPress={() => router.push("/esqueci-senha")}
@@ -69,11 +80,11 @@ export default function LoginScreen() {
       </View>
 
       <View>
-        {/* TODO: Implementar autentição e validação para o login */}
         <BotaoCustomer
-          titulo="Entrar"
+          titulo={carregando ? "Entrando..." : "Entrar"}
           className="mt-[48]"
-          onPress={() => router.push("/(tabs)")}
+          onPress={handleLogin}
+          disabled={carregando}
         />
         <View className="mt-4 items-center">
           <Text className="text-center text-sm text-texto font-corpo-bold">

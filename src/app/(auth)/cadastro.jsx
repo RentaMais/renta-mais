@@ -2,22 +2,38 @@ import { Text, View, Pressable } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { Eye, EyeSlash } from "phosphor-react-native";
-
 import { InputCustomer } from "@/components/InputCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
+import { RequisitosSenha } from "@/components/RequisitosSenha";
+import { useCadastro } from "@/hooks/useAuth";
 import { cores } from "@/cores";
 
 export default function CadastroScreen() {
-  const [nome, setNome] = useState();
-  const [email, setEmail] = useState();
-  const [senha, setSenha] = useState();
-  const [confirmarSenha, setConfirmaSenha] = useState();
   const [mostrarSenha, setMostrarSenha] = useState(true);
   const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(true);
   const router = useRouter();
+  const {
+    nome,
+    setNome,
+    email,
+    setEmail,
+    senha,
+    setSenha,
+    confirmarSenha,
+    setConfirmarSenha,
+    estadoEmail,
+    estadoSenha,
+    estadoConfirmar,
+    senhasDiferentes,
+    erro,
+    carregando,
+    validarCadastro,
+  } = useCadastro({
+    onSucesso: () => router.replace("/(tabs)"),
+  });
 
   return (
     <TelaCustomer className="justify-between">
@@ -36,9 +52,12 @@ export default function CadastroScreen() {
           placeholder="Digite seu email"
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          estado={estadoEmail}
           className="mt-4"
         />
-        <View className=" relative w-full ">
+        <View className="relative w-full">
           <InputCustomer
             titulo="Senha"
             placeholder="Mínimo de 8 caracteres"
@@ -46,6 +65,7 @@ export default function CadastroScreen() {
             onChangeText={setSenha}
             className="mt-4"
             secureTextEntry={mostrarSenha}
+            estado={estadoSenha}
           />
           <Pressable
             onPress={() => setMostrarSenha(!mostrarSenha)}
@@ -58,15 +78,17 @@ export default function CadastroScreen() {
             )}
           </Pressable>
         </View>
+        <RequisitosSenha senha={senha} />
 
-        <View className=" relative w-full">
+        <View className="relative w-full">
           <InputCustomer
             titulo="Confirmar senha"
             placeholder="Digite novamente"
             value={confirmarSenha}
-            onChangeText={setConfirmaSenha}
+            onChangeText={setConfirmarSenha}
             className="mt-4"
             secureTextEntry={mostrarConfirmarSenha}
+            estado={estadoConfirmar}
           />
           <Pressable
             onPress={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)}
@@ -79,14 +101,26 @@ export default function CadastroScreen() {
             )}
           </Pressable>
         </View>
+
+        {senhasDiferentes ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            As senhas não coincidem.
+          </Text>
+        ) : null}
+
+        {erro ? (
+          <Text className="text-erro font-corpo-medium text-sm mt-3">
+            {erro}
+          </Text>
+        ) : null}
       </View>
 
       <View>
-        {/* TODO: Implementar validação para o cadastro */}
         <BotaoCustomer
-          titulo="Criar conta"
+          titulo={carregando ? "Criando conta..." : "Criar conta"}
           className="mt-[48]"
-          onPress={() => router.push("/login")}
+          onPress={validarCadastro}
+          disabled={carregando}
         />
         <Text className="text-xs text-subtexto font-corpo mt-5">
           Ao continuar, você concorda com os termos de uso e a política de

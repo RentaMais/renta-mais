@@ -5,31 +5,30 @@ import { CabecalhoAtivo } from "@/components/CabecalhoAtivo";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CardCustomer } from "@/components/CardCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
-import { buscarAtivo } from "@/services/ativosService";
-import { formatarMoeda } from "@/utils/formatarMoeda";
+import { useDetalheAtivo } from "@/hooks/useAtivos";
 
 export default function DetalheAtivoScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const ativo = buscarAtivo(id);
+  const { ativo, ehVariavel, informacoes, carregando } = useDetalheAtivo(id);
 
-  const ehVariavel = ativo.tipo === "renda_variavel";
+  if (carregando) {
+    return (
+      <TelaCustomer>
+        <Text className="font-corpo text-base text-texto">Carregando...</Text>
+      </TelaCustomer>
+    );
+  }
 
-  const informacoes = ehVariavel
-    ? [
-        { rotulo: "Quantidade", valor: ativo.quantidade + " un" },
-        { rotulo: "Preço médio", valor: formatarMoeda(ativo.precoMedio) },
-        {
-          rotulo: "Valor investido",
-          valor: formatarMoeda(ativo.quantidade * ativo.precoMedio),
-        },
-        { rotulo: "Valor atual", valor: ativo.valor },
-      ]
-    : [
-        { rotulo: "Taxa", valor: ativo.taxa },
-        { rotulo: "Vencimento", valor: ativo.vencimento },
-        { rotulo: "Valor investido", valor: formatarMoeda(ativo.valorInicial) },
-      ];
+  if (!ativo) {
+    return (
+      <TelaCustomer>
+        <Text className="font-corpo text-base text-texto">
+          Ativo não encontrado
+        </Text>
+      </TelaCustomer>
+    );
+  }
 
   return (
     <TelaCustomer className="justify-between">

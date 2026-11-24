@@ -1,23 +1,41 @@
-import { View, Pressable } from "react-native";
+import { Text, View, Pressable } from "react-native";
 import { useState } from "react";
+import { useRouter } from "expo-router";
 import { Eye, EyeSlash } from "phosphor-react-native";
-
 import { InputCustomer } from "@/components/InputCustomer";
 import { TelaCustomer } from "@/components/TelaCustomer";
 import { BotaoCustomer } from "@/components/BotaoCustomer";
 import { CabecalhoTela } from "@/components/CabecalhoTela";
 import { VoltarCustomer } from "@/components/VoltarCustomer";
+import { RequisitosSenha } from "@/components/RequisitosSenha";
+import { useAlterarSenha } from "@/hooks/useConfiguracoes";
 import { cores } from "@/cores";
 
 export default function AlterarSenhaScreen() {
-  const [senhaAtual, setSenhaAtual] = useState("");
-  const [novaSenha, setNovaSenha] = useState("");
-  const [confirmarNovaSenha, setConfirmarNovaSenha] = useState("");
-
+  const router = useRouter();
   const [esconderSenhaAtual, setEsconderSenhaAtual] = useState(true);
   const [esconderNovaSenha, setEsconderNovaSenha] = useState(true);
   const [esconderConfirmarNovaSenha, setEsconderConfirmarNovaSenha] =
     useState(true);
+
+  const {
+    senhaAtual,
+    alterarCampoSenhaAtual,
+    estadoSenhaAtual,
+    novaSenha,
+    setNovaSenha,
+    estadoNovaSenha,
+    confirmarNovaSenha,
+    setConfirmarNovaSenha,
+    estadoConfirmarSenha,
+    senhasDiferentes,
+    erro,
+    sucesso,
+    carregando,
+    handleAlterarSenha,
+  } = useAlterarSenha({
+    onSucesso: () => router.back(),
+  });
 
   return (
     <TelaCustomer className="justify-between">
@@ -26,15 +44,16 @@ export default function AlterarSenhaScreen() {
 
         <CabecalhoTela
           titulo="Alterar senha"
-          descricao="Escolha uma senha nova com pelo menos 8 caracteres"
+          descricao="Escolha uma senha nova seguindo os requisitos de segurança"
         />
         <View className="relative w-full mt-[36]">
           <InputCustomer
             titulo="Senha atual"
             placeholder="Digite sua senha atual"
             value={senhaAtual}
-            onChangeText={setSenhaAtual}
+            onChangeText={alterarCampoSenhaAtual}
             secureTextEntry={esconderSenhaAtual}
+            estado={estadoSenhaAtual}
           />
           <Pressable
             onPress={() => setEsconderSenhaAtual(!esconderSenhaAtual)}
@@ -48,7 +67,6 @@ export default function AlterarSenhaScreen() {
           </Pressable>
         </View>
 
-        {/* Nova Senha */}
         <View className="relative w-full mt-4">
           <InputCustomer
             titulo="Nova senha"
@@ -56,6 +74,7 @@ export default function AlterarSenhaScreen() {
             value={novaSenha}
             onChangeText={setNovaSenha}
             secureTextEntry={esconderNovaSenha}
+            estado={estadoNovaSenha}
           />
           <Pressable
             onPress={() => setEsconderNovaSenha(!esconderNovaSenha)}
@@ -68,8 +87,8 @@ export default function AlterarSenhaScreen() {
             )}
           </Pressable>
         </View>
+        <RequisitosSenha senha={novaSenha} />
 
-        {/* Confirmar Nova Senha */}
         <View className="relative w-full mt-4">
           <InputCustomer
             titulo="Confirmar nova senha"
@@ -77,6 +96,7 @@ export default function AlterarSenhaScreen() {
             value={confirmarNovaSenha}
             onChangeText={setConfirmarNovaSenha}
             secureTextEntry={esconderConfirmarNovaSenha}
+            estado={estadoConfirmarSenha}
           />
           <Pressable
             onPress={() =>
@@ -91,8 +111,32 @@ export default function AlterarSenhaScreen() {
             )}
           </Pressable>
         </View>
+
+        {senhasDiferentes ? (
+          <Text className="text-erro font-corpo text-xs mt-1.5">
+            As novas senhas não coincidem.
+          </Text>
+        ) : null}
+
+        {erro ? (
+          <Text className="text-erro font-corpo-medium text-sm mt-3">
+            {erro}
+          </Text>
+        ) : null}
+
+        {sucesso ? (
+          <Text className="text-sucesso font-corpo-medium text-sm mt-3">
+            {sucesso}
+          </Text>
+        ) : null}
       </View>
-      <BotaoCustomer titulo="Salvar nova senha" className="mt-[48]" />
+
+      <BotaoCustomer
+        titulo={carregando ? "Salvando..." : "Salvar nova senha"}
+        className="mt-[48]"
+        onPress={handleAlterarSenha}
+        disabled={carregando}
+      />
     </TelaCustomer>
   );
 }
